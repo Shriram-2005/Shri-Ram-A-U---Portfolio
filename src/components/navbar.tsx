@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { personalInfo } from "@/data/portfolio-data";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, X, FileText, ArrowRight } from "lucide-react";
 
 interface NavbarProps {
   onOpenCommand: () => void;
@@ -51,29 +51,29 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
     <>
       <header
         className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-          scrolled ? "py-3" : "py-5"
+          scrolled ? "py-2 sm:py-3" : "py-3 sm:py-5"
         }`}
       >
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mx-auto max-w-6xl px-3 sm:px-6">
           <nav
-            className={`flex items-center justify-between rounded-2xl border px-4 py-2.5 transition-all duration-300 backdrop-blur-xl ${
+            className={`flex items-center justify-between rounded-2xl border px-3 sm:px-4 py-2 sm:py-2.5 transition-all duration-300 backdrop-blur-xl ${
               scrolled
-                ? "border-zinc-200/80 bg-white/80 shadow-lg shadow-zinc-950/[0.03] dark:border-zinc-800/80 dark:bg-zinc-900/80 dark:shadow-black/20"
-                : "border-transparent bg-transparent"
+                ? "border-zinc-200/80 bg-white/85 shadow-lg shadow-zinc-950/[0.03] dark:border-zinc-800/80 dark:bg-zinc-900/85 dark:shadow-black/20"
+                : "border-transparent bg-white/40 dark:bg-zinc-900/40 sm:bg-transparent sm:dark:bg-transparent"
             }`}
           >
             {/* Logo / Monogram */}
             <a
               href="#"
-              className="group flex items-center gap-2.5 text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
+              className="group flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-900 text-white font-mono text-xs font-bold transition-transform group-hover:scale-105 dark:bg-white dark:text-zinc-900">
+              <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-zinc-900 text-white font-mono text-[11px] sm:text-xs font-bold transition-transform group-hover:scale-105 dark:bg-white dark:text-zinc-900">
                 SR
               </div>
               <div className="flex flex-col">
                 <span className="leading-tight font-bold">{personalInfo.name}</span>
-                <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
-                  Software Engineer
+                <span className="hidden sm:inline text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
+                  AI & Systems Engineer
                 </span>
               </div>
             </a>
@@ -106,7 +106,7 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
             </div>
 
             {/* Action buttons on right */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {/* Cmd+K trigger */}
               <button
                 onClick={onOpenCommand}
@@ -125,7 +125,7 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
               {/* Mobile menu toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="flex md:hidden h-9 w-9 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                className="flex md:hidden h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
                 aria-label="Toggle mobile menu"
               >
                 {mobileMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -138,41 +138,62 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
       {/* Mobile Menu Drawer */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-x-4 top-20 z-40 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur-xl md:hidden dark:border-zinc-800 dark:bg-zinc-900/95"
-          >
-            <div className="flex flex-col gap-1">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                >
-                  {link.name}
-                </a>
-              ))}
-              <div className="mt-2 border-t border-zinc-200 pt-3 dark:border-zinc-800">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenCommand();
-                  }}
-                  className="flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/40"
-                >
-                  <span className="flex items-center gap-2">
-                    <Search className="h-4 w-4" />
-                    <span>Command Menu</span>
-                  </span>
-                  <span className="font-mono text-xs">⌘K</span>
-                </button>
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 z-30 bg-black/40 backdrop-blur-xs md:hidden"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-x-3 top-16 z-40 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur-xl md:hidden dark:border-zinc-800 dark:bg-zinc-900/95"
+            >
+              <div className="flex flex-col gap-1">
+                {navLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                  >
+                    <span>{link.name}</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-zinc-400" />
+                  </a>
+                ))}
+                <div className="mt-2 border-t border-zinc-200 pt-3 dark:border-zinc-800 flex flex-col gap-2">
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenCommand();
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl bg-purple-50 px-4 py-2.5 text-sm font-medium text-purple-700 dark:bg-purple-950/40 dark:text-purple-300"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Search className="h-4 w-4" />
+                      <span>Search Command Menu</span>
+                    </span>
+                    <span className="font-mono text-xs">⌘K</span>
+                  </button>
+
+                  <a
+                    href="/resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 px-4 py-2.5 text-xs font-semibold text-zinc-700 dark:border-zinc-700 dark:text-zinc-300"
+                  >
+                    <FileText className="h-3.5 w-3.5 text-zinc-400" />
+                    <span>View Resume (PDF)</span>
+                  </a>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>

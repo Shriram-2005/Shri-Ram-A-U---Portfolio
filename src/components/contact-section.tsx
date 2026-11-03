@@ -45,13 +45,11 @@ export function ContactSection() {
 
     setSubmitting(true);
 
-    // Simulate sending message
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);
       toast("Message prepared! Opening your mail client...", "success");
 
-      // Trigger mailto fallback with prefilled message
       const subject = encodeURIComponent(
         `[Portfolio Inquiry] ${formData.subject || "Collaboration with Shri Ram"}`
       );
@@ -63,34 +61,34 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="py-20 md:py-28 border-t border-zinc-200/60 dark:border-zinc-800/80">
+    <section id="contact" className="py-14 sm:py-20 md:py-28 border-t border-zinc-200/60 dark:border-zinc-800/80">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
           number="06"
           badge="Direct Contact"
           title="Let's build something exceptional together."
-          description="Have a role, project, or technical question? Feel free to reach out directly or drop a message."
+          description="Have an internship role, project, or technical question? Feel free to reach out directly."
         />
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+        <div className="grid grid-cols-1 gap-8 sm:gap-12 lg:grid-cols-12">
           {/* Direct channels & info */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          <div className="lg:col-span-5 flex flex-col gap-5 sm:gap-6">
             {/* Quick copy email box */}
-            <div className="rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/50">
+            <div className="rounded-3xl border border-zinc-200/80 bg-white p-5 sm:p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/50">
               <span className="text-xs font-mono font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
                 Direct Email
               </span>
-              <div className="mt-2 text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 font-mono">
+              <div className="mt-2 text-lg sm:text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 font-mono break-all">
                 {personalInfo.email}
               </div>
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400 leading-normal">
                 Guaranteed reply within 24 hours. Feel free to copy or send directly.
               </p>
 
-              <div className="mt-6 flex flex-wrap items-center gap-2">
+              <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
                 <button
                   onClick={handleCopyEmail}
-                  className="flex items-center gap-2 rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-purple-600/20 transition-all hover:bg-purple-700"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-purple-600/20 transition-all hover:bg-purple-700"
                 >
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   <span>{copied ? "Copied to Clipboard" : "Copy Email"}</span>
@@ -98,7 +96,7 @@ export function ContactSection() {
 
                 <a
                   href={`mailto:${personalInfo.email}`}
-                  className="flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                 >
                   <Mail className="h-4 w-4" />
                   <span>Open Mail App</span>
@@ -107,21 +105,23 @@ export function ContactSection() {
             </div>
 
             {/* Location & Timezone Details */}
-            <div className="rounded-3xl border border-zinc-200/80 bg-zinc-50/70 p-6 dark:border-zinc-800 dark:bg-zinc-900/30">
+            <div className="rounded-3xl border border-zinc-200/80 bg-zinc-50/70 p-5 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900/30">
               <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                 Location & Schedule
               </h4>
-              <div className="mt-3 flex flex-col gap-2 text-xs text-zinc-600 dark:text-zinc-300">
+              <div className="mt-3 flex flex-col gap-2.5 text-xs text-zinc-600 dark:text-zinc-300">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-purple-500 shrink-0" />
                   <span>{personalInfo.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-purple-500 shrink-0" />
-                  <span>+91 70196 13040</span>
+                  <a href="tel:+917019613040" className="hover:underline font-mono">
+                    +91 70196 13040
+                  </a>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-purple-500 shrink-0" />
+                <div className="flex items-start gap-2 leading-relaxed">
+                  <Clock className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
                   <span>Available for 6-Month Internships (Jan–Jun 2027) with PPO pathways</span>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export function ContactSection() {
                     href={s.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-300 dark:hover:border-zinc-700"
+                    className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-300 dark:hover:border-zinc-700"
                   >
                     <span>{s.name}</span>
                     <ArrowUpRight className="h-3.5 w-3.5 text-zinc-400" />
@@ -153,7 +153,7 @@ export function ContactSection() {
           <div className="lg:col-span-7">
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col gap-4 rounded-3xl border border-zinc-200/80 bg-white p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/50"
+              className="flex flex-col gap-4 rounded-3xl border border-zinc-200/80 bg-white p-5 sm:p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/50"
             >
               <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
                 <MessageSquare className="h-4 w-4" />
@@ -175,7 +175,7 @@ export function ContactSection() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Jane Doe"
-                    className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-purple-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
+                    className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-base sm:text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-purple-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
                   />
                 </div>
 
@@ -193,7 +193,7 @@ export function ContactSection() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="jane@company.com"
-                    className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-purple-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
+                    className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-base sm:text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-purple-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
                   />
                 </div>
               </div>
@@ -210,8 +210,8 @@ export function ContactSection() {
                   type="text"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="e.g. Software Engineer Role / Project Consultation"
-                  className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-purple-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
+                  placeholder="e.g. 6-Month Internship / Edge AI Project"
+                  className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-base sm:text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-purple-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
                 />
               </div>
 
@@ -230,18 +230,18 @@ export function ContactSection() {
                 <textarea
                   id="contact-message"
                   required
-                  rows={5}
+                  rows={4}
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Share details about the role, technical challenge, or opportunity..."
-                  className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-purple-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
+                  placeholder="Share details about the role, project, or technical challenge..."
+                  className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2.5 text-base sm:text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-purple-500 focus:outline-hidden dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-100"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={submitting}
-                className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
               >
                 {submitting ? (
                   <span>Sending message...</span>

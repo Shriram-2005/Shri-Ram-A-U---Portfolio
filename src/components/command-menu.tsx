@@ -258,7 +258,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 sm:pt-28">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 px-3 sm:pt-28 sm:px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -286,7 +286,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
                   setSelectedIndex(0);
                 }}
                 placeholder="Type a command or search..."
-                className="w-full bg-transparent text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-hidden dark:text-zinc-100"
+                className="w-full bg-transparent text-base sm:text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-hidden dark:text-zinc-100"
               />
               <button
                 onClick={handleClose}
@@ -355,7 +355,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
             </div>
 
             {/* Footer with key hints */}
-            <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-2.5 text-[11px] text-zinc-400 dark:border-zinc-800">
+            <div className="hidden sm:flex items-center justify-between border-t border-zinc-200 px-4 py-2.5 text-[11px] text-zinc-400 dark:border-zinc-800">
               <div className="flex items-center gap-3">
                 <span>
                   <kbd className="rounded border border-zinc-200 bg-zinc-100 px-1 py-0.5 font-mono text-[10px] dark:border-zinc-700 dark:bg-zinc-800">

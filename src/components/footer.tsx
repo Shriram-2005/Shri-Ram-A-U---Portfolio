@@ -10,9 +10,9 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-zinc-200/80 bg-zinc-50/50 py-12 dark:border-zinc-800 dark:bg-zinc-950/50">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 flex flex-col gap-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+    <footer className="border-t border-zinc-200/80 bg-zinc-50/50 py-8 sm:py-12 dark:border-zinc-800 dark:bg-zinc-950/50">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 flex flex-col gap-6 sm:gap-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5 text-center sm:text-left">
           <div className="flex items-center gap-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-900 text-white font-mono text-xs font-bold dark:bg-white dark:text-zinc-900">
               SR
@@ -27,14 +27,14 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="flex items-center gap-6 text-xs text-zinc-600 dark:text-zinc-400">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 text-xs text-zinc-600 dark:text-zinc-400">
             {socialLinks.map((s) => (
               <a
                 key={s.name}
                 href={s.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors"
+                className="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors py-1"
               >
                 {s.name}
               </a>
@@ -51,12 +51,12 @@ export function Footer() {
           </button>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-zinc-200/60 pt-6 text-[11px] text-zinc-500 dark:border-zinc-800/80 dark:text-zinc-500">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-zinc-200/60 pt-5 sm:pt-6 text-[11px] text-zinc-500 dark:border-zinc-800/80 dark:text-zinc-500 text-center sm:text-left">
           <div>
             © 2026 {personalInfo.name}. All rights reserved.
           </div>
-          <div className="flex items-center gap-2 font-mono">
-            <span>Next.js</span>
+          <div className="flex items-center gap-2 font-mono text-[10px] sm:text-[11px]">
+            <span>Next.js 16</span>
             <span>•</span>
             <span>Tailwind v4</span>
             <span>•</span>
