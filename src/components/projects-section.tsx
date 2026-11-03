@@ -10,7 +10,13 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-const categories = ["All", "Systems", "Full-Stack", "AI & ML"] as const;
+const categories = [
+  "All",
+  "Mobile & Edge AI",
+  "Full-Stack",
+  "Blockchain & Web3",
+  "Web & Cloud",
+] as const;
 
 export function ProjectsSection() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -28,7 +34,7 @@ export function ProjectsSection() {
             number="02"
             badge="Selected Work"
             title="Featured Engineering Projects"
-            description="Deep dive into distributed engines, high-performance backends, and full-stack applications I've architected."
+            description="Deep dive into on-device AI notification firewalls, multi-tenant Next.js & Supabase SaaS architectures, and blockchain credential validation systems."
           />
 
           {/* Category Tabs */}
@@ -159,6 +165,36 @@ export function ProjectsSection() {
               </motion.div>
             ))}
           </AnimatePresence>
+        </div>
+
+        {/* Additional Projects & Live Vercel Deployments Banner */}
+        <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 rounded-3xl border border-zinc-200/80 bg-zinc-50/70 p-6 sm:p-8 dark:border-zinc-800 dark:bg-zinc-900/40">
+          <div className="flex flex-col gap-1 text-center sm:text-left">
+            <h4 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              Looking for more live Vercel deployments & repositories?
+            </h4>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400 max-w-xl">
+              I have multiple additional web apps, client prototypes, and live staging URLs deployed across Vercel and GitHub. Feel free to explore my full GitHub profile or request a live demo walkthrough.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <a
+              href="https://github.com/Shriram-2005"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-4 py-2.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+            >
+              <GithubIcon className="h-4 w-4" />
+              <span>Explore GitHub</span>
+            </a>
+            <a
+              href="#contact"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            >
+              <span>Get in Touch</span>
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
         </div>
       </div>
     </section>

@@ -15,24 +15,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shri Ram A U | Software Engineer & Systems Architect",
+  title: "Shri Ram A U | AI Solutions Developer & Software Engineer",
   description:
-    "Portfolio of Shri Ram A U — Full-Stack Software Engineer specializing in distributed architectures, cloud native services, and fluid web products.",
+    "Portfolio of Shri Ram A U — AI Solutions Developer Intern at Saina Human AI and Computer Science undergraduate at Presidency University Bangalore. Specializing in on-device Edge AI, Next.js, Android, Supabase, and PostgreSQL.",
   keywords: [
     "Shri Ram A U",
+    "AI Solutions Developer",
     "Software Engineer",
-    "Full-Stack Developer",
-    "Systems Architect",
+    "Android Developer",
+    "Edge AI",
+    "TensorFlow Lite",
     "Next.js",
-    "React",
-    "TypeScript",
+    "Supabase",
+    "Presidency University",
     "Portfolio",
   ],
   authors: [{ name: "Shri Ram A U" }],
   openGraph: {
-    title: "Shri Ram A U | Software Engineer & Systems Architect",
+    title: "Shri Ram A U | AI Solutions Developer & Software Engineer",
     description:
-      "Full-Stack Software Engineer specializing in distributed architectures, cloud systems, and fluid web products.",
+      "AI Solutions Developer Intern at Saina Human AI & CS undergraduate at Presidency University Bangalore. Edge AI, Next.js, and multi-tenant architectures.",
     type: "website",
   },
 };

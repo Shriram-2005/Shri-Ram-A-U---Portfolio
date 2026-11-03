@@ -85,7 +85,7 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
           >
             <span className="font-mono text-sm tracking-wider uppercase text-purple-600 dark:text-purple-400 font-semibold">
-              Software Engineer & System Architect
+              AI Solutions Developer & Software Engineer
             </span>
           </motion.div>
 
@@ -95,11 +95,11 @@ export function HeroSection() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mt-4 text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl text-zinc-900 dark:text-zinc-50 leading-[1.08]"
           >
-            Engineering robust{" "}
+            Architecting on-device{" "}
             <span className="bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-600 bg-clip-text text-transparent">
-              distributed systems
+              edge-AI systems
             </span>{" "}
-            & fluid web products.
+            & multi-tenant cloud SaaS.
           </motion.h1>
 
           <motion.p
@@ -109,7 +109,8 @@ export function HeroSection() {
             className="mt-6 max-w-2xl text-lg sm:text-xl text-zinc-600 dark:text-zinc-400 leading-relaxed font-normal"
           >
             Hi, I&apos;m <span className="font-semibold text-zinc-900 dark:text-zinc-100">{personalInfo.name}</span>.
-            I design and ship production-grade architectures with high concurrency, sub-millisecond data pipelines, and pixel-precise frontends.
+            7th-semester CS undergrad at Presidency University Bangalore and AI Solutions Developer Intern at Saina Human AI.
+            Creator of <span className="font-medium text-zinc-800 dark:text-zinc-200">Intent</span> (on-device AI notification firewall, 3.68ms warm inference) and production multi-tenant web systems.
           </motion.p>
         </div>
 

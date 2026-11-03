@@ -2,12 +2,12 @@
 
 import React from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { education } from "@/data/portfolio-data";
+import { education, honors } from "@/data/portfolio-data";
 import {
   Cpu,
   Gauge,
   GraduationCap,
-  Code2,
+  Trophy,
   Workflow,
   CheckCircle,
 } from "lucide-react";
@@ -15,21 +15,21 @@ import {
 const engineeringPrinciples = [
   {
     icon: Gauge,
-    title: "Performance Is a Core Feature",
+    title: "Low-Latency & On-Device Autonomy",
     description:
-      "Latency directly dictates user trust. I obsess over minimizing database round-trips, eliminating rendering bottlenecks, and optimizing bundle weight.",
+      "Engineered edge models like Intent running at 3.68ms warm inference offline without sending a single byte of user data across the network.",
   },
   {
     icon: Cpu,
-    title: "Determinism & Architectural Rigor",
+    title: "Multi-Tenant Data Isolation",
     description:
-      "Resilient systems are born from simple, isolated abstractions. I favor clear contracts, idempotency, structured telemetry, and predictable state transitions.",
+      "Deep experience with PostgreSQL row-level security (RLS), security-definer functions, and strict session isolation across production schemas.",
   },
   {
     icon: Workflow,
-    title: "Full-Lifecycle Product Craft",
+    title: "High-Velocity Product Execution",
     description:
-      "A great system balances backend throughput with refined UI interactions. I build end-to-end solutions that look effortless and scale reliably.",
+      "Turning real-world specs into functional, production-ready web and mobile applications with zero friction, leveraging modern tooling and AI workflows.",
   },
 ];
 
@@ -39,29 +39,28 @@ export function AboutSection() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
           number="01"
-          badge="Background"
-          title="Engineering systems with depth and precision."
-          description="A quick look into my technical philosophy, background, and what drives my work."
+          badge="Profile & Vision"
+          title="Bridging Edge-AI, Cloud Architecture, and Product Delivery."
+          description="A breakdown of my background, academic track, and engineering philosophy."
         />
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           {/* Narrative / Bio Column */}
           <div className="lg:col-span-7 flex flex-col gap-6 text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
             <p>
-              I am a software engineer focused on building robust, high-concurrency systems and responsive web applications.
-              My work spans from low-level data synchronization pipelines and distributed message queues to hyper-polished frontend user interfaces.
+              I am a 7th-semester Computer Science undergraduate at <span className="font-semibold text-zinc-900 dark:text-zinc-100">Presidency University Bangalore</span> (CGPA: 8.20) and currently an <span className="font-semibold text-zinc-900 dark:text-zinc-100">AI Solutions Developer Intern at Saina Human AI</span>.
             </p>
             <p>
-              Over the past several years, I have worked across the modern engineering stack—designing REST & gRPC APIs, optimizing PostgreSQL and Redis query patterns, and shipping complex web apps with Next.js, TypeScript, and Tailwind CSS.
+              My expertise spans the entire development lifecycle: from building native Android services in <span className="font-medium text-zinc-800 dark:text-zinc-200">Kotlin</span> with on-device <span className="font-medium text-zinc-800 dark:text-zinc-200">TensorFlow Lite</span> ML inference, to architecting multi-tenant web platforms using <span className="font-medium text-zinc-800 dark:text-zinc-200">Next.js</span>, <span className="font-medium text-zinc-800 dark:text-zinc-200">Tailwind CSS</span>, and <span className="font-medium text-zinc-800 dark:text-zinc-200">Supabase / PostgreSQL (RLS)</span>.
             </p>
             <p>
-              I believe that great software is never accidental: it requires disciplined architecture, rigorous type safety, continuous automated testing, and obsessive attention to user experience.
+              I specialize in bridging technical complexity with business utility—breaking down system architectures, cloud constraints, and LLM automation pipelines into clear, actionable products that ship rapidly.
             </p>
 
             {/* Principles cards */}
             <div className="mt-4 flex flex-col gap-4">
               <h3 className="text-sm font-semibold tracking-wider uppercase text-zinc-900 dark:text-zinc-200 font-mono">
-                Core Engineering Tenets
+                Core Engineering Strengths
               </h3>
               <div className="grid grid-cols-1 gap-3">
                 {engineeringPrinciples.map((item, idx) => {
@@ -89,20 +88,55 @@ export function AboutSection() {
             </div>
           </div>
 
-          {/* Education & Info Sidebar Column */}
+          {/* Education & Honors Column */}
           <div className="lg:col-span-5 flex flex-col gap-6">
+            {/* Honors Card */}
+            {honors.map((h, idx) => (
+              <div
+                key={idx}
+                className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-6 shadow-xs dark:border-amber-900/50 dark:from-amber-950/30 dark:to-zinc-900/40"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+                    <Trophy className="h-4 w-4" />
+                    <span>Competitive Recognition</span>
+                  </div>
+                  <span className="rounded-full bg-amber-500/20 px-2.5 py-0.5 text-[11px] font-mono font-semibold text-amber-800 dark:text-amber-300">
+                    {h.date}
+                  </span>
+                </div>
+
+                <h3 className="mt-3 text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                  {h.title}
+                </h3>
+                <div className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                  {h.event}
+                </div>
+                <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                  {h.description}
+                </p>
+              </div>
+            ))}
+
             {/* Education Card */}
             {education.map((edu, idx) => (
               <div
                 key={idx}
                 className="rounded-3xl border border-zinc-200/80 bg-white p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/60"
               >
-                <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
-                  <GraduationCap className="h-4 w-4" />
-                  <span>Academic Foundation</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
+                    <GraduationCap className="h-4 w-4" />
+                    <span>Academic Foundation</span>
+                  </div>
+                  {edu.grade && (
+                    <span className="rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-xs font-mono font-bold text-purple-700 dark:border-purple-900/60 dark:bg-purple-950/40 dark:text-purple-300">
+                      {edu.grade}
+                    </span>
+                  )}
                 </div>
 
-                <h3 className="mt-3 text-lg font-bold text-zinc-900 dark:text-zinc-100">
+                <h3 className="mt-3 text-base font-bold text-zinc-900 dark:text-zinc-100">
                   {edu.degree}
                 </h3>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400 font-medium">
@@ -121,17 +155,6 @@ export function AboutSection() {
                 </div>
               </div>
             ))}
-
-            {/* Quick Fact / Philosophy Card */}
-            <div className="rounded-3xl border border-zinc-200/80 bg-gradient-to-br from-zinc-50 to-purple-50/30 p-6 dark:border-zinc-800 dark:from-zinc-900/60 dark:to-purple-950/20">
-              <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
-                <Code2 className="h-4 w-4" />
-                <span>Daily Toolkit Mindset</span>
-              </div>
-              <p className="mt-3 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
-                &ldquo;I prefer shipping small, verifiable, and observable units of software rather than sprawling rewrites. Clean Git history, pragmatic typing, and comprehensive tests are non-negotiable.&rdquo;
-              </p>
-            </div>
           </div>
         </div>
       </div>

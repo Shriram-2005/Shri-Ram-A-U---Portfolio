@@ -3,7 +3,7 @@ export interface Project {
   title: string;
   tagline: string;
   description: string;
-  category: "Full-Stack" | "Systems" | "AI & ML" | "Dev Tools";
+  category: "Full-Stack" | "Mobile & Edge AI" | "Web & Cloud" | "Blockchain & Web3";
   featured: boolean;
   metrics?: { label: string; value: string }[];
   tags: string[];
@@ -41,15 +41,15 @@ export interface Education {
   institution: string;
   period: string;
   location: string;
+  grade?: string;
   highlights: string[];
 }
 
-export interface Testimonial {
-  quote: string;
-  author: string;
-  role: string;
-  company: string;
-  avatar?: string;
+export interface Honor {
+  title: string;
+  event: string;
+  date: string;
+  description: string;
 }
 
 export interface SocialLink {

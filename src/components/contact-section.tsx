@@ -12,6 +12,7 @@ import {
   MessageSquare,
   MapPin,
   Clock,
+  Phone,
   ArrowUpRight,
 } from "lucide-react";
 
@@ -116,8 +117,12 @@ export function ContactSection() {
                   <span>{personalInfo.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-purple-500 shrink-0" />
+                  <span>+91 70196 13040</span>
+                </div>
+                <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-purple-500 shrink-0" />
-                  <span>Flexible overlap with US (PST/EST) and European (CET) time zones</span>
+                  <span>Available for 6-Month Internships (Jan–Jun 2027) with PPO pathways</span>
                 </div>
               </div>
             </div>

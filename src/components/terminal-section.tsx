@@ -117,7 +117,7 @@ export function TerminalSection() {
       case "resume":
         newLines.push({
           type: "output",
-          content: `Shri Ram A U | Computer Science & Engineering\nExperience: Apex Tech Labs (Full-Stack), Horizon Cloud Systems (Intern)\nAvailability: Full-Time Software Engineering Roles\nDirect: ${personalInfo.email}`,
+          content: `Shri Ram A U | B.Tech CSE (Presidency University Bangalore, CGPA: 8.20)\nRole: AI Solutions Developer Intern @ Saina Human AI\nKey Projects: Intent (Edge-AI Notification Firewall - 3.68ms warm inference), Garment ERP (Multi-Tenant PostgreSQL RLS), Blockchain Certs (Sepolia)\nAward: 2nd Place / 50+ Teams (Project Exhibition, Nov 2025)\nTarget: 6-Month Engineering Internship (Jan–Jun 2027) with PPO pathways\nDirect: ${personalInfo.email} | +91 70196 13040\nResume: Downloadable at /resume.pdf`,
         });
         break;
 

@@ -1,114 +1,152 @@
-import { Project, Experience, SkillCategory, Education, SocialLink } from "@/types/portfolio";
+import { Project, Experience, SkillCategory, Education, Honor, SocialLink } from "@/types/portfolio";
 
 export const personalInfo = {
   name: "Shri Ram A U",
   preferredName: "Shri Ram",
-  role: "Full-Stack Software Engineer & Systems Architect",
-  tagline: "Crafting resilient distributed systems, high-performance web architectures, and intuitive digital experiences.",
+  role: "AI Solutions Developer & Software Engineer (Mobile, Next.js, Edge AI)",
+  tagline: "Architecting on-device edge AI systems, multi-tenant cloud platforms, and production mobile & web applications.",
   shortBio:
-    "I am a software engineer focused on building robust, scalable web applications and distributed architectures. Passionate about clean code, performance optimization, and elegant user-centric design.",
-  location: "India (IST, UTC+5:30)",
-  availability: "Available for full-time roles & high-impact projects",
+    "7th-semester Computer Science undergraduate at Presidency University Bangalore and AI Solutions Developer Intern at Saina Human AI. Experienced in building mobile and web applications in Kotlin, Java, JavaScript, Python, and Dart, with deep backend focus on PostgreSQL (RLS), Supabase, and SQLite data design. Creator of Intent—an on-device edge-AI notification firewall operating at 3.68ms warm inference latency.",
+  location: "Greater Bengaluru Area, India (IST, UTC+5:30)",
+  phone: "+91 70196 13040",
+  availability: "Open to 6-month engineering internships (Jan–Jun 2027) with PPO pathways",
   email: "shriram2005au@gmail.com",
-  github: "https://github.com/shriramau",
+  github: "https://github.com/Shriram-2005",
   linkedin: "https://www.linkedin.com/in/shriramau",
   twitter: "https://x.com/shriramau",
   resumeUrl: "/resume.pdf",
   stats: [
-    { label: "Production Deployments", value: "25+" },
-    { label: "Uptime Architecture", value: "99.98%" },
-    { label: "Git Commits & PRs", value: "850+" },
-    { label: "Performance Boost", value: "~45%" },
+    { label: "Edge-AI Inference Latency", value: "3.68ms" },
+    { label: "Presidency University CGPA", value: "8.20" },
+    { label: "Project Exhibition Rank", value: "2nd / 50+" },
+    { label: "PostgreSQL RLS Tables", value: "19 Tables" },
   ],
 };
 
 export const featuredProjects: Project[] = [
   {
-    id: "nexus-flow",
-    title: "NexusFlow",
-    tagline: "Distributed Event Orchestration & Workflow Engine",
+    id: "intent-firewall",
+    title: "Intent: Edge-AI Notification Firewall",
+    tagline: "On-Device Offline Notification Firewall & Priority Engine",
     description:
-      "A high-throughput distributed workflow orchestration engine designed to manage asynchronous microservices, state machines, and real-time event streaming with deterministic replayability.",
-    category: "Systems",
+      "Rebuilt from scratch for the Google Solutions Challenge: a native Android background service in Kotlin that classifies system notifications with an on-device LSTM model in TensorFlow Lite with zero cloud calls and no data transmission.",
+    category: "Mobile & Edge AI",
     featured: true,
     metrics: [
-      { label: "Throughput", value: "25k req/s" },
-      { label: "p99 Latency", value: "< 14ms" },
-      { label: "Reliability", value: "99.99%" },
+      { label: "Warm Latency", value: "3.68ms" },
+      { label: "Data Leaving Device", value: "0 bytes" },
+      { label: "Exhibition Award", value: "2nd / 50+ Teams" },
     ],
-    tags: ["Go", "Next.js", "gRPC", "Redis", "Kafka", "Docker", "Tailwind CSS"],
-    githubUrl: "https://github.com/shriramau/nexus-flow",
-    liveUrl: "https://nexusflow.dev",
+    tags: ["Kotlin", "Flutter", "TensorFlow Lite", "LSTM", "SQLite", "Android SDK", "Edge AI"],
+    githubUrl: "https://github.com/Shriram-2005/intent-attention-firewall",
     highlights: [
-      "Engineered a distributed leader election mechanism using Raft consensus for fault-tolerant state recovery.",
-      "Built a real-time visual canvas dashboard in Next.js & WebSockets to monitor DAG execution paths.",
-      "Optimized payload serialization with Protocol Buffers, cutting network overhead by 38%.",
+      "Deployed an on-device LSTM model via TensorFlow Lite, keeping all personal notifications and processing strictly local.",
+      "Optimized memory allocation and SQLite queries to reach 3.68ms warm inference latency under Android 14 background execution limits.",
+      "Implemented velocity-based driving detection to automatically hold back non-critical notifications while traveling.",
+      "Secured 2nd place solo against 50+ multi-member teams at Presidency University, with industry judges from Aptiv commending its edge-AI system design.",
     ],
   },
   {
-    id: "prism-ai",
-    title: "PrismAI",
-    tagline: "Autonomous Code Intelligence & Automated Review Agent",
+    id: "garment-erp",
+    title: "Garment ERP: Multi-Tenant Manufacturing SaaS",
+    tagline: "Production Apparel ERP with Row-Level Security & Gemini AI",
     description:
-      "An intelligent developer tool that hooks into Git webhooks to perform deep static analysis, detect architectural antipatterns, generate unit tests, and provide contextual pull request summaries.",
-    category: "AI & ML",
-    featured: true,
-    metrics: [
-      { label: "Review Speed", value: "3.2x faster" },
-      { label: "Test Coverage", value: "+28% avg" },
-      { label: "PRs Analyzed", value: "1,200+" },
-    ],
-    tags: ["TypeScript", "Next.js", "Python", "FastAPI", "OpenAI / Claude API", "PostgreSQL", "Tailwind CSS"],
-    githubUrl: "https://github.com/shriramau/prism-ai",
-    liveUrl: "https://prismai.dev",
-    highlights: [
-      "Integrated tree-sitter AST parsing with LLM context framing to eliminate AI hallucinations in code reviews.",
-      "Designed an interactive diff inspection UI with inline commenting and one-click code patch application.",
-      "Configured fine-grained caching to lower LLM token consumption by 52% across recurring file revisions.",
-    ],
-  },
-  {
-    id: "omni-cache",
-    title: "OmniCache",
-    tagline: "In-Memory Key-Value Store with Write-Through Durability",
-    description:
-      "A lightweight, concurrent in-memory caching system inspired by Redis, featuring LRU eviction policies, append-only file persistence, and concurrent lock-striping for ultra-low latency.",
-    category: "Systems",
-    featured: true,
-    metrics: [
-      { label: "Read Latency", value: "0.8ms" },
-      { label: "Memory Footprint", value: "-30%" },
-      { label: "Concurrency", value: "Lock-Free" },
-    ],
-    tags: ["Rust", "TypeScript", "React", "WebAssembly", "Docker"],
-    githubUrl: "https://github.com/shriramau/omni-cache",
-    liveUrl: "https://omnicache.dev",
-    highlights: [
-      "Implemented custom lock-free skip-lists and bloom filters to accelerate key lookups under heavy concurrency.",
-      "Compiled core telemetry modules to WebAssembly for client-side zero-overhead performance profiling.",
-      "Created an interactive browser-based memory debugger showcasing memory defragmentation in real time.",
-    ],
-  },
-  {
-    id: "dev-pulse",
-    title: "DevPulse",
-    tagline: "Cloud Native Telemetry & Service Health Dashboard",
-    description:
-      "A full-stack observability platform aggregating metrics, distributed traces, and log streams into an actionable real-time command center with intelligent anomaly alert routing.",
+      "A multi-tenant manufacturing SaaS platform engineered for apparel production lines, featuring complete PostgreSQL row-level security (RLS) across 19 tables, security-definer isolation, and automated defect analysis.",
     category: "Full-Stack",
     featured: true,
     metrics: [
-      { label: "Event Ingestion", value: "50k/min" },
-      { label: "Query Time", value: "< 25ms" },
-      { label: "Cost Savings", value: "40%" },
+      { label: "Tenant Isolation", value: "19 RLS Tables" },
+      { label: "RBAC Security", value: "3-Tier Session" },
+      { label: "Defect Analysis", value: "Gemini API" },
     ],
-    tags: ["Next.js", "React 19", "Tailwind CSS", "ClickHouse", "Go", "Framer Motion", "Prometheus"],
-    githubUrl: "https://github.com/shriramau/dev-pulse",
-    liveUrl: "https://devpulse.io",
+    tags: ["Next.js", "Supabase", "PostgreSQL (RLS)", "Gemini API", "Tailwind CSS", "jsPDF"],
+    githubUrl: "https://github.com/Shriram-2005/Garment_ERP",
     highlights: [
-      "Developed high-density interactive charting using SVG & Canvas with 60fps rendering during data bursts.",
-      "Configured time-series aggregation pipelines over ClickHouse to achieve sub-second query latencies on terabyte scales.",
-      "Architected role-based multi-tenant security with end-to-end audit logging.",
+      "Built a multi-tenant manufacturing SaaS with PostgreSQL row-level security across 19 tables and security-definer functions to strictly isolate tenant data.",
+      "Implemented 3-tier role-based access control with Next.js middleware session checks, blocking unauthorized routes and API access.",
+      "Engineered an apparel manufacturing pipeline covering BOM, inventory thresholds, cutting, stitching, QA defect audits, and dispatch invoicing.",
+      "Integrated the Gemini API to automate QA defect analysis and generate paginated audit PDFs via jsPDF with bulk CSV/Excel import.",
+    ],
+  },
+  {
+    id: "blockchain-verification",
+    title: "Online Blockchain Certificate Generation & Validation",
+    tagline: "Ethereum Sepolia Smart Contract & Anti-Tamper ELA Verification",
+    description:
+      "A decentralized academic credential issuance and verification ecosystem featuring Ethereum Sepolia smart contracts, Keccak-256 cryptographic hashing, and automated Error Level Analysis (ELA) for marksheet fraud detection.",
+    category: "Blockchain & Web3",
+    featured: true,
+    metrics: [
+      { label: "Smart Contract", value: "Sepolia Testnet" },
+      { label: "Verification", value: "Instant On-Chain" },
+      { label: "Tamper Detection", value: "ELA + OCR" },
+    ],
+    tags: ["Solidity", "Ethers.js", "Next.js", "Supabase", "Python", "Flask", "Ethereum"],
+    githubUrl: "https://github.com/Shriram-2005/certchain-blockchain-verification",
+    highlights: [
+      "Deployed Solidity contract on Ethereum Sepolia testnet with issuer-only access control, Keccak-256 hashing, and an immutable on-chain audit trail.",
+      "Engineered a Python/Flask service screening uploaded marksheets for tampering using Error Level Analysis (ELA), OCR grade cross-checks, and institution validation.",
+      "Built a Next.js and Supabase verification portal with embedded QR code generation for one-scan authenticity checks.",
+    ],
+  },
+  {
+    id: "ielts-platform",
+    title: "IELTS Ed-Tech Web Platform & Dynamic CMS",
+    tagline: "Automated Speech Assessments & Interactive Video CMS",
+    description:
+      "A full-stack IELTS preparation platform featuring dynamic media delivery, speech-to-text automated evaluations, and a hidden instructor Content Management System.",
+    category: "Web & Cloud",
+    featured: true,
+    metrics: [
+      { label: "Audio Scoring", value: "Deepgram API" },
+      { label: "Video Delivery", value: "Mux Streaming" },
+      { label: "Payments", value: "Razorpay" },
+    ],
+    tags: ["Next.js", "Tailwind CSS", "Supabase", "Mux", "Deepgram API", "Razorpay"],
+    highlights: [
+      "Developed a responsive web frontend in Next.js and Tailwind CSS, backed by Supabase user authentication and role permissions.",
+      "Integrated Mux for video streaming and Deepgram APIs for automated speech-to-text (STT) and text-to-speech (TTS) language assessments.",
+      "Connected Razorpay payment gateways and architected a hidden admin CMS allowing instructors to manage mock tests and videos in real time without code updates.",
+    ],
+  },
+  {
+    id: "logistics-portal",
+    title: "Logistics Billing & Fleet Operations Web Portal",
+    tagline: "Cloud-Synced Invoicing & Fleet Expense Management",
+    description:
+      "A production web application built to digitize commercial transport logistics billing and replace manual Excel spreadsheets.",
+    category: "Web & Cloud",
+    featured: false,
+    metrics: [
+      { label: "Manual Work", value: "-60% Overhead" },
+      { label: "Export", value: "Instant PDF" },
+      { label: "Sync", value: "Real-Time Firebase" },
+    ],
+    tags: ["Next.js", "React", "Firebase Firestore", "Tailwind CSS", "PDF Export"],
+    highlights: [
+      "Developed an automated split-screen invoice generation interface with live document preview and instant PDF export.",
+      "Integrated Firebase Authentication and cloud storage for secure bill creation and multi-device synchronization.",
+      "Built operational tracking modules to log driver assignments, fleet diesel expenses, and client payment statuses.",
+    ],
+  },
+  {
+    id: "audio-streaming",
+    title: "High-Bitrate Audio Streaming Client",
+    tagline: "On-Device Decryption & Low-Bandwidth Personal Streaming",
+    description:
+      "A personal music streaming application built for uninterrupted high-bitrate playback, on-device audio stream decryption, and local bandwidth caching.",
+    category: "Web & Cloud",
+    featured: false,
+    metrics: [
+      { label: "Bitrate", value: "320 kbps High-Res" },
+      { label: "Bandwidth Cache", value: "Adaptive Local" },
+      { label: "Sessions", value: "Firebase Auth" },
+    ],
+    tags: ["JavaScript", "Firebase", "Web Audio API", "LocalStorage"],
+    highlights: [
+      "Implemented on-device audio stream decryption to maintain uninterrupted 320 kbps high-quality playback.",
+      "Built an adaptive local data cache and bandwidth tracker to minimize repeat network consumption (~10 MB/track).",
+      "Engineered offline download storage and manual playlist import/export tools with Firebase session management.",
     ],
   },
 ];
@@ -116,102 +154,99 @@ export const featuredProjects: Project[] = [
 export const experiences: Experience[] = [
   {
     id: "exp-1",
-    role: "Full-Stack Software Engineer",
-    company: "Apex Tech Labs",
-    location: "Bengaluru, India (Hybrid)",
-    period: "2024 — Present",
-    type: "Full-time",
-    description:
-      "Leading architecture and development of scalable cloud applications, design system implementations, and high-performance frontend interfaces.",
-    achievements: [
-      "Architected and migrated the primary client platform to Next.js App Router, cutting First Contentful Paint by 48%.",
-      "Spearheaded the unified design system component library adopted by 4 engineering teams, accelerating shipping velocity by 35%.",
-      "Designed asynchronous event-driven queues handling 2M+ background tasks daily with zero dropped messages.",
-    ],
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Node.js", "PostgreSQL", "Docker", "AWS"],
-  },
-  {
-    id: "exp-2",
-    role: "Software Engineering Intern",
-    company: "Horizon Cloud Systems",
-    location: "Remote",
-    period: "2023 — 2024",
+    role: "AI Solutions Developer Intern",
+    company: "Saina Human AI Pvt. Ltd.",
+    location: "Kochi, Kerala, India (Remote)",
+    period: "Oct 2026 — Present",
     type: "Internship",
     description:
-      "Worked on core microservices, REST & GraphQL API infrastructure, and real-time telemetry dashboards for internal developer platforms.",
+      "Developing AI-powered solutions, automation pipelines, and production proofs-of-concept for internal and client-facing workflows.",
     achievements: [
-      "Refactored relational database queries and introduced Redis caching layers, dropping 95th percentile latency from 320ms to 45ms.",
-      "Constructed automated CI/CD pipelines with GitHub Actions, shrinking build verification cycles from 22 minutes to 6 minutes.",
-      "Contributed bug fixes and documentation to internal open-source tooling, recognized as top engineering intern.",
+      "Architected LLM routing workflows and Telegram webhooks integrating the Gemini API and Groq LPU for low-latency reasoning.",
+      "Evaluated, prototyped, and deployed emerging AI models into production-ready proof-of-concept systems across cross-functional technical teams.",
+      "Documented development work and supported delivery across technical, creative, and business stakeholders.",
     ],
-    technologies: ["React", "TypeScript", "Python", "FastAPI", "Redis", "GitHub Actions", "Docker"],
+    technologies: ["Gemini API", "Groq LPU", "Python", "LLM Routing", "Next.js", "Telegram Webhooks", "Automation"],
   },
 ];
 
-export const skillCategories: SkillCategory[] = [
+export const honors: Honor[] = [
   {
-    title: "Frontend Engineering",
-    description: "Building responsive, accessible, and hyper-fluid web experiences",
-    skills: [
-      { name: "Next.js (App Router)", level: "Expert" },
-      { name: "React 19 & Server Components", level: "Expert" },
-      { name: "TypeScript", level: "Expert" },
-      { name: "Tailwind CSS v4", level: "Expert" },
-      { name: "Framer Motion & Animations", level: "Expert" },
-      { name: "State Management (Zustand, TanStack)", level: "Proficient" },
-      { name: "Web Performance (Core Web Vitals)", level: "Expert" },
-      { name: "HTML5 / Accessibility (a11y)", level: "Expert" },
-    ],
-  },
-  {
-    title: "Backend & Systems",
-    description: "Designing resilient APIs, distributed services, and data models",
-    skills: [
-      { name: "Node.js / Express", level: "Expert" },
-      { name: "Go (Golang)", level: "Proficient" },
-      { name: "Python / FastAPI", level: "Proficient" },
-      { name: "REST & GraphQL APIs", level: "Expert" },
-      { name: "gRPC & Protocol Buffers", level: "Proficient" },
-      { name: "Microservices Architecture", level: "Proficient" },
-      { name: "WebSockets & SSE", level: "Expert" },
-    ],
-  },
-  {
-    title: "Data & Storage",
-    description: "Persistent storage, caching strategies, and event streaming",
-    skills: [
-      { name: "PostgreSQL", level: "Expert" },
-      { name: "Redis & In-Memory Stores", level: "Expert" },
-      { name: "Prisma & Drizzle ORM", level: "Expert" },
-      { name: "MongoDB", level: "Proficient" },
-      { name: "Kafka & Event Streams", level: "Proficient" },
-      { name: "Vector Databases (Pinecone/pgvector)", level: "Proficient" },
-    ],
-  },
-  {
-    title: "DevOps & Cloud",
-    description: "Containerization, automated deployment, and production reliability",
-    skills: [
-      { name: "Docker & Containerization", level: "Expert" },
-      { name: "Git & GitHub Actions (CI/CD)", level: "Expert" },
-      { name: "AWS (S3, EC2, Lambda, CloudFront)", level: "Proficient" },
-      { name: "Vercel & Edge Networks", level: "Expert" },
-      { name: "Linux / Bash Scripting", level: "Expert" },
-      { name: "Nginx & Reverse Proxies", level: "Proficient" },
-    ],
+    title: "2nd Place, Project Exhibition",
+    event: "Presidency University",
+    date: "Nov 2025",
+    description:
+      "Secured 2nd place for an earlier Intent prototype, built solo, against 50+ multi-member development teams. Industry judges from Aptiv commended its edge-AI system design.",
   },
 ];
 
 export const education: Education[] = [
   {
-    degree: "Bachelor of Technology in Computer Science & Engineering",
-    institution: "Anna University Affiliated Engineering College",
-    period: "2021 — 2025",
-    location: "Tamil Nadu, India",
+    degree: "Bachelor of Technology in Computer Science and Engineering",
+    institution: "Presidency University Bangalore",
+    period: "Oct 2023 — May 2027 (Expected)",
+    location: "Bangalore, India",
+    grade: "CGPA: 8.20 (7th Semester)",
     highlights: [
-      "Specialized in Distributed Systems, Data Structures & Algorithms, and Cloud Computing.",
-      "Led the University Developer Student Club; organized 5+ hackathons with 300+ participants.",
-      "Graduated with First Class Honors and completed capstone project in automated cloud observability.",
+      "Specialized in Mobile Systems, Edge AI, Distributed Data Design, and Object-Oriented Software Architecture.",
+      "Secured 2nd place in Project Exhibition against 50+ multi-member teams for solo-built edge-AI notification firewall.",
+      "Active builder in the Google Solutions Challenge 2026.",
+    ],
+  },
+];
+
+export const skillCategories: SkillCategory[] = [
+  {
+    title: "Languages",
+    description: "Core programming languages for systems, mobile, and web",
+    skills: [
+      { name: "Java", level: "Expert" },
+      { name: "Kotlin", level: "Expert" },
+      { name: "Dart", level: "Expert" },
+      { name: "JavaScript / TypeScript", level: "Expert" },
+      { name: "Python", level: "Proficient" },
+      { name: "Solidity", level: "Proficient" },
+      { name: "C / C++", level: "Proficient" },
+      { name: "SQL", level: "Expert" },
+    ],
+  },
+  {
+    title: "Frontend & Mobile",
+    description: "Mobile applications, responsive frontends, and component architecture",
+    skills: [
+      { name: "Next.js (App Router)", level: "Expert" },
+      { name: "React", level: "Expert" },
+      { name: "Flutter", level: "Expert" },
+      { name: "Android SDK (Native)", level: "Expert" },
+      { name: "Tailwind CSS v4", level: "Expert" },
+      { name: "Framer Motion", level: "Proficient" },
+      { name: "Jetpack Compose", level: "Proficient" },
+      { name: "HTML5 / CSS3", level: "Expert" },
+    ],
+  },
+  {
+    title: "Backend & Databases",
+    description: "Database isolation, cloud backends, and API infrastructure",
+    skills: [
+      { name: "Supabase", level: "Expert" },
+      { name: "PostgreSQL (Row-Level Security)", level: "Expert" },
+      { name: "SQLite", level: "Expert" },
+      { name: "Firebase Firestore", level: "Expert" },
+      { name: "REST APIs", level: "Expert" },
+      { name: "Flask / FastAPI", level: "Proficient" },
+      { name: "Node.js", level: "Proficient" },
+    ],
+  },
+  {
+    title: "ML & Edge AI",
+    description: "On-device models, neural inference, and LLM automation pipelines",
+    skills: [
+      { name: "TensorFlow Lite", level: "Expert" },
+      { name: "LSTM On-Device Models", level: "Expert" },
+      { name: "Gemini API", level: "Expert" },
+      { name: "Groq LPU", level: "Proficient" },
+      { name: "Edge AI Optimization", level: "Expert" },
+      { name: "LLM Routing & Webhooks", level: "Proficient" },
     ],
   },
 ];
@@ -219,8 +254,8 @@ export const education: Education[] = [
 export const socialLinks: SocialLink[] = [
   {
     name: "GitHub",
-    url: "https://github.com/shriramau",
-    handle: "@shriramau",
+    url: "https://github.com/Shriram-2005",
+    handle: "@Shriram-2005",
     icon: "Github",
   },
   {
@@ -242,4 +277,3 @@ export const socialLinks: SocialLink[] = [
     icon: "Mail",
   },
 ];
-
