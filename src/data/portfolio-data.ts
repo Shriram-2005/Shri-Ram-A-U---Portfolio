@@ -11,7 +11,7 @@ export const personalInfo = {
   availability: "Available for full-time roles & high-impact projects",
   email: "shriram2005au@gmail.com",
   github: "https://github.com/shriramau",
-  linkedin: "https://linkedin.com/in/shriramau",
+  linkedin: "https://www.linkedin.com/in/shriramau",
   twitter: "https://x.com/shriramau",
   resumeUrl: "/resume.pdf",
   stats: [
@@ -225,7 +225,7 @@ export const socialLinks: SocialLink[] = [
   },
   {
     name: "LinkedIn",
-    url: "https://linkedin.com/in/shriramau",
+    url: "https://www.linkedin.com/in/shriramau",
     handle: "/in/shriramau",
     icon: "Linkedin",
   },
@@ -242,3 +242,4 @@ export const socialLinks: SocialLink[] = [
     icon: "Mail",
   },
 ];
+
