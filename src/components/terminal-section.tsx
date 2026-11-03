@@ -28,10 +28,12 @@ export function TerminalSection() {
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const terminalEndRef = useRef<HTMLDivElement>(null);
+  const terminalBodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    terminalEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (terminalBodyRef.current) {
+      terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
+    }
   }, [history]);
 
   const handleCommand = (rawCmd: string) => {
@@ -205,7 +207,7 @@ export function TerminalSection() {
 
         {/* macOS Terminal Window */}
         <div
-          onClick={() => inputRef.current?.focus()}
+          onClick={() => inputRef.current?.focus({ preventScroll: true })}
           className="mx-auto max-w-4xl cursor-text overflow-hidden rounded-2xl sm:rounded-3xl border border-zinc-700/80 bg-zinc-950 text-zinc-300 shadow-2xl font-mono text-xs sm:text-sm"
         >
           {/* Terminal Title Bar */}
@@ -225,7 +227,10 @@ export function TerminalSection() {
           </div>
 
           {/* Terminal Output Body */}
-          <div className="p-3.5 sm:p-5 max-h-72 sm:max-h-96 overflow-y-auto flex flex-col gap-2">
+          <div
+            ref={terminalBodyRef}
+            className="p-3.5 sm:p-5 max-h-72 sm:max-h-96 overflow-y-auto flex flex-col gap-2"
+          >
             {history.map((line, idx) => (
               <div key={idx} className="leading-relaxed whitespace-pre-wrap break-words">
                 {line.type === "input" && (
@@ -260,7 +265,6 @@ export function TerminalSection() {
                 spellCheck={false}
               />
             </div>
-            <div ref={terminalEndRef} />
           </div>
         </div>
       </div>
