@@ -16,7 +16,7 @@ export const personalInfo = {
   twitter: "https://x.com/shriramau",
   resumeUrl: "/resume.pdf",
   resumeReleaseUrl:
-    "https://github.com/Shriram-2005/Shri-Ram-A-U---Portfolio/releases/download/v1.0.0/Shri.Ram.A.U.-.Resume.pdf",
+    "https://github.com/Shriram-2005/Shri-Ram-A-U---Portfolio/releases/download/v1.0.1/Shri.Ram.A.U.-.Resume.pdf",
   stats: [
     { label: "Edge-AI Inference Latency", value: "3.68ms" },
     { label: "Presidency University CGPA", value: "8.20" },
