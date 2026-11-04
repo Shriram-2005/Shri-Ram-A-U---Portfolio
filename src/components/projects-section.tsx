@@ -234,14 +234,27 @@ export function ProjectsSection() {
                         </a>
                       )}
                       {project.apkUrl && !project.liveUrl && (
-                        <a
-                          href={project.apkUrl}
-                          download
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-sky-300 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition-all hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/60 dark:text-sky-300 dark:hover:bg-sky-900/60"
-                        >
-                          <Download className="h-3.5 w-3.5" />
-                          <span>Download APK</span>
-                        </a>
+                        <div className="flex items-center gap-1.5">
+                          <a
+                            href={project.apkUrl}
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                          >
+                            <Download className="h-3.5 w-3.5" />
+                            <span>Download APK</span>
+                          </a>
+                          {project.driveUrl && (
+                            <a
+                              href={project.driveUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Download via Google Drive"
+                              className="inline-flex items-center gap-1 rounded-xl border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                            >
+                              <span>Drive</span>
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

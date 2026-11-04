@@ -130,7 +130,8 @@ export const featuredProjects: Project[] = [
     ],
     tags: ["Kotlin", "Flutter", "TensorFlow Lite", "LSTM", "SQLite", "Android SDK", "Edge AI"],
     githubUrl: "https://github.com/Shriram-2005/intent-attention-firewall",
-    apkUrl: "/downloads/intent-firewall.apk",
+    apkUrl: "https://github.com/Shriram-2005/intent-attention-firewall/releases/download/v1.0.0/intent-firewall.apk",
+    driveUrl: "https://drive.google.com/file/d/1k8boUKWiHlhP9mSJuI-kjhkylKH2jI1i/view?usp=sharing",
     badge: "Android APK",
     highlights: [
       "Deployed an on-device LSTM model via TensorFlow Lite, keeping all personal notifications and processing strictly local.",
@@ -153,8 +154,9 @@ export const featuredProjects: Project[] = [
       { label: "Sessions", value: "Firebase Auth" },
     ],
     tags: ["Android", "Kotlin", "Firebase", "Web Audio / MediaSession", "LocalStorage"],
-    githubUrl: "https://github.com/Shriram-2005",
-    apkUrl: "/downloads/audio-streaming.apk",
+    githubUrl: "https://github.com/Shriram-2005/Music-App",
+    apkUrl: "https://github.com/Shriram-2005/Music-App/releases/download/v1.0.0/audio-streaming.apk",
+    driveUrl: "https://drive.google.com/file/d/1eZLkaouVN6-T0gZpmY2WuMcWi2DDLwrk/view?usp=sharing",
     badge: "Android APK",
     highlights: [
       "Implemented on-device audio stream decryption to maintain uninterrupted 320 kbps high-quality playback.",

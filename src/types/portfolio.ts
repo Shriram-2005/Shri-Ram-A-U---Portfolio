@@ -10,6 +10,7 @@ export interface Project {
   liveUrl?: string;
   githubUrl?: string;
   apkUrl?: string;
+  driveUrl?: string;
   badge?: string;
   image?: string;
   highlights: string[];
