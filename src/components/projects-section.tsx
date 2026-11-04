@@ -11,6 +11,7 @@ import {
   Globe,
   Smartphone,
   ExternalLink,
+  Download,
 } from "lucide-react";
 
 const categories = [
@@ -145,6 +146,16 @@ export function ProjectsSection() {
                           <ArrowUpRight className="h-4 w-4" />
                         </a>
                       )}
+                      {project.apkUrl && !project.liveUrl && (
+                        <a
+                          href={project.apkUrl}
+                          download
+                          aria-label={`Download ${project.title} APK`}
+                          className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-sky-300 bg-sky-50 text-sky-700 transition-all hover:bg-sky-100 dark:border-sky-800/80 dark:bg-sky-950/50 dark:text-sky-300 dark:hover:bg-sky-900/60"
+                        >
+                          <Download className="h-4 w-4" />
+                        </a>
+                      )}
                     </div>
                   </div>
 
@@ -225,13 +236,11 @@ export function ProjectsSection() {
                       {project.apkUrl && !project.liveUrl && (
                         <a
                           href={project.apkUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                          download
                           className="inline-flex items-center gap-1.5 rounded-xl border border-sky-300 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition-all hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/60 dark:text-sky-300 dark:hover:bg-sky-900/60"
                         >
-                          <Smartphone className="h-3.5 w-3.5" />
-                          <span>APK Release</span>
-                          <ArrowUpRight className="h-3 w-3" />
+                          <Download className="h-3.5 w-3.5" />
+                          <span>Download APK</span>
                         </a>
                       )}
                     </div>

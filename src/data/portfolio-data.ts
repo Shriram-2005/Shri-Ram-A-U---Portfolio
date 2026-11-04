@@ -130,7 +130,7 @@ export const featuredProjects: Project[] = [
     ],
     tags: ["Kotlin", "Flutter", "TensorFlow Lite", "LSTM", "SQLite", "Android SDK", "Edge AI"],
     githubUrl: "https://github.com/Shriram-2005/intent-attention-firewall",
-    apkUrl: "https://github.com/Shriram-2005/intent-attention-firewall/releases",
+    apkUrl: "/downloads/intent-firewall.apk",
     badge: "Android APK",
     highlights: [
       "Deployed an on-device LSTM model via TensorFlow Lite, keeping all personal notifications and processing strictly local.",
@@ -154,7 +154,7 @@ export const featuredProjects: Project[] = [
     ],
     tags: ["Android", "Kotlin", "Firebase", "Web Audio / MediaSession", "LocalStorage"],
     githubUrl: "https://github.com/Shriram-2005",
-    apkUrl: "https://github.com/Shriram-2005",
+    apkUrl: "/downloads/audio-streaming.apk",
     badge: "Android APK",
     highlights: [
       "Implemented on-device audio stream decryption to maintain uninterrupted 320 kbps high-quality playback.",
