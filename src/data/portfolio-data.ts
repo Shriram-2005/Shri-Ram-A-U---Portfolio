@@ -25,33 +25,11 @@ export const personalInfo = {
 
 export const featuredProjects: Project[] = [
   {
-    id: "intent-firewall",
-    title: "Intent: Edge-AI Notification Firewall",
-    tagline: "On-Device Offline Notification Firewall & Priority Engine",
-    description:
-      "Rebuilt from scratch for the Google Solutions Challenge: a native Android background service in Kotlin that classifies system notifications with an on-device LSTM model in TensorFlow Lite with zero cloud calls and no data transmission.",
-    category: "Mobile & Edge AI",
-    featured: true,
-    metrics: [
-      { label: "Warm Latency", value: "3.68ms" },
-      { label: "Data Leaving Device", value: "0 bytes" },
-      { label: "Exhibition Award", value: "2nd / 50+ Teams" },
-    ],
-    tags: ["Kotlin", "Flutter", "TensorFlow Lite", "LSTM", "SQLite", "Android SDK", "Edge AI"],
-    githubUrl: "https://github.com/Shriram-2005/intent-attention-firewall",
-    highlights: [
-      "Deployed an on-device LSTM model via TensorFlow Lite, keeping all personal notifications and processing strictly local.",
-      "Optimized memory allocation and SQLite queries to reach 3.68ms warm inference latency under Android 14 background execution limits.",
-      "Implemented velocity-based driving detection to automatically hold back non-critical notifications while traveling.",
-      "Secured 2nd place solo against 50+ multi-member teams at Presidency University, with industry judges from Aptiv commending its edge-AI system design.",
-    ],
-  },
-  {
     id: "garment-erp",
     title: "Garment ERP: Multi-Tenant Manufacturing SaaS",
     tagline: "Production Apparel ERP with Row-Level Security & Gemini AI",
     description:
-      "A multi-tenant manufacturing SaaS platform engineered for apparel production lines, featuring complete PostgreSQL row-level security (RLS) across 19 tables, security-definer isolation, and automated defect analysis.",
+      "A production multi-tenant manufacturing SaaS platform engineered for apparel lines, featuring complete PostgreSQL row-level security across 19 tables, security-definer isolation, and automated Gemini defect analysis.",
     category: "Full-Stack",
     featured: true,
     metrics: [
@@ -60,7 +38,9 @@ export const featuredProjects: Project[] = [
       { label: "Defect Analysis", value: "Gemini API" },
     ],
     tags: ["Next.js", "Supabase", "PostgreSQL (RLS)", "Gemini API", "Tailwind CSS", "jsPDF"],
+    liveUrl: "https://garment-erp-one.vercel.app/",
     githubUrl: "https://github.com/Shriram-2005/Garment_ERP",
+    badge: "Live Web App",
     highlights: [
       "Built a multi-tenant manufacturing SaaS with PostgreSQL row-level security across 19 tables and security-definer functions to strictly isolate tenant data.",
       "Implemented 3-tier role-based access control with Next.js middleware session checks, blocking unauthorized routes and API access.",
@@ -82,7 +62,9 @@ export const featuredProjects: Project[] = [
       { label: "Tamper Detection", value: "ELA + OCR" },
     ],
     tags: ["Solidity", "Ethers.js", "Next.js", "Supabase", "Python", "Flask", "Ethereum"],
+    liveUrl: "https://certchain-blockchain-verification.vercel.app/",
     githubUrl: "https://github.com/Shriram-2005/certchain-blockchain-verification",
+    badge: "Live Web3 App",
     highlights: [
       "Deployed Solidity contract on Ethereum Sepolia testnet with issuer-only access control, Keccak-256 hashing, and an immutable on-chain audit trail.",
       "Engineered a Python/Flask service screening uploaded marksheets for tampering using Error Level Analysis (ELA), OCR grade cross-checks, and institution validation.",
@@ -91,7 +73,7 @@ export const featuredProjects: Project[] = [
   },
   {
     id: "ielts-platform",
-    title: "IELTS Ed-Tech Web Platform & Dynamic CMS",
+    title: "Intellify IELTS: Ed-Tech Web Platform & Dynamic CMS",
     tagline: "Automated Speech Assessments & Interactive Video CMS",
     description:
       "A full-stack IELTS preparation platform featuring dynamic media delivery, speech-to-text automated evaluations, and a hidden instructor Content Management System.",
@@ -103,6 +85,8 @@ export const featuredProjects: Project[] = [
       { label: "Payments", value: "Razorpay" },
     ],
     tags: ["Next.js", "Tailwind CSS", "Supabase", "Mux", "Deepgram API", "Razorpay"],
+    liveUrl: "https://intellify-prototype.vercel.app/",
+    badge: "Live Web App",
     highlights: [
       "Developed a responsive web frontend in Next.js and Tailwind CSS, backed by Supabase user authentication and role permissions.",
       "Integrated Mux for video streaming and Deepgram APIs for automated speech-to-text (STT) and text-to-speech (TTS) language assessments.",
@@ -111,18 +95,20 @@ export const featuredProjects: Project[] = [
   },
   {
     id: "logistics-portal",
-    title: "Logistics Billing & Fleet Operations Web Portal",
+    title: "AUS Transport: Logistics Billing & Fleet Operations Web Portal",
     tagline: "Cloud-Synced Invoicing & Fleet Expense Management",
     description:
-      "A production web application built to digitize commercial transport logistics billing and replace manual Excel spreadsheets.",
+      "A production web application built to digitize commercial transport logistics billing and replace manual Excel spreadsheets with live document preview and instant PDF export.",
     category: "Web & Cloud",
-    featured: false,
+    featured: true,
     metrics: [
       { label: "Manual Work", value: "-60% Overhead" },
       { label: "Export", value: "Instant PDF" },
       { label: "Sync", value: "Real-Time Firebase" },
     ],
     tags: ["Next.js", "React", "Firebase Firestore", "Tailwind CSS", "PDF Export"],
+    liveUrl: "https://aus-transport-website.vercel.app/",
+    badge: "Live Web App",
     highlights: [
       "Developed an automated split-screen invoice generation interface with live document preview and instant PDF export.",
       "Integrated Firebase Authentication and cloud storage for secure bill creation and multi-device synchronization.",
@@ -130,19 +116,46 @@ export const featuredProjects: Project[] = [
     ],
   },
   {
+    id: "intent-firewall",
+    title: "Intent: Edge-AI Notification Firewall",
+    tagline: "On-Device Offline Notification Firewall & Priority Engine",
+    description:
+      "Rebuilt from scratch for the Google Solutions Challenge: a native Android background service in Kotlin that classifies system notifications with an on-device LSTM model in TensorFlow Lite with zero cloud calls and no data transmission.",
+    category: "Mobile & Edge AI",
+    featured: true,
+    metrics: [
+      { label: "Warm Latency", value: "3.68ms" },
+      { label: "Data Leaving Device", value: "0 bytes" },
+      { label: "Exhibition Award", value: "2nd / 50+ Teams" },
+    ],
+    tags: ["Kotlin", "Flutter", "TensorFlow Lite", "LSTM", "SQLite", "Android SDK", "Edge AI"],
+    githubUrl: "https://github.com/Shriram-2005/intent-attention-firewall",
+    apkUrl: "https://github.com/Shriram-2005/intent-attention-firewall/releases",
+    badge: "Android APK",
+    highlights: [
+      "Deployed an on-device LSTM model via TensorFlow Lite, keeping all personal notifications and processing strictly local.",
+      "Optimized memory allocation and SQLite queries to reach 3.68ms warm inference latency under Android 14 background execution limits.",
+      "Implemented velocity-based driving detection to automatically hold back non-critical notifications while traveling.",
+      "Secured 2nd place solo against 50+ multi-member teams at Presidency University, with industry judges from Aptiv commending its edge-AI system design.",
+    ],
+  },
+  {
     id: "audio-streaming",
     title: "High-Bitrate Audio Streaming Client",
     tagline: "On-Device Decryption & Low-Bandwidth Personal Streaming",
     description:
-      "A personal music streaming application built for uninterrupted high-bitrate playback, on-device audio stream decryption, and local bandwidth caching.",
-    category: "Web & Cloud",
-    featured: false,
+      "A personal music streaming mobile application built for uninterrupted high-bitrate playback, on-device audio stream decryption, and local bandwidth caching.",
+    category: "Mobile & Edge AI",
+    featured: true,
     metrics: [
       { label: "Bitrate", value: "320 kbps High-Res" },
       { label: "Bandwidth Cache", value: "Adaptive Local" },
       { label: "Sessions", value: "Firebase Auth" },
     ],
-    tags: ["JavaScript", "Firebase", "Web Audio API", "LocalStorage"],
+    tags: ["Android", "Kotlin", "Firebase", "Web Audio / MediaSession", "LocalStorage"],
+    githubUrl: "https://github.com/Shriram-2005",
+    apkUrl: "https://github.com/Shriram-2005",
+    badge: "Android APK",
     highlights: [
       "Implemented on-device audio stream decryption to maintain uninterrupted 320 kbps high-quality playback.",
       "Built an adaptive local data cache and bandwidth tracker to minimize repeat network consumption (~10 MB/track).",

@@ -9,6 +9,8 @@ export interface Project {
   tags: string[];
   liveUrl?: string;
   githubUrl?: string;
+  apkUrl?: string;
+  badge?: string;
   image?: string;
   highlights: string[];
 }

@@ -8,6 +8,9 @@ import { GithubIcon } from "@/components/ui/icons";
 import {
   CheckCircle2,
   ArrowUpRight,
+  Globe,
+  Smartphone,
+  ExternalLink,
 } from "lucide-react";
 
 const categories = [
@@ -17,6 +20,16 @@ const categories = [
   "Blockchain & Web3",
   "Web & Cloud",
 ] as const;
+
+function formatDomain(url?: string): string {
+  if (!url) return "";
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+}
 
 export function ProjectsSection() {
   const [activeCategory, setActiveCategory] = useState<string>("All");
@@ -81,12 +94,34 @@ export function ProjectsSection() {
                 className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-zinc-200/80 bg-white p-5 sm:p-7 shadow-xs transition-all hover:border-zinc-300 hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-900/50 dark:hover:border-zinc-700"
               >
                 <div>
-                  {/* Top Bar: Category & Links */}
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] font-mono font-medium text-purple-700 dark:border-purple-900/50 dark:bg-purple-950/40 dark:text-purple-300">
-                      {project.category}
-                    </span>
+                  {/* Top Bar: Category & Live Indicators */}
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] font-mono font-medium text-purple-700 dark:border-purple-900/50 dark:bg-purple-950/40 dark:text-purple-300">
+                        {project.category}
+                      </span>
 
+                      {/* Live App status pill */}
+                      {project.liveUrl && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-50/80 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-mono font-medium text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-950/40 dark:text-emerald-300">
+                          <span className="relative flex h-2 w-2">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                          </span>
+                          Live App
+                        </span>
+                      )}
+
+                      {/* Android APK status pill */}
+                      {project.apkUrl && !project.liveUrl && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-sky-50/80 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-[11px] font-mono font-medium text-sky-700 dark:border-sky-500/20 dark:bg-sky-950/40 dark:text-sky-300">
+                          <Smartphone className="h-3 w-3 text-sky-500" />
+                          Android APK
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Quick header action links */}
                     <div className="flex items-center gap-1.5 sm:gap-2">
                       {project.githubUrl && (
                         <a
@@ -104,8 +139,8 @@ export function ProjectsSection() {
                           href={project.liveUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          aria-label={`Open ${project.title} live preview`}
-                          className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-zinc-600 transition-all hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                          aria-label={`Open ${project.title} live deployment`}
+                          className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 transition-all hover:bg-emerald-100 dark:border-emerald-800/80 dark:bg-emerald-950/50 dark:text-emerald-300 dark:hover:bg-emerald-900/60"
                         >
                           <ArrowUpRight className="h-4 w-4" />
                         </a>
@@ -153,16 +188,66 @@ export function ProjectsSection() {
                   </div>
                 </div>
 
-                {/* Tech Tags Bottom Strip */}
-                <div className="mt-5 sm:mt-6 flex flex-wrap gap-1.5 border-t border-zinc-100 pt-4 sm:pt-5 dark:border-zinc-800/80">
-                  {project.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-lg bg-zinc-100 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-[11px] font-mono text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                {/* Footer Section: Live Link & Tech Tags */}
+                <div className="mt-5 sm:mt-6 flex flex-col gap-3.5 border-t border-zinc-100 pt-4 sm:pt-5 dark:border-zinc-800/80">
+                  {/* Primary Action & Host URL bar */}
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    {/* Domain / Platform info */}
+                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-500 dark:text-zinc-400 truncate max-w-[60%]">
+                      {project.liveUrl ? (
+                        <>
+                          <Globe className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                          <span className="truncate hover:underline">
+                            {formatDomain(project.liveUrl)}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <Smartphone className="h-3.5 w-3.5 text-sky-500 shrink-0" />
+                          <span className="truncate">Android APK Build</span>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-2">
+                      {project.liveUrl && (
+                        <a
+                          href={project.liveUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-xl bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition-all hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                        >
+                          <span>Live Demo</span>
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      )}
+                      {project.apkUrl && !project.liveUrl && (
+                        <a
+                          href={project.apkUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-sky-300 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition-all hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/60 dark:text-sky-300 dark:hover:bg-sky-900/60"
+                        >
+                          <Smartphone className="h-3.5 w-3.5" />
+                          <span>APK Release</span>
+                          <ArrowUpRight className="h-3 w-3" />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Tech Tags Bottom Strip */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-lg bg-zinc-100 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-[11px] font-mono text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             ))}
