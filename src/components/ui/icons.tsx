@@ -5,6 +5,8 @@ export function GithubIcon({ className = "h-4 w-4" }: { className?: string }) {
     <svg
       role="img"
       viewBox="0 0 24 24"
+      width="16"
+      height="16"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -23,6 +25,8 @@ export function LinkedinIcon({ className = "h-4 w-4" }: { className?: string }) 
     <svg
       role="img"
       viewBox="0 0 24 24"
+      width="16"
+      height="16"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -42,6 +46,8 @@ export function TwitterXIcon({ className = "h-4 w-4" }: { className?: string }) 
     <svg
       role="img"
       viewBox="0 0 24 24"
+      width="16"
+      height="16"
       fill="currentColor"
       className={className}
     >
@@ -49,4 +55,3 @@ export function TwitterXIcon({ className = "h-4 w-4" }: { className?: string }) 
     </svg>
   );
 }
-
