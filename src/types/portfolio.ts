@@ -1,3 +1,19 @@
+export interface ProjectArchitecture {
+  ownership: string;
+  problem: string;
+  solution: string;
+  securityOrPerformance: {
+    title: string;
+    points: string[];
+  };
+  failureModesAndAuth: string;
+  testingAndVerification: string;
+  keyDecisions: {
+    question: string;
+    answer: string;
+  }[];
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -14,6 +30,7 @@ export interface Project {
   badge?: string;
   image?: string;
   highlights: string[];
+  architecture?: ProjectArchitecture;
 }
 
 export interface Experience {
