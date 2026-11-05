@@ -45,7 +45,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative pt-24 pb-14 sm:pt-32 sm:pb-20 md:pt-40 md:pb-28 overflow-hidden">
+    <section className="relative pt-20 pb-10 sm:pt-28 sm:pb-14 md:pt-36 md:pb-16 overflow-hidden">
       {/* Background radial gradient accent */}
       <div className="pointer-events-none absolute top-12 left-1/2 -z-10 h-[350px] sm:h-[500px] w-[500px] sm:w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-b from-purple-500/10 via-indigo-500/5 to-transparent blur-3xl dark:from-purple-900/20 dark:via-blue-950/10" />
 

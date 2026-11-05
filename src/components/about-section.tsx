@@ -35,7 +35,7 @@ const engineeringPrinciples = [
 
 export function AboutSection() {
   return (
-    <section id="about" className="py-14 sm:py-20 md:py-28 border-t border-zinc-200/60 dark:border-zinc-800/80">
+    <section id="about" className="py-10 sm:py-14 md:py-16 border-t border-zinc-200/60 dark:border-zinc-800/80">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionHeading
           number="01"

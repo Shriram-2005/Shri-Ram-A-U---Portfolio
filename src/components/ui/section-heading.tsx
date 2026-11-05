@@ -18,7 +18,7 @@ export function SectionHeading({
   const isCenter = align === "center";
 
   return (
-    <div className={`mb-8 sm:mb-12 md:mb-16 ${isCenter ? "text-center mx-auto max-w-2xl" : "max-w-2xl"}`}>
+    <div className={`mb-6 sm:mb-8 md:mb-10 ${isCenter ? "text-center mx-auto max-w-2xl" : "max-w-2xl"}`}>
       <div className={`flex items-center gap-2 mb-2 sm:mb-3 ${isCenter ? "justify-center" : ""}`}>
         <span className="font-mono text-[11px] sm:text-xs font-semibold tracking-wider text-purple-600 dark:text-purple-400">
           {number}
