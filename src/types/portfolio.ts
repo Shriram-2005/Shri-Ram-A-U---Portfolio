@@ -29,12 +29,18 @@ export interface Experience {
   technologies: string[];
 }
 
+export type SkillLevel =
+  | "Production experience"
+  | "Project experience"
+  | "Working knowledge"
+  | "Currently learning";
+
 export interface SkillCategory {
   title: string;
   description: string;
   skills: {
     name: string;
-    level?: "Expert" | "Proficient" | "Familiar";
+    level?: SkillLevel;
     iconName?: string;
   }[];
 }
