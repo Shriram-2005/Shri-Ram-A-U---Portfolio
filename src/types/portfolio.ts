@@ -33,7 +33,10 @@ export type SkillLevel =
   | "Production experience"
   | "Project experience"
   | "Working knowledge"
-  | "Currently learning";
+  | "Currently learning"
+  | "Expert"
+  | "Proficient"
+  | "Familiar";
 
 export interface SkillCategory {
   title: string;
