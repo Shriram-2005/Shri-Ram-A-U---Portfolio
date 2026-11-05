@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { personalInfo, socialLinks } from "@/data/portfolio-data";
 import { ArrowUp } from "lucide-react";
 
@@ -14,9 +15,13 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 flex flex-col gap-6 sm:gap-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-5 text-center sm:text-left">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-900 text-white font-mono text-xs font-bold dark:bg-white dark:text-zinc-900">
-              SR
-            </div>
+            <Image
+              src="/aus-logo.png"
+              alt="AUS Logo"
+              width={78}
+              height={30}
+              className="h-7 w-auto object-contain"
+            />
             <div>
               <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
                 {personalInfo.name}

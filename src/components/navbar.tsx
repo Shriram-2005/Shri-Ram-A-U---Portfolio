@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { personalInfo } from "@/data/portfolio-data";
@@ -73,10 +74,17 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
             {/* Logo / Monogram */}
             <a
               href="#"
-              className="group flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
+              className="group flex items-center gap-2.5 text-xs sm:text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
             >
-              <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl bg-zinc-900 text-white font-mono text-[11px] sm:text-xs font-bold transition-transform group-hover:scale-105 dark:bg-white dark:text-zinc-900">
-                SR
+              <div className="relative flex items-center justify-center transition-transform group-hover:scale-105">
+                <Image
+                  src="/aus-logo.png"
+                  alt="AUS Logo"
+                  width={78}
+                  height={30}
+                  className="h-6 sm:h-7 w-auto object-contain"
+                  priority
+                />
               </div>
               <div className="flex flex-col">
                 <span className="leading-tight font-bold">{personalInfo.name}</span>

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { featuredProjects, personalInfo } from "@/data/portfolio-data";
@@ -88,9 +89,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 hidden sm:inline"
+              className="flex items-center gap-2 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100"
             >
-              {personalInfo.name}
+              <Image
+                src="/aus-logo.png"
+                alt="AUS Logo"
+                width={65}
+                height={25}
+                className="h-5 sm:h-6 w-auto object-contain"
+              />
+              <span className="hidden sm:inline">{personalInfo.name}</span>
             </Link>
             <ThemeToggle />
           </div>
