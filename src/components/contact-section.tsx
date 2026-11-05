@@ -122,7 +122,7 @@ export function ContactSection() {
                 </div>
                 <div className="flex items-start gap-2 leading-relaxed">
                   <Clock className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
-                  <span>Available for 6-Month Internships (Jan–Jun 2027) with PPO pathways</span>
+                  <span>Available for 6-Month Internships (Jan-Jun 2027) with PPO pathways</span>
                 </div>
               </div>
             </div>

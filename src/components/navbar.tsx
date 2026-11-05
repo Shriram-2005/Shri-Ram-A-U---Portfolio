@@ -23,6 +23,14 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
   const [activeSection, setActiveSection] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [shortcutKey, setShortcutKey] = useState("Ctrl+K");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+      setShortcutKey(isMac ? "⌘K" : "Ctrl+K");
+    }
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,7 +115,7 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
 
             {/* Action buttons on right */}
             <div className="flex items-center gap-1.5 sm:gap-2">
-              {/* Cmd+K trigger */}
+              {/* Cmd+K / Ctrl+K trigger */}
               <button
                 onClick={onOpenCommand}
                 className="hidden sm:flex items-center gap-2 rounded-full border border-zinc-200/80 bg-zinc-50 px-3 py-1.5 text-xs text-zinc-500 transition-colors hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
@@ -115,8 +123,8 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
               >
                 <Search className="h-3.5 w-3.5 text-zinc-400" />
                 <span className="font-mono text-[11px]">Search</span>
-                <kbd className="rounded border border-zinc-200 bg-white px-1 py-0.2 font-mono text-[10px] text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
-                  ⌘K
+                <kbd className="rounded border border-zinc-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+                  {shortcutKey}
                 </kbd>
               </button>
 
@@ -177,7 +185,7 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
                       <Search className="h-4 w-4" />
                       <span>Search Command Menu</span>
                     </span>
-                    <span className="font-mono text-xs">⌘K</span>
+                    <span className="font-mono text-xs">{shortcutKey}</span>
                   </button>
 
                   <a

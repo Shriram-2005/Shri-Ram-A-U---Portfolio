@@ -3,7 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { personalInfo, featuredProjects, skillCategories } from "@/data/portfolio-data";
-import { Terminal as TerminalIcon } from "lucide-react";
+import {
+  Terminal as TerminalIcon,
+  ArrowUpRight,
+  Globe,
+  Download,
+  ExternalLink,
+} from "lucide-react";
 
 interface TerminalLine {
   type: "input" | "output" | "error" | "system";
@@ -17,11 +23,11 @@ export function TerminalSection() {
   const [history, setHistory] = useState<TerminalLine[]>([
     {
       type: "system",
-      content: "Welcome to Shriram's Interactive Shell v2.4 (x86_64-apple-darwin)",
+      content: "Welcome to Shriram's Interactive Shell v2.4 (cross-platform)",
     },
     {
       type: "system",
-      content: "Type 'help' to inspect commands or tap any quick-command pill below.",
+      content: "Type 'help' to inspect commands, 'projects' for interactive links, or tap any quick pill below.",
     },
   ]);
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
@@ -29,6 +35,24 @@ export function TerminalSection() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalBodyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
+      const isWin = /Win/.test(navigator.userAgent);
+      const pStr = isMac ? "x86_64-apple-darwin" : isWin ? "x86_64-pc-windows" : "x86_64-linux-gnu";
+      setHistory((prev) => [
+        {
+          type: "system",
+          content: `Welcome to Shriram's Interactive Shell v2.4 (${pStr})`,
+        },
+        prev[1] || {
+          type: "system",
+          content: "Type 'help' to inspect commands, 'projects' for interactive links, or tap any quick pill below.",
+        },
+      ]);
+    }
+  }, []);
 
   useEffect(() => {
     if (terminalBodyRef.current) {
@@ -45,6 +69,95 @@ export function TerminalSection() {
 
     const newLines: TerminalLine[] = [{ type: "input", content: rawCmd }];
 
+    // Direct project inspection lookup (e.g. "intent", "garment", "blockchain", "project intent")
+    const projectMatch = featuredProjects.find((p) => {
+      if (cmd === p.id.toLowerCase() || cmd === `project ${p.id.toLowerCase()}` || cmd === `open ${p.id.toLowerCase()}`) {
+        return true;
+      }
+      if (cmd === "intent" && p.id === "intent-firewall") return true;
+      if (cmd === "garment" && p.id === "garment-erp") return true;
+      if (cmd === "blockchain" && p.id === "blockchain-verification") return true;
+      if (cmd === "logistics" && p.id === "logistics-portal") return true;
+      if (cmd === "ielts" && p.id === "ielts-platform") return true;
+      if ((cmd === "audio" || cmd === "music") && p.id === "audio-streaming") return true;
+      if (cmd.startsWith("project ")) {
+        const sub = cmd.replace("project ", "").trim();
+        return p.id.includes(sub) || p.title.toLowerCase().includes(sub);
+      }
+      return false;
+    });
+
+    if (projectMatch) {
+      newLines.push({
+        type: "output",
+        content: (
+          <div className="flex flex-col gap-2 rounded-lg bg-zinc-900/80 p-3 border border-purple-500/30 text-[11px] sm:text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-1 border-b border-zinc-800 pb-1.5">
+              <span className="font-bold text-zinc-100">{projectMatch.title}</span>
+              <span className="rounded bg-purple-950/70 border border-purple-800/50 px-1.5 py-0.2 text-[10px] font-mono text-purple-300">
+                {projectMatch.category}
+              </span>
+            </div>
+            <p className="text-zinc-300">{projectMatch.tagline}</p>
+            <p className="text-zinc-400 text-[10px] sm:text-[11px]">{projectMatch.description}</p>
+            {projectMatch.metrics && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {projectMatch.metrics.map((m) => (
+                  <span key={m.label} className="rounded bg-zinc-800/80 px-2 py-0.5 border border-zinc-700/60 font-mono text-[10px] text-zinc-300">
+                    <span className="text-purple-300">{m.label}:</span> {m.value}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-zinc-800/60 font-mono">
+              <a
+                href={`/projects/${projectMatch.id}`}
+                className="inline-flex items-center gap-1 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 px-2 py-1 transition-colors"
+              >
+                <span>[Case Study & Architecture]</span>
+                <ArrowUpRight className="h-3 w-3" />
+              </a>
+              {projectMatch.liveUrl && (
+                <a
+                  href={projectMatch.liveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 border border-emerald-500/40 px-2 py-1 transition-colors"
+                >
+                  <Globe className="h-3 w-3" />
+                  <span>[Launch Live Web App ↗]</span>
+                </a>
+              )}
+              {projectMatch.apkUrl && (
+                <a
+                  href={projectMatch.apkUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-500/40 px-2 py-1 transition-colors"
+                >
+                  <Download className="h-3 w-3" />
+                  <span>[Download APK ⤓]</span>
+                </a>
+              )}
+              {projectMatch.githubUrl && (
+                <a
+                  href={projectMatch.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-2 py-1 transition-colors"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  <span>[GitHub Repo]</span>
+                </a>
+              )}
+            </div>
+          </div>
+        ),
+      });
+      setHistory((prev) => [...prev, ...newLines]);
+      return;
+    }
+
     switch (cmd) {
       case "help":
         newLines.push({
@@ -52,14 +165,15 @@ export function TerminalSection() {
           content: (
             <div className="flex flex-col gap-1 text-[11px] sm:text-xs">
               <span className="font-bold text-purple-400">Available commands:</span>
-              <span>  <span className="text-zinc-200 font-semibold">bio</span>          - Learn about Shri Ram</span>
-              <span>  <span className="text-zinc-200 font-semibold">projects</span>     - List key engineering projects</span>
-              <span>  <span className="text-zinc-200 font-semibold">skills</span>       - Inspect tech competencies</span>
-              <span>  <span className="text-zinc-200 font-semibold">contact</span>      - Output communication channels</span>
-              <span>  <span className="text-zinc-200 font-semibold">cat resume</span>   - Print resume highlights</span>
-              <span>  <span className="text-zinc-200 font-semibold">date</span>         - Display current timestamp</span>
-              <span>  <span className="text-zinc-200 font-semibold">clear</span>        - Clear terminal screen</span>
-              <span>  <span className="text-zinc-200 font-semibold">sudo</span>         - Administrative access</span>
+              <span>  <span className="text-zinc-200 font-semibold">bio</span>              - Learn about Shri Ram</span>
+              <span>  <span className="text-zinc-200 font-semibold">projects</span>         - List engineering projects with clickable links</span>
+              <span>  <span className="text-zinc-200 font-semibold">project &lt;name&gt;</span>    - Inspect specific project (e.g. project intent, garment)</span>
+              <span>  <span className="text-zinc-200 font-semibold">skills</span>           - Inspect tech competencies</span>
+              <span>  <span className="text-zinc-200 font-semibold">contact</span>          - Output communication channels</span>
+              <span>  <span className="text-zinc-200 font-semibold">cat resume</span>       - Print resume highlights</span>
+              <span>  <span className="text-zinc-200 font-semibold">date</span>             - Display current timestamp</span>
+              <span>  <span className="text-zinc-200 font-semibold">clear</span>            - Clear terminal screen</span>
+              <span>  <span className="text-zinc-200 font-semibold">sudo</span>             - Administrative access</span>
             </div>
           ),
         });
@@ -76,13 +190,70 @@ export function TerminalSection() {
         newLines.push({
           type: "output",
           content: (
-            <div className="flex flex-col gap-1.5 text-[11px] sm:text-xs">
+            <div className="flex flex-col gap-2.5 text-[11px] sm:text-xs py-1">
+              <div className="text-purple-300 font-semibold border-b border-zinc-800 pb-1">
+                Engineering Projects ({featuredProjects.length}) | Click any link below or type &apos;project &lt;name&gt;&apos;:
+              </div>
               {featuredProjects.map((p) => (
-                <div key={p.id} className="flex flex-col">
-                  <span className="font-bold text-zinc-100">
-                    • {p.title} <span className="text-purple-400">[{p.category}]</span>
+                <div key={p.id} className="flex flex-col gap-1 rounded-lg bg-zinc-900/60 p-2.5 border border-zinc-800/80">
+                  <div className="flex flex-wrap items-center justify-between gap-1">
+                    <span className="font-bold text-zinc-100">
+                      • {p.title}
+                    </span>
+                    <span className="rounded bg-purple-950/70 border border-purple-800/50 px-1.5 py-0.2 text-[10px] font-mono text-purple-300">
+                      {p.category}
+                    </span>
+                  </div>
+                  <span className="text-zinc-400 text-[10px] sm:text-[11px]">
+                    {p.tagline}
                   </span>
-                  <span className="text-zinc-400 text-[10px] sm:text-[11px] pl-2 sm:pl-3">{p.tagline}</span>
+
+                  {/* Interactive clickable links */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5 mt-0.5 border-t border-zinc-800/50 font-mono text-[10px] sm:text-[11px]">
+                    <a
+                      href={`/projects/${p.id}`}
+                      className="inline-flex items-center gap-1 rounded bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 transition-colors hover:text-purple-200"
+                    >
+                      <span>[Architecture & Case Study]</span>
+                      <ArrowUpRight className="h-3 w-3" />
+                    </a>
+
+                    {p.liveUrl && (
+                      <a
+                        href={p.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 transition-colors hover:text-emerald-200"
+                      >
+                        <Globe className="h-3 w-3" />
+                        <span>[Live Web App ↗]</span>
+                      </a>
+                    )}
+
+                    {p.apkUrl && (
+                      <a
+                        href={p.apkUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 transition-colors hover:text-cyan-200"
+                      >
+                        <Download className="h-3 w-3" />
+                        <span>[Download APK ⤓]</span>
+                      </a>
+                    )}
+
+                    {p.githubUrl && (
+                      <a
+                        href={p.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-2 py-0.5 transition-colors hover:text-white"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        <span>[GitHub]</span>
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -120,7 +291,7 @@ export function TerminalSection() {
       case "resume":
         newLines.push({
           type: "output",
-          content: `Shri Ram A U | B.Tech CSE (Presidency University Bangalore, CGPA: 8.20)\nRole: AI Solutions Developer Intern @ Saina Human AI\nKey Projects: Intent (Edge-AI Notification Firewall - 3.68ms warm inference), Garment ERP (Multi-Tenant PostgreSQL RLS), Blockchain Certs (Sepolia)\nAward: 2nd Place / 50+ Teams (Project Exhibition, Nov 2025)\nTarget: 6-Month Engineering Internship (Jan–Jun 2027) with PPO pathways\nDirect: ${personalInfo.email} | +91 70196 13040\nResume: Downloadable at /resume.pdf`,
+          content: `Shri Ram A U | B.Tech CSE (Presidency University Bangalore, CGPA: 8.20)\nRole: AI Solutions Developer Intern @ Saina Human AI\nKey Projects: Intent (Edge-AI Notification Firewall - 3.68ms warm inference), Garment ERP (Multi-Tenant PostgreSQL RLS), Blockchain Certs (Sepolia)\nAward: 2nd Place / 50+ Teams (Project Exhibition, Nov 2025)\nTarget: 6-Month Engineering Internship (Jan-Jun 2027) with PPO pathways\nDirect: ${personalInfo.email} | +91 70196 13040\nResume: Downloadable at /resume.pdf`,
         });
         break;
 
@@ -146,7 +317,7 @@ export function TerminalSection() {
       default:
         newLines.push({
           type: "error",
-          content: `command not found: "${cmd}". Type 'help' for available commands.`,
+          content: `command not found: "${cmd}". Type 'help' for available commands or 'projects' to view projects.`,
         });
         break;
     }

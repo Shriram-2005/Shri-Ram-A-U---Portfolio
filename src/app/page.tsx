@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { CommandMenu } from "@/components/command-menu";
 import { HeroSection } from "@/components/hero-section";
@@ -14,6 +14,19 @@ import { Footer } from "@/components/footer";
 
 export default function Home() {
   const [commandOpen, setCommandOpen] = useState(false);
+
+  // Global keyboard shortcut: Ctrl+K on Windows/Linux, Cmd+K on macOS
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-background text-foreground transition-colors">
