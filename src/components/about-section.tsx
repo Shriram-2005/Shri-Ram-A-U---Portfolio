@@ -54,7 +54,7 @@ export function AboutSection() {
               My expertise spans the entire development lifecycle: from building native Android services in <span className="font-medium text-zinc-800 dark:text-zinc-200">Kotlin</span> with on-device <span className="font-medium text-zinc-800 dark:text-zinc-200">TensorFlow Lite</span> ML inference, to architecting multi-tenant web platforms using <span className="font-medium text-zinc-800 dark:text-zinc-200">Next.js</span>, <span className="font-medium text-zinc-800 dark:text-zinc-200">Tailwind CSS</span>, and <span className="font-medium text-zinc-800 dark:text-zinc-200">Supabase / PostgreSQL (RLS)</span>.
             </p>
             <p>
-              I specialize in bridging technical complexity with business utility—breaking down system architectures, cloud constraints, and LLM automation pipelines into clear, actionable products that ship rapidly.
+              I specialize in bridging technical complexity with business utility, breaking down system architectures, cloud constraints, and LLM automation pipelines into clear, actionable products that ship rapidly.
             </p>
 
             {/* Principles cards */}

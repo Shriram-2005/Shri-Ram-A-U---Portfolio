@@ -68,7 +68,7 @@ export function TerminalSection() {
       case "bio":
         newLines.push({
           type: "output",
-          content: `${personalInfo.name} — ${personalInfo.role}. ${personalInfo.shortBio}`,
+          content: `${personalInfo.name} - ${personalInfo.role}. ${personalInfo.shortBio}`,
         });
         break;
 

@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Shri Ram A U | AI Solutions Developer & Software Engineer",
   description:
-    "Portfolio of Shri Ram A U — AI Solutions Developer Intern at Saina Human AI and Computer Science undergraduate at Presidency University Bangalore. Specializing in on-device Edge AI, Next.js, Android, Supabase, and PostgreSQL.",
+    "Portfolio of Shri Ram A U - AI Solutions Developer Intern at Saina Human AI and Computer Science undergraduate at Presidency University Bangalore. Specializing in on-device Edge AI, Next.js, Android, Supabase, and PostgreSQL.",
   keywords: [
     "Shri Ram A U",
     "AI Solutions Developer",
