@@ -8,7 +8,7 @@ export const personalInfo = {
   shortBio:
     "7th-semester Computer Science undergraduate at Presidency University Bangalore and AI Solutions Developer Intern at Saina Human AI. Experienced in building mobile and web applications in Kotlin, Java, JavaScript, Python, and Dart, with deep backend focus on PostgreSQL (RLS), Supabase, and SQLite data design. Creator of Intent: an on-device edge-AI notification firewall operating at 3.68ms warm inference latency.",
   location: "Greater Bengaluru Area, India (IST, UTC+5:30)",
-  phone: "+91 70196 13040",
+  phone: "+91 70196 •••••",
   availability: "Open to 6-month engineering internships (Jan-Jun 2027) with PPO pathways",
   email: "shriram2005au@gmail.com",
   github: "https://github.com/Shriram-2005",

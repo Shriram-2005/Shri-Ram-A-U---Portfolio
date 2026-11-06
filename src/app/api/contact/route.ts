@@ -10,14 +10,81 @@ function escapeHtml(text: string): string {
     .replace(/'/g, "&#039;");
 }
 
+// In-memory rate limiting map: IP -> array of request timestamps
+const rateLimitMap = new Map<string, number[]>();
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const MAX_REQUESTS_PER_WINDOW = 3; // Maximum 3 messages per 10 minutes per IP
+
+// Obvious spam keywords that botnets blast into contact forms
+const SPAM_KEYWORDS = [
+  "viagra",
+  "cialis",
+  "casino",
+  "betting",
+  "cryptocurrency investment",
+  "buy crypto",
+  "fast cash",
+  "ranking on google guarantee",
+  "seo backlinks package",
+  "porn",
+  "adult dating",
+];
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, email, subject, message } = body;
+    const { name, email, subject, message, company_website, timeElapsed } = body;
 
+    // 1. Anti-Spam Honeypot Check:
+    // Invisible to humans. Automated bot crawlers fill it automatically.
+    if (company_website) {
+      console.warn("Honeypot triggered. Silently dropping automated spam submission.");
+      return NextResponse.json(
+        { success: true, message: "Your message has been delivered directly to Shri Ram's inbox." },
+        { status: 200 }
+      );
+    }
+
+    // 2. Anti-Spam Time Heuristic:
+    // If submission occurred in under 2 seconds from page load, it was filled by an automated bot script.
+    if (typeof timeElapsed === "number" && timeElapsed < 2000) {
+      console.warn(`Submission speed too fast (${timeElapsed}ms). Silently dropping bot submission.`);
+      return NextResponse.json(
+        { success: true, message: "Your message has been delivered directly to Shri Ram's inbox." },
+        { status: 200 }
+      );
+    }
+
+    // 3. IP Rate Limiting Check:
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "unknown-ip";
+
+    const now = Date.now();
+    const timestamps = (rateLimitMap.get(ip) || []).filter(
+      (ts) => now - ts < RATE_LIMIT_WINDOW_MS
+    );
+
+    if (timestamps.length >= MAX_REQUESTS_PER_WINDOW) {
+      return NextResponse.json(
+        { error: "Too many messages sent. To prevent spam, please wait a few minutes or email directly." },
+        { status: 429 }
+      );
+    }
+
+    // 4. Basic Validation:
     if (!name || !email || !message) {
       return NextResponse.json(
         { error: "Name, email, and message are required." },
+        { status: 400 }
+      );
+    }
+
+    // Payload size sanity checks (prevent buffer-overflow / DOS payloads)
+    if (name.length > 100 || (subject && subject.length > 150) || message.length > 3000) {
+      return NextResponse.json(
+        { error: "Input exceeds allowed character limits." },
         { status: 400 }
       );
     }
@@ -29,6 +96,23 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // 5. Spam Keyword and Link Bombing Filter:
+    const combinedContent = `${name} ${subject || ""} ${message}`.toLowerCase();
+    const hasSpamKeyword = SPAM_KEYWORDS.some((kw) => combinedContent.includes(kw));
+    const urlMatches = message.match(/https?:\/\//gi) || [];
+
+    if (hasSpamKeyword || urlMatches.length > 3) {
+      console.warn("Spam filter triggered for content or excessive links. Silently dropping.");
+      return NextResponse.json(
+        { success: true, message: "Your message has been delivered directly to Shri Ram's inbox." },
+        { status: 200 }
+      );
+    }
+
+    // Record timestamp for rate limiting
+    timestamps.push(now);
+    rateLimitMap.set(ip, timestamps);
 
     const user = process.env.SMTP_USER;
     const pass = process.env.SMTP_PASS;
@@ -57,7 +141,7 @@ export async function POST(req: NextRequest) {
       replyTo: email,
       to,
       subject: `[Portfolio Inquiry] ${cleanSubject} - from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\nSubject: ${cleanSubject}\n\nMessage:\n${message}\n\n---\nSent directly from shriramau.in contact form`,
+      text: `Name: ${name}\nEmail: ${email}\nSubject: ${cleanSubject}\n\nMessage:\n${message}\n\n---\nSent directly from shriramau.in contact form (IP: ${ip})`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e4e4e7; border-radius: 12px; background: #ffffff;">
           <div style="border-bottom: 2px solid #8b5cf6; padding-bottom: 12px; margin-bottom: 20px;">
@@ -110,3 +194,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

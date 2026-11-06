@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { personalInfo, socialLinks } from "@/data/portfolio-data";
 import { useToast } from "@/components/ui/toast";
@@ -16,6 +16,8 @@ import {
   ArrowUpRight,
   ShieldCheck,
   Loader2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 export function ContactSection() {
@@ -23,12 +25,15 @@ export function ContactSection() {
   const [copied, setCopied] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [phoneRevealed, setPhoneRevealed] = useState(false);
+  const formMountedTime = useRef<number>(Date.now());
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
+    company_website: "", // Anti-spam honeypot
   });
 
   const handleCopyEmail = () => {
@@ -49,12 +54,16 @@ export function ContactSection() {
     setSubmitted(false);
 
     try {
+      const timeElapsed = Date.now() - formMountedTime.current;
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          timeElapsed,
+        }),
       });
 
       const data = await res.json();
@@ -64,7 +73,7 @@ export function ContactSection() {
       }
 
       setSubmitted(true);
-      setFormData({ name: "", email: "", subject: "", message: "" });
+      setFormData({ name: "", email: "", subject: "", message: "", company_website: "" });
       toast("Message delivered directly to Shri Ram's inbox!", "success");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
@@ -130,11 +139,40 @@ export function ContactSection() {
                   <MapPin className="h-4 w-4 text-purple-500 shrink-0" />
                   <span>{personalInfo.location}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-purple-500 shrink-0" />
-                  <a href="tel:+917019613040" className="hover:underline font-mono">
-                    +91 70196 13040
-                  </a>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Phone className="h-4 w-4 text-purple-500 shrink-0" />
+                    {phoneRevealed ? (
+                      <a
+                        href={["tel:+91", "70196", "13040"].join("")}
+                        className="hover:underline font-mono font-semibold text-zinc-900 dark:text-zinc-100 truncate"
+                      >
+                        {["+91", "70196", "13040"].join(" ")}
+                      </a>
+                    ) : (
+                      <span className="font-mono text-zinc-500 dark:text-zinc-400">
+                        +91 70196 •••••
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPhoneRevealed((prev) => !prev)}
+                    className="shrink-0 inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 hover:bg-purple-100 dark:border-purple-800/60 dark:bg-purple-950/40 dark:text-purple-300 dark:hover:bg-purple-900/50 transition-colors"
+                    title={phoneRevealed ? "Hide number" : "Click to reveal phone number (anti-spam protection)"}
+                  >
+                    {phoneRevealed ? (
+                      <>
+                        <EyeOff className="h-3 w-3" />
+                        <span>Hide</span>
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-3 w-3" />
+                        <span>Reveal</span>
+                      </>
+                    )}
+                  </button>
                 </div>
                 <div className="flex items-start gap-2 leading-relaxed">
                   <Clock className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
@@ -171,6 +209,20 @@ export function ContactSection() {
               onSubmit={handleSubmit}
               className="flex flex-col gap-4 rounded-3xl border border-zinc-200/80 bg-white p-5 sm:p-7 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/50"
             >
+              {/* Invisible anti-spam honeypot - automated bots fill this, humans never see it */}
+              <div className="hidden" aria-hidden="true" style={{ display: "none" }}>
+                <label htmlFor="company_website">Company Website</label>
+                <input
+                  id="company_website"
+                  type="text"
+                  name="company_website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={formData.company_website}
+                  onChange={(e) => setFormData({ ...formData, company_website: e.target.value })}
+                />
+              </div>
+
               <div className="flex items-center gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
                 <MessageSquare className="h-4 w-4" />
                 <span>Send a Message</span>

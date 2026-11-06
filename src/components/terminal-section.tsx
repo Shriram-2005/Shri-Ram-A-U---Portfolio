@@ -170,6 +170,7 @@ export function TerminalSection() {
               <span>  <span className="text-zinc-200 font-semibold">project &lt;name&gt;</span>    - Inspect specific project (e.g. project intent, garment)</span>
               <span>  <span className="text-zinc-200 font-semibold">skills</span>           - Inspect tech competencies</span>
               <span>  <span className="text-zinc-200 font-semibold">contact</span>          - Output communication channels</span>
+              <span>  <span className="text-zinc-200 font-semibold">phone</span>            - Reveal direct phone line (anti-spam)</span>
               <span>  <span className="text-zinc-200 font-semibold">cat resume</span>       - Print resume highlights</span>
               <span>  <span className="text-zinc-200 font-semibold">date</span>             - Display current timestamp</span>
               <span>  <span className="text-zinc-200 font-semibold">clear</span>            - Clear terminal screen</span>
@@ -282,7 +283,37 @@ export function TerminalSection() {
       case "contact":
         newLines.push({
           type: "output",
-          content: `Email: ${personalInfo.email}\nPhone: ${personalInfo.phone || "+91 70196 13040"}\nLinkedIn: ${personalInfo.linkedin}\nGitHub: ${personalInfo.github}`,
+          content: (
+            <div className="flex flex-col gap-1 text-[11px] sm:text-xs">
+              <div><span className="text-purple-300 font-semibold">Email:</span> {personalInfo.email}</div>
+              <div>
+                <span className="text-purple-300 font-semibold">Phone:</span>{" "}
+                <span className="font-mono text-zinc-400">+91 70196 •••••</span>{" "}
+                <span className="text-[10px] text-zinc-500">(Type &apos;phone&apos; to unmask, or click Reveal in Contact)</span>
+              </div>
+              <div><span className="text-purple-300 font-semibold">LinkedIn:</span> {personalInfo.linkedin}</div>
+              <div><span className="text-purple-300 font-semibold">GitHub:</span> {personalInfo.github}</div>
+            </div>
+          ),
+        });
+        break;
+
+      case "phone":
+      case "reveal phone":
+        newLines.push({
+          type: "output",
+          content: (
+            <div className="flex items-center gap-2 text-[11px] sm:text-xs text-zinc-200 font-mono">
+              <span className="text-emerald-400 font-bold">Direct Line:</span>
+              <a
+                href={["tel:+91", "70196", "13040"].join("")}
+                className="text-purple-300 hover:underline font-semibold"
+              >
+                {["+91", "70196", "13040"].join(" ")}
+              </a>
+              <span className="text-[10px] text-zinc-500">(WhatsApp / Voice)</span>
+            </div>
+          ),
         });
         break;
 
@@ -291,7 +322,7 @@ export function TerminalSection() {
       case "resume":
         newLines.push({
           type: "output",
-          content: `Shri Ram A U | B.Tech CSE (Presidency University Bangalore, CGPA: 8.20)\nRole: AI Solutions Developer Intern @ Saina Human AI\nKey Projects: Intent (Edge-AI Notification Firewall - 3.68ms warm inference), Garment ERP (Multi-Tenant PostgreSQL RLS), Blockchain Certs (Sepolia)\nAward: 2nd Place / 50+ Teams (Project Exhibition, Nov 2025)\nTarget: 6-Month Engineering Internship (Jan-Jun 2027) with PPO pathways\nDirect: ${personalInfo.email} | +91 70196 13040\nResume: Downloadable at /resume.pdf`,
+          content: `Shri Ram A U | B.Tech CSE (Presidency University Bangalore, CGPA: 8.20)\nRole: AI Solutions Developer Intern @ Saina Human AI\nKey Projects: Intent (Edge-AI Notification Firewall - 3.68ms warm inference), Garment ERP (Multi-Tenant PostgreSQL RLS), Blockchain Certs (Sepolia)\nAward: 2nd Place / 50+ Teams (Project Exhibition, Nov 2025)\nTarget: 6-Month Engineering Internship (Jan-Jun 2027) with PPO pathways\nDirect: ${personalInfo.email} | Phone: Available upon request in Contact section\nResume: Downloadable at /resume.pdf`,
         });
         break;
 
