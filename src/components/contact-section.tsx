@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { personalInfo, socialLinks } from "@/data/portfolio-data";
 import { useToast } from "@/components/ui/toast";
@@ -26,7 +26,46 @@ export function ContactSection() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [phoneRevealed, setPhoneRevealed] = useState(false);
+  const [phoneCountdown, setPhoneCountdown] = useState(5);
+  const phoneTimerRef = useRef<NodeJS.Timeout | null>(null);
   const formMountedTime = useRef<number>(Date.now());
+
+  useEffect(() => {
+    return () => {
+      if (phoneTimerRef.current) clearInterval(phoneTimerRef.current);
+    };
+  }, []);
+
+  const handleTogglePhone = () => {
+    if (phoneRevealed) {
+      setPhoneRevealed(false);
+      if (phoneTimerRef.current) clearInterval(phoneTimerRef.current);
+      return;
+    }
+
+    setPhoneRevealed(true);
+    setPhoneCountdown(5);
+
+    if (phoneTimerRef.current) clearInterval(phoneTimerRef.current);
+
+    const start = Date.now();
+    phoneTimerRef.current = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - start) / 1000);
+      const remaining = 5 - elapsed;
+      if (remaining <= 0) {
+        setPhoneRevealed(false);
+        if (phoneTimerRef.current) clearInterval(phoneTimerRef.current);
+      } else {
+        setPhoneCountdown(remaining);
+      }
+    }, 250);
+  };
+
+  const handleCopyPhone = () => {
+    const rawNumber = ["+91", "70196", "13040"].join(" ");
+    navigator.clipboard.writeText(rawNumber);
+    toast("Phone number copied to clipboard!", "success");
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -139,40 +178,76 @@ export function ContactSection() {
                   <MapPin className="h-4 w-4 text-purple-500 shrink-0" />
                   <span>{personalInfo.location}</span>
                 </div>
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Phone className="h-4 w-4 text-purple-500 shrink-0" />
-                    {phoneRevealed ? (
-                      <a
-                        href={["tel:+91", "70196", "13040"].join("")}
-                        className="hover:underline font-mono font-semibold text-zinc-900 dark:text-zinc-100 truncate"
-                      >
-                        {["+91", "70196", "13040"].join(" ")}
-                      </a>
-                    ) : (
-                      <span className="font-mono text-zinc-500 dark:text-zinc-400">
-                        +91 70196 •••••
-                      </span>
-                    )}
+                <div className="flex flex-col gap-1.5 rounded-xl border border-zinc-200/60 bg-white/70 p-2.5 dark:border-zinc-800 dark:bg-zinc-900/60">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Phone className="h-4 w-4 text-purple-500 shrink-0" />
+                      {phoneRevealed ? (
+                        <a
+                          href={["tel:+91", "70196", "13040"].join("")}
+                          className="hover:underline font-mono font-semibold text-zinc-900 dark:text-zinc-100 truncate text-xs sm:text-sm"
+                        >
+                          {["+91", "70196", "13040"].join(" ")}
+                        </a>
+                      ) : (
+                        <span className="font-mono text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm">
+                          +91 70196 •••••
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {phoneRevealed ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={handleCopyPhone}
+                            className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors"
+                            title="Copy phone number"
+                          >
+                            <Copy className="h-3 w-3" />
+                            <span>Copy</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleTogglePhone}
+                            className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-medium text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 transition-colors"
+                            title="Hide number immediately"
+                          >
+                            <EyeOff className="h-3 w-3" />
+                            <span>Hide</span>
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleTogglePhone}
+                          className="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 hover:bg-purple-100 dark:border-purple-800/60 dark:bg-purple-950/40 dark:text-purple-300 dark:hover:bg-purple-900/50 transition-colors"
+                          title="Click to reveal phone number (anti-spam protection)"
+                        >
+                          <Eye className="h-3 w-3" />
+                          <span>Reveal</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setPhoneRevealed((prev) => !prev)}
-                    className="shrink-0 inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 text-[11px] font-medium text-purple-700 hover:bg-purple-100 dark:border-purple-800/60 dark:bg-purple-950/40 dark:text-purple-300 dark:hover:bg-purple-900/50 transition-colors"
-                    title={phoneRevealed ? "Hide number" : "Click to reveal phone number (anti-spam protection)"}
-                  >
-                    {phoneRevealed ? (
-                      <>
-                        <EyeOff className="h-3 w-3" />
-                        <span>Hide</span>
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="h-3 w-3" />
-                        <span>Reveal</span>
-                      </>
-                    )}
-                  </button>
+
+                  {phoneRevealed && (
+                    <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500 dark:text-zinc-400 pt-1 border-t border-zinc-100 dark:border-zinc-800/80">
+                      <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-medium">
+                        <Clock className="h-3 w-3" />
+                        <span>Auto-hiding in {phoneCountdown}s</span>
+                      </span>
+                      <a
+                        href={["https://wa.me/91", "70196", "13040", "?text=Hi%20Shri%20Ram,%20saw%20your%20portfolio!"].join("")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-0.5 font-medium"
+                      >
+                        <span>WhatsApp Chat</span>
+                        <ArrowUpRight className="h-3 w-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-start gap-2 leading-relaxed">
                   <Clock className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
