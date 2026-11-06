@@ -11,7 +11,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-zinc-200/80 bg-zinc-50/50 py-8 sm:py-12 dark:border-zinc-800 dark:bg-zinc-950/50">
+    <footer className="border-t border-zinc-200/80 bg-zinc-50/50 py-8 sm:py-12 dark:border-zinc-800 dark:bg-zinc-950/50 print:hidden">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 flex flex-col gap-6 sm:gap-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-5 text-center sm:text-left">
           <div className="flex items-center gap-3">

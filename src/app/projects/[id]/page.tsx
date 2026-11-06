@@ -7,6 +7,9 @@ import { featuredProjects, personalInfo } from "@/data/portfolio-data";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { GithubIcon } from "@/components/ui/icons";
 import { Footer } from "@/components/footer";
+import { ReadingProgress } from "@/components/reading-progress";
+import { PrintHeader, PrintFooter } from "@/components/print-layout";
+import { CaseStudyActions } from "@/components/case-study-actions";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -75,8 +78,11 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors flex flex-col justify-between">
+      {/* Scroll Reading Progress Bar */}
+      <ReadingProgress />
+
       {/* Top Sticky Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
+      <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80 print:hidden">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
           <Link
             href="/#projects"
@@ -86,10 +92,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             <span>Back to Projects</span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/"
-              className="flex items-center gap-2 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100"
+              className="flex items-center gap-2 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 mr-1 sm:mr-2"
             >
               <Image
                 src="/aus-logo.png"
@@ -100,6 +106,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               />
               <span className="hidden sm:inline">{personalInfo.name}</span>
             </Link>
+            <CaseStudyActions title={project.title} tagline={project.tagline} />
             <ThemeToggle />
           </div>
         </div>
@@ -108,8 +115,14 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       {/* Main Case Study Content */}
       <main className="flex-1 py-10 sm:py-14 md:py-16">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 flex flex-col gap-8 sm:gap-10">
+          {/* Printable Candidate & Case Study Header */}
+          <PrintHeader
+            pageTitle={`${project.title} - Engineering Case Study`}
+            category={project.category}
+          />
+
           {/* Breadcrumb / Top Meta */}
-          <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400 flex-wrap">
+          <div className="flex items-center gap-2 text-xs font-mono text-zinc-500 dark:text-zinc-400 flex-wrap print:hidden">
             <Link href="/" className="hover:underline">Home</Link>
             <span>/</span>
             <Link href="/#projects" className="hover:underline">Projects</Link>
@@ -365,7 +378,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           </div>
 
           {/* Next Project & Back Navigation Banner */}
-          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 rounded-3xl border border-zinc-200/80 bg-zinc-50/70 p-5 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900/40">
+          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 rounded-3xl border border-zinc-200/80 bg-zinc-50/70 p-5 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900/40 print:hidden">
             <Link
               href="/#projects"
               className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-zinc-700 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-100"
@@ -382,6 +395,9 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
+
+          {/* Printable Footer */}
+          <PrintFooter />
         </div>
       </main>
 

@@ -11,6 +11,7 @@ import { SkillsSection } from "@/components/skills-section";
 import { TerminalSection } from "@/components/terminal-section";
 import { ContactSection } from "@/components/contact-section";
 import { Footer } from "@/components/footer";
+import { PrintHeader, PrintFooter } from "@/components/print-layout";
 
 export default function Home() {
   const [commandOpen, setCommandOpen] = useState(false);
@@ -38,6 +39,9 @@ export default function Home() {
 
       {/* Main Portfolio Sections */}
       <main className="flex flex-col">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 w-full">
+          <PrintHeader pageTitle="Engineering Portfolio & Systems Showcase" />
+        </div>
         <HeroSection />
         <AboutSection />
         <ProjectsSection />
@@ -45,6 +49,9 @@ export default function Home() {
         <SkillsSection />
         <TerminalSection />
         <ContactSection />
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 w-full">
+          <PrintFooter />
+        </div>
       </main>
 
       {/* Refined footer */}

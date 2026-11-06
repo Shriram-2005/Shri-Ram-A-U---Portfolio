@@ -181,6 +181,44 @@ export async function POST(req: NextRequest) {
 
     await transporter.sendMail(mailOptions);
 
+    // Send a polite, instantaneous confirmation auto-reply to the visitor
+    const confirmationOptions = {
+      from: `"Shri Ram A U" <${user}>`,
+      to: email,
+      subject: `Received: ${cleanSubject} - Shri Ram A U`,
+      text: `Hi ${name},\n\nThank you for reaching out through my portfolio (https://www.shriramau.in).\n\nI have received your note regarding "${cleanSubject}" and will get back to you within 24 hours.\n\nBest regards,\nShri Ram A U\nAI Solutions Developer & Software Engineer\nBengaluru, India`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; border: 1px solid #e4e4e7; border-radius: 12px; background: #ffffff;">
+          <div style="border-bottom: 2px solid #8b5cf6; padding-bottom: 12px; margin-bottom: 18px;">
+            <h2 style="margin: 0; color: #18181b; font-size: 18px;">Thank you for getting in touch!</h2>
+            <p style="margin: 4px 0 0; color: #71717a; font-size: 13px;">Shri Ram A U | Portfolio Inquiry Confirmation</p>
+          </div>
+          
+          <p style="color: #27272a; font-size: 14px; line-height: 1.6; margin-bottom: 14px;">
+            Hi ${escapeHtml(name)},<br /><br />
+            Thank you for reaching out through my portfolio. I have received your message regarding <strong>${escapeHtml(cleanSubject)}</strong> and will review it promptly. You can expect a response within 24 hours.
+          </p>
+
+          <div style="margin: 16px 0; padding: 14px; background: #f4f4f5; border-radius: 8px; font-size: 13px; color: #52525b; line-height: 1.5;">
+            <div style="font-weight: 600; margin-bottom: 6px; color: #18181b;">Your Message:</div>
+            <div style="white-space: pre-wrap; color: #3f3f46;">${escapeHtml(message)}</div>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e4e4e7; font-size: 12px; color: #71717a; line-height: 1.6;">
+            <strong style="color: #18181b;">Shri Ram A U</strong><br />
+            AI Solutions Developer &amp; Software Engineer<br />
+            Presidency University Bangalore | Saina Human AI<br />
+            <a href="https://www.shriramau.in" style="color: #8b5cf6; text-decoration: none;">shriramau.in</a>
+          </div>
+        </div>
+      `,
+    };
+
+    // Dispatched asynchronously without blocking the response
+    transporter.sendMail(confirmationOptions).catch((err) => {
+      console.warn("Confirmation auto-reply error:", err);
+    });
+
     return NextResponse.json(
       { success: true, message: "Your message has been delivered directly to Shri Ram's inbox." },
       { status: 200 }

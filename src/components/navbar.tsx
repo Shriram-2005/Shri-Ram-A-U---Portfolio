@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useToast } from "@/components/ui/toast";
 import { personalInfo } from "@/data/portfolio-data";
-import { Search, Menu, X, FileText, ArrowRight } from "lucide-react";
+import { Search, Menu, X, FileText, ArrowRight, Share2 } from "lucide-react";
 
 interface NavbarProps {
   onOpenCommand: () => void;
@@ -21,10 +22,32 @@ const navLinks = [
 ];
 
 export function Navbar({ onOpenCommand }: NavbarProps) {
+  const { toast } = useToast();
   const [activeSection, setActiveSection] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [shortcutKey, setShortcutKey] = useState("Ctrl+K");
+
+  const handleShare = async () => {
+    const shareData = {
+      title: "Shri Ram A U | AI Solutions Developer & Software Engineer",
+      text: "Portfolio of Shri Ram A U - AI Solutions Developer Intern & Systems Engineer",
+      url: typeof window !== "undefined" ? window.location.origin : "https://www.shriramau.in",
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // User cancelled share dialog
+      }
+    } else {
+      if (typeof window !== "undefined") {
+        await navigator.clipboard.writeText(window.location.origin);
+        toast("Portfolio link copied to clipboard!", "success");
+      }
+    }
+  };
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -59,7 +82,7 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 print:hidden ${
           scrolled ? "py-2 sm:py-3" : "py-3 sm:py-5"
         }`}
       >
@@ -138,6 +161,16 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
 
               <ThemeToggle />
 
+              {/* Share Portfolio Button */}
+              <button
+                onClick={handleShare}
+                className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-zinc-200/80 bg-zinc-50 text-zinc-600 transition-colors hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:bg-zinc-800"
+                aria-label="Share Portfolio"
+                title="Share Portfolio link"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+              </button>
+
               {/* Mobile menu toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -160,14 +193,14 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="fixed inset-0 z-30 bg-black/40 backdrop-blur-xs md:hidden"
+              className="fixed inset-0 z-30 bg-black/40 backdrop-blur-xs md:hidden print:hidden"
             />
             <motion.div
               initial={{ opacity: 0, y: -16, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -16, scale: 0.98 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-x-3 top-16 z-40 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur-xl md:hidden dark:border-zinc-800 dark:bg-zinc-900/95"
+              className="fixed inset-x-3 top-16 z-40 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur-xl md:hidden dark:border-zinc-800 dark:bg-zinc-900/95 print:hidden"
             >
               <div className="flex flex-col gap-1">
                 {navLinks.map((link) => (
@@ -194,6 +227,20 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
                       <span>Search Command Menu</span>
                     </span>
                     <span className="font-mono text-xs">{shortcutKey}</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleShare();
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800/80 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Share2 className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                      <span>Share Portfolio Link</span>
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-400">Copy / Share</span>
                   </button>
 
                   <a

@@ -44,3 +44,42 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Print optimization for PDF export and paper printing */
+@media print {
+  @page {
+    margin: 1.2cm;
+    size: auto;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #18181b !important;
+    font-size: 10.5pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Force light colors and remove dark backgrounds for clean printing */
+  * {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Prevent card content from splitting awkwardly across pages */
+  article,
+  section,
+  .rounded-2xl,
+  .rounded-3xl,
+  .border,
+  pre {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Remove heavy dark backgrounds & shadows in print */
+  .dark {
+    --background: #ffffff !important;
+    --foreground: #18181b !important;
+  }
+}
