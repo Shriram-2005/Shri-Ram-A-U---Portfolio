@@ -111,7 +111,7 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
                 />
               </div>
               <div className="flex flex-col min-w-0">
-                <span className="leading-tight font-bold text-xs sm:text-sm tracking-tight truncate">
+                <span className="leading-tight font-bold text-xs sm:text-sm tracking-tight whitespace-nowrap">
                   {personalInfo.name}
                 </span>
                 <span className="hidden sm:inline text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
