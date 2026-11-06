@@ -97,22 +97,25 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
             {/* Logo / Monogram */}
             <a
               href="#"
-              className="group flex items-center gap-2.5 text-xs sm:text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
+              className="group flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 min-w-0"
             >
-              <div className="relative flex items-center justify-center transition-transform group-hover:scale-105">
+              <div className="relative flex items-center justify-center shrink-0 transition-transform group-hover:scale-105">
                 <Image
                   src="/aus-logo.png"
                   alt="AUS Logo"
-                  width={78}
-                  height={30}
-                  className="h-6 sm:h-7 w-auto object-contain"
+                  width={112}
+                  height={42}
+                  quality={95}
+                  className="h-7 sm:h-8 w-auto object-contain"
                   priority
                 />
               </div>
-              <div className="flex flex-col">
-                <span className="leading-tight font-bold">{personalInfo.name}</span>
+              <div className="flex flex-col min-w-0">
+                <span className="leading-tight font-bold text-xs sm:text-sm tracking-tight truncate">
+                  {personalInfo.name}
+                </span>
                 <span className="hidden sm:inline text-[10px] font-mono text-zinc-500 dark:text-zinc-400">
-                  AI & Systems Engineer
+                  AI &amp; Systems Engineer
                 </span>
               </div>
             </a>
@@ -203,6 +206,26 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
               className="fixed inset-x-3 top-16 z-40 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur-xl md:hidden dark:border-zinc-800 dark:bg-zinc-900/95 print:hidden"
             >
               <div className="flex flex-col gap-1">
+                {/* Mobile Drawer Brand Header */}
+                <div className="flex items-center gap-3 pb-3 mb-1 border-b border-zinc-200/80 px-2 dark:border-zinc-800/80">
+                  <Image
+                    src="/aus-logo.png"
+                    alt="AUS Logo"
+                    width={96}
+                    height={36}
+                    quality={95}
+                    className="h-6 w-auto object-contain shrink-0"
+                  />
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">
+                      {personalInfo.name}
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 truncate">
+                      AI Solutions &amp; Systems Engineer
+                    </span>
+                  </div>
+                </div>
+
                 {navLinks.map((link) => (
                   <a
                     key={link.name}

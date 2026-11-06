@@ -18,9 +18,10 @@ export function Footer() {
             <Image
               src="/aus-logo.png"
               alt="AUS Logo"
-              width={78}
-              height={30}
-              className="h-7 w-auto object-contain"
+              width={108}
+              height={40}
+              quality={95}
+              className="h-7 sm:h-8 w-auto object-contain shrink-0"
             />
             <div>
               <div className="text-sm font-bold text-zinc-900 dark:text-zinc-100">

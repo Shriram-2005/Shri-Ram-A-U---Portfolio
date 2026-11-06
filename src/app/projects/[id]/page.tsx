@@ -83,26 +83,29 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
       {/* Top Sticky Header */}
       <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80 print:hidden">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-4">
+        <div className="mx-auto max-w-5xl px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
           <Link
             href="/#projects"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+            className="inline-flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-semibold text-zinc-600 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to Projects</span>
+            <span className="hidden sm:inline">Back to Projects</span>
+            <span className="sm:hidden font-mono text-xs">Projects</span>
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             <Link
               href="/"
-              className="flex items-center gap-2 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 mr-1 sm:mr-2"
+              className="flex items-center gap-1.5 sm:gap-2 text-xs font-mono font-bold text-zinc-900 dark:text-zinc-100 mr-0.5 sm:mr-2 shrink-0 transition-transform hover:scale-105"
+              title="Return to Home"
             >
               <Image
                 src="/aus-logo.png"
                 alt="AUS Logo"
-                width={65}
-                height={25}
-                className="h-5 sm:h-6 w-auto object-contain"
+                width={100}
+                height={37}
+                quality={95}
+                className="h-6 sm:h-7 w-auto object-contain shrink-0"
               />
               <span className="hidden sm:inline">{personalInfo.name}</span>
             </Link>
