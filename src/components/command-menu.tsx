@@ -55,6 +55,8 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [shortcutKey, setShortcutKey] = useState("Ctrl+K");
   const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const isKeyboardNavRef = useRef(false);
   const { setTheme } = useTheme();
   const { toast } = useToast();
 
@@ -506,10 +508,51 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
 
   useEffect(() => {
     if (isOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      setSelectedIndex(0);
+      if (listRef.current) {
+        listRef.current.scrollTop = 0;
+      }
       const timer = setTimeout(() => inputRef.current?.focus(), 50);
-      return () => clearTimeout(timer);
+      return () => {
+        document.body.style.overflow = prevOverflow;
+        clearTimeout(timer);
+      };
     }
   }, [isOpen]);
+
+  // Keep selectedIndex within valid range when search query filters results
+  useEffect(() => {
+    if (selectedIndex >= flatItems.length) {
+      setSelectedIndex(0);
+    }
+  }, [flatItems.length, selectedIndex]);
+
+  // Auto-scroll the list to ensure the selected item is always visible
+  useEffect(() => {
+    if (!listRef.current) return;
+
+    if (selectedIndex === 0) {
+      listRef.current.scrollTop = 0;
+      return;
+    }
+
+    if (isKeyboardNavRef.current) {
+      const container = listRef.current;
+      const selectedElement = container.querySelector<HTMLElement>('[data-selected="true"]');
+      if (selectedElement) {
+        const containerRect = container.getBoundingClientRect();
+        const itemRect = selectedElement.getBoundingClientRect();
+
+        if (itemRect.bottom > containerRect.bottom) {
+          container.scrollTop += itemRect.bottom - containerRect.bottom + 12;
+        } else if (itemRect.top < containerRect.top) {
+          container.scrollTop -= containerRect.top - itemRect.top + 12;
+        }
+      }
+    }
+  }, [selectedIndex]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -526,10 +569,20 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
         handleClose();
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
+        isKeyboardNavRef.current = true;
         setSelectedIndex((prev) => (prev + 1) % Math.max(1, flatItems.length));
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
+        isKeyboardNavRef.current = true;
         setSelectedIndex((prev) => (prev - 1 + flatItems.length) % Math.max(1, flatItems.length));
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        isKeyboardNavRef.current = true;
+        setSelectedIndex(0);
+      } else if (e.key === "End") {
+        e.preventDefault();
+        isKeyboardNavRef.current = true;
+        setSelectedIndex(Math.max(0, flatItems.length - 1));
       } else if (e.key === "Enter" && flatItems[selectedIndex]) {
         e.preventDefault();
         flatItems[selectedIndex].action();
@@ -583,7 +636,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
             </div>
 
             {/* Command List */}
-            <div className="max-h-96 overflow-y-auto p-2">
+            <div ref={listRef} className="max-h-96 overflow-y-auto p-2 scroll-py-2">
               {flatItems.length === 0 ? (
                 <div className="py-12 text-center text-sm text-zinc-500 dark:text-zinc-400">
                   No matching projects or commands found for &ldquo;{query}&rdquo;.
@@ -602,9 +655,13 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
                       return (
                         <button
                           key={item.id}
+                          data-selected={isSelected}
                           onClick={item.action}
-                          onMouseEnter={() => setSelectedIndex(globalIndex)}
-                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors ${
+                          onMouseEnter={() => {
+                            isKeyboardNavRef.current = false;
+                            setSelectedIndex(globalIndex);
+                          }}
+                          className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors scroll-my-1 ${
                             isSelected
                               ? "bg-purple-50 text-purple-900 dark:bg-purple-950/40 dark:text-purple-200"
                               : "text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800/60"
