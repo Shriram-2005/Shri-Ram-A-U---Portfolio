@@ -14,6 +14,8 @@ import {
   Clock,
   Phone,
   ArrowUpRight,
+  ShieldCheck,
+  Loader2,
 } from "lucide-react";
 
 export function ContactSection() {
@@ -36,7 +38,7 @@ export function ContactSection() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
       toast("Please complete all required fields.", "error");
@@ -44,20 +46,32 @@ export function ContactSection() {
     }
 
     setSubmitting(true);
+    setSubmitted(false);
 
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to deliver message.");
+      }
+
       setSubmitted(true);
-      toast("Message prepared! Opening your mail client...", "success");
-
-      const subject = encodeURIComponent(
-        `[Portfolio Inquiry] ${formData.subject || "Collaboration with Shri Ram"}`
-      );
-      const body = encodeURIComponent(
-        `Hi Shri Ram,\n\n${formData.message}\n\nBest regards,\n${formData.name} (${formData.email})`
-      );
-      window.open(`mailto:${personalInfo.email}?subject=${subject}&body=${body}`, "_blank");
-    }, 800);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+      toast("Message delivered directly to Shri Ram's inbox!", "success");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      toast(msg, "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -95,11 +109,13 @@ export function ContactSection() {
                 </button>
 
                 <a
-                  href={`mailto:${personalInfo.email}`}
+                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${personalInfo.email}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex items-center justify-center gap-1.5 rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-xs font-semibold text-zinc-700 transition-colors hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                 >
-                  <Mail className="h-4 w-4" />
-                  <span>Open Mail App</span>
+                  <Mail className="h-4 w-4 text-purple-500" />
+                  <span>Open in Gmail</span>
                 </a>
               </div>
             </div>
@@ -238,24 +254,35 @@ export function ContactSection() {
                 />
               </div>
 
+              <div className="flex items-center gap-2 rounded-xl bg-purple-500/10 border border-purple-500/20 px-3 py-2 text-xs text-purple-700 dark:text-purple-300">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-purple-600 dark:text-purple-400" />
+                <span>
+                  Direct inbox delivery: no desktop mail app required. You can send your message directly from here.
+                </span>
+              </div>
+
               <button
                 type="submit"
                 disabled={submitting}
                 className="mt-1 flex items-center justify-center gap-2 rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
               >
                 {submitting ? (
-                  <span>Sending message...</span>
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Delivering to Shri Ram...</span>
+                  </>
                 ) : (
                   <>
                     <Send className="h-4 w-4" />
-                    <span>Send Message</span>
+                    <span>Send Message Directly</span>
                   </>
                 )}
               </button>
 
               {submitted && (
-                <div className="rounded-xl bg-emerald-50 p-3 text-xs text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
-                  Thank you! Your inquiry has been routed to Shri Ram&apos;s primary mailbox.
+                <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3.5 text-xs text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-800/50 dark:text-emerald-300">
+                  <div className="font-semibold mb-0.5">Message delivered successfully!</div>
+                  <div>Your inquiry has landed directly in Shri Ram&apos;s mailbox. A response will be sent to your email address within 24 hours.</div>
                 </div>
               )}
             </form>

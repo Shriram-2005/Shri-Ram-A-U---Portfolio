@@ -13,7 +13,6 @@ export const personalInfo = {
   email: "shriram2005au@gmail.com",
   github: "https://github.com/Shriram-2005",
   linkedin: "https://www.linkedin.com/in/shriramau",
-  twitter: "https://x.com/shriramau",
   resumeUrl: "/resume.pdf",
   resumeReleaseUrl:
     "https://github.com/Shriram-2005/Shri-Ram-A-U---Portfolio/releases/download/v1.0.1/Shri.Ram.A.U.-.Resume.pdf",
@@ -430,12 +429,6 @@ export const socialLinks: SocialLink[] = [
     url: "https://www.linkedin.com/in/shriramau",
     handle: "/in/shriramau",
     icon: "Linkedin",
-  },
-  {
-    name: "Twitter / X",
-    url: "https://x.com/shriramau",
-    handle: "@shriramau",
-    icon: "Twitter",
   },
   {
     name: "Email",
