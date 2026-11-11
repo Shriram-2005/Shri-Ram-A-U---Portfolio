@@ -67,11 +67,13 @@ export function TerminalSection() {
           setTerminalMode("normal");
           setTempOldPass("");
           setTempNewPass("");
+          // Automatically trigger serverless IMAP cleanup of expired OTP email from Gmail
+          fetch("/api/admin/otp/cleanup", { method: "POST" }).catch(() => {});
           setHistory((h) => [
             ...h,
             {
               type: "error",
-              content: "[TIMEOUT] 30-second verification window expired. Request cancelled. Returned to shell.",
+              content: "[TIMEOUT] 30-second verification window expired. OTP email automatically expunged from Gmail. Request cancelled.",
             },
           ]);
           return 0;

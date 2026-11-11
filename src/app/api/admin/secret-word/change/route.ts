@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateSecretKeyword, updateSecretKeyword } from "@/lib/admin-auth";
-import { verifyOtp } from "@/lib/otp-service";
+import { verifyOtp, deleteGmailOtpEmail } from "@/lib/otp-service";
 import { checkRateLimit, resetRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
@@ -76,6 +76,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Immediately sweep and expunge this OTP email from Gmail
+    await deleteGmailOtpEmail(cleanOtp).catch(() => {});
 
     // 3. Commit new secret keyword to Supabase
     const saved = await updateSecretKeyword(cleanNew);

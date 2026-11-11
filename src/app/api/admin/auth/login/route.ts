@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateAdminCredentials, createSessionToken, COOKIE_NAME } from "@/lib/admin-auth";
-import { verifyOtp } from "@/lib/otp-service";
+import { verifyOtp, deleteGmailOtpEmail } from "@/lib/otp-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,6 +18,8 @@ export async function POST(req: NextRequest) {
           { status: 401 }
         );
       }
+      // Immediately sweep and expunge this OTP email from Gmail
+      await deleteGmailOtpEmail(otp.toString().trim()).catch(() => {});
     } else if (email && password) {
       // 2. Fallback email + password login
       const isValid = await validateAdminCredentials(email, password);

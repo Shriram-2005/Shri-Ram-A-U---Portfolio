@@ -65,7 +65,14 @@ export default function AdminLoginPage() {
   useEffect(() => {
     if (otpExpiry <= 0) return;
     const interval = setInterval(() => {
-      setOtpExpiry((prev) => (prev <= 1 ? 0 : prev - 1));
+      setOtpExpiry((prev) => {
+        if (prev <= 1) {
+          // Automatically trigger serverless IMAP cleanup of expired OTP email from Gmail
+          fetch("/api/admin/otp/cleanup", { method: "POST" }).catch(() => {});
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
     return () => clearInterval(interval);
   }, [otpExpiry]);

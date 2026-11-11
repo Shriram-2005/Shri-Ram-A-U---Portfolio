@@ -87,6 +87,7 @@ export function verifyOtp(purpose: OtpPurpose, candidate: string): { valid: bool
 
 /**
  * Connect to Gmail IMAP and expunge/delete OTP emails matching code or pattern
+ * Sweeps INBOX, Sent Mail, and permanently expunges from [Gmail]/Trash
  */
 export async function deleteGmailOtpEmail(codePattern?: string): Promise<{ deleted: number }> {
   const host = "imap.gmail.com";
@@ -97,6 +98,8 @@ export async function deleteGmailOtpEmail(codePattern?: string): Promise<{ delet
   if (!user || !pass) {
     return { deleted: 0 };
   }
+
+  const searchSubject = codePattern ? `[30s Code: ${codePattern}]` : `[30s Code:`;
 
   return new Promise((resolve) => {
     let deletedCount = 0;
@@ -110,42 +113,109 @@ export async function deleteGmailOtpEmail(codePattern?: string): Promise<{ delet
         socket.destroy();
       } catch {}
       resolve({ deleted: deletedCount });
-    }, 10000); // 10s max connection window
+    }, 15000); // 15s max connection window
 
     socket.on("data", (data: string) => {
       try {
+        // Step 0: Initial connection banner
         if (step === 0 && data.includes("* OK")) {
           step = 1;
           socket.write(`A1 LOGIN "${user}" "${pass}"\r\n`);
-        } else if (step === 1 && data.includes("A1 OK")) {
+        }
+        // Step 1: Login result
+        else if (step === 1 && data.includes("A1 OK")) {
           step = 2;
           socket.write(`A2 SELECT "INBOX"\r\n`);
-        } else if (step === 1 && data.includes("A1 NO")) {
+        } else if (step === 1 && (data.includes("A1 NO") || data.includes("A1 BAD"))) {
           clearTimeout(timeoutTimer);
           socket.end();
           resolve({ deleted: 0 });
-        } else if (step === 2 && data.includes("A2 OK")) {
+        }
+        // Step 2: INBOX selected -> Search OTP in INBOX
+        else if (step === 2 && data.includes("A2 OK")) {
           step = 3;
-          const searchSubject = codePattern ? `[30s Code: ${codePattern}]` : `[30s Code:`;
           socket.write(`A3 UID SEARCH SUBJECT "${searchSubject}"\r\n`);
-        } else if (step === 3 && data.includes("A3 OK")) {
+        }
+        // Step 3: Search INBOX result -> Apply \Trash label or proceed to Sent Mail
+        else if (step === 3 && data.includes("A3 OK")) {
           const match = data.match(/\* SEARCH ([\d\s]+)/);
           if (match && match[1].trim()) {
-            const uids = match[1].trim().split(/\s+/);
-            deletedCount = uids.length;
+            const uids = match[1].trim().split(/\s+/).join(",");
+            deletedCount += match[1].trim().split(/\s+/).length;
             step = 4;
-            socket.write(`A4 UID STORE ${uids.join(",")} +FLAGS (\\Deleted)\r\n`);
+            // Move from INBOX directly to Gmail Trash
+            socket.write(`A4 UID STORE ${uids} +X-GM-LABELS (\\Trash)\r\n`);
           } else {
             step = 6;
-            socket.write(`A6 LOGOUT\r\n`);
+            socket.write(`A6 SELECT "[Gmail]/Sent Mail"\r\n`);
           }
-        } else if (step === 4 && data.includes("A4 OK")) {
+        }
+        // Step 4: Stored in Trash from INBOX -> Expunge INBOX
+        else if (step === 4 && data.includes("A4 OK")) {
           step = 5;
           socket.write(`A5 EXPUNGE\r\n`);
-        } else if (step === 5 && data.includes("A5 OK")) {
+        }
+        // Step 5: INBOX expunged -> Select Sent Mail
+        else if (step === 5 && data.includes("A5 OK")) {
           step = 6;
-          socket.write(`A6 LOGOUT\r\n`);
-        } else if (step === 6) {
+          socket.write(`A6 SELECT "[Gmail]/Sent Mail"\r\n`);
+        }
+        // Step 6: Sent Mail selected -> Search OTP in Sent Mail
+        else if (step === 6 && data.includes("A6 OK")) {
+          step = 7;
+          socket.write(`A7 UID SEARCH SUBJECT "${searchSubject}"\r\n`);
+        }
+        // Step 7: Search Sent Mail result -> Apply \Trash label or proceed to Trash
+        else if (step === 7 && data.includes("A7 OK")) {
+          const match = data.match(/\* SEARCH ([\d\s]+)/);
+          if (match && match[1].trim()) {
+            const uids = match[1].trim().split(/\s+/).join(",");
+            step = 8;
+            socket.write(`A8 UID STORE ${uids} +X-GM-LABELS (\\Trash)\r\n`);
+          } else {
+            step = 10;
+            socket.write(`A10 SELECT "[Gmail]/Trash"\r\n`);
+          }
+        }
+        // Step 8: Stored in Trash from Sent Mail -> Expunge Sent Mail
+        else if (step === 8 && data.includes("A8 OK")) {
+          step = 9;
+          socket.write(`A9 EXPUNGE\r\n`);
+        }
+        // Step 9: Sent Mail expunged -> Select Trash
+        else if (step === 9 && data.includes("A9 OK")) {
+          step = 10;
+          socket.write(`A10 SELECT "[Gmail]/Trash"\r\n`);
+        }
+        // Step 10: Trash selected -> Search OTP in Trash
+        else if (step === 10 && data.includes("A10 OK")) {
+          step = 11;
+          socket.write(`A11 UID SEARCH SUBJECT "${searchSubject}"\r\n`);
+        }
+        // Step 11: Search Trash result -> Permanently erase forever with \Deleted + EXPUNGE
+        else if (step === 11 && data.includes("A11 OK")) {
+          const match = data.match(/\* SEARCH ([\d\s]+)/);
+          if (match && match[1].trim()) {
+            const uids = match[1].trim().split(/\s+/).join(",");
+            step = 12;
+            socket.write(`A12 UID STORE ${uids} +FLAGS (\\Deleted)\r\n`);
+          } else {
+            step = 14;
+            socket.write(`A14 LOGOUT\r\n`);
+          }
+        }
+        // Step 12: Flags Deleted applied in Trash -> Permanently expunge
+        else if (step === 12 && data.includes("A12 OK")) {
+          step = 13;
+          socket.write(`A13 EXPUNGE\r\n`);
+        }
+        // Step 13: Permanent expunge complete -> Logout
+        else if (step === 13 && data.includes("A13 OK")) {
+          step = 14;
+          socket.write(`A14 LOGOUT\r\n`);
+        }
+        // Step 14: Logout acknowledged
+        else if (step === 14) {
           clearTimeout(timeoutTimer);
           socket.end();
           resolve({ deleted: deletedCount });

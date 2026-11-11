@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyOtp } from "@/lib/otp-service";
+import { verifyOtp, deleteGmailOtpEmail } from "@/lib/otp-service";
 import { createGateToken, GATE_COOKIE_NAME } from "@/lib/admin-auth";
 import { checkRateLimit, resetRateLimit, getClientIp } from "@/lib/rate-limit";
 
@@ -45,6 +45,9 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
+
+    // Immediately sweep and expunge this OTP email from Gmail
+    await deleteGmailOtpEmail(cleanOtp).catch(() => {});
 
     // Reset rate limit on success
     resetRateLimit(rateLimitKey);
