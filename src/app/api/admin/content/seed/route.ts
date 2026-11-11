@@ -27,3 +27,4 @@ export async function POST(req: NextRequest) {
     message: "Codebase defaults seeded into Supabase successfully.",
   });
 }
+

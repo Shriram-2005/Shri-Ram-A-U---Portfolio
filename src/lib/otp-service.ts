@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
-export type OtpPurpose = "login" | "request_change" | "confirm_change";
+export type OtpPurpose = "login" | "request_change" | "confirm_change" | "terminal_gate";
 
 interface OtpRecord {
   code: string;
@@ -102,7 +102,10 @@ export async function sendOtpEmail(code: string, purpose: OtpPurpose): Promise<b
   let title = "Portfolio Admin Access";
   let description = "Enter this one-time code within 30 seconds to authenticate without a username or password.";
 
-  if (purpose === "login") {
+  if (purpose === "terminal_gate") {
+    title = "Terminal Gateway Access Code";
+    description = "You requested access to the Admin Login Portal from the Developer Terminal. Enter this 6-digit code in your terminal within 30 seconds to unlock the gateway.";
+  } else if (purpose === "login") {
     title = "One-Time Passwordless Login Code";
     description = "You requested to log into your Portfolio CMS. Enter this code within 30 seconds. No password or username required.";
   } else if (purpose === "request_change") {

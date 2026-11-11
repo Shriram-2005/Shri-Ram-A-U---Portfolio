@@ -103,3 +103,4 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 export function usePortfolio() {
   return useContext(PortfolioContext);
 }
+

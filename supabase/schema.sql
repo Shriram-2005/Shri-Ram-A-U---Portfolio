@@ -47,3 +47,4 @@ VALUES
   ('secret_keyword', 'aus-master'),
   ('admin_email', 'shriram2005au@gmail.com')
 ON CONFLICT (key) DO NOTHING;
+

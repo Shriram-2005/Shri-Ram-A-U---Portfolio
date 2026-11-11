@@ -23,7 +23,7 @@ interface TerminalLine {
 type TerminalMode =
   | "normal"
   | "admin_menu"
-  | "login_otp"
+  | "gate_otp"
   | "change_otp1"
   | "change_old_pass"
   | "change_new_pass"
@@ -115,8 +115,8 @@ export function TerminalSection() {
     switch (terminalMode) {
       case "admin_menu":
         return "admin-menu> ";
-      case "login_otp":
-        return `[login-code (${otpCountdown}s)]> `;
+      case "gate_otp":
+        return `[terminal-otp (${otpCountdown}s)]> `;
       case "change_otp1":
         return `[otp-1 (${otpCountdown}s)]> `;
       case "change_old_pass":
@@ -154,7 +154,7 @@ export function TerminalSection() {
       if (lower === "1" || lower === "continue") {
         newLines.push({
           type: "output",
-          content: "[STEP 1] Dispatching 30-second login verification code to shriram2005au@gmail.com...",
+          content: "[STEP 1/2] Dispatching 30-second gateway access code to shriram2005au@gmail.com...",
         });
         setHistory((prev) => [...prev, ...newLines]);
 
@@ -162,25 +162,25 @@ export function TerminalSection() {
           const res = await fetch("/api/admin/otp/send", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ purpose: "login" }),
+            body: JSON.stringify({ purpose: "terminal_gate" }),
           });
           const data = await res.json();
 
           if (data.success) {
             setOtpCountdown(30);
-            setTerminalMode("login_otp");
+            setTerminalMode("gate_otp");
             setHistory((prev) => [
               ...prev,
               {
                 type: "output",
                 content: (
-                  <div className="flex flex-col gap-1 text-amber-300">
+                  <div className="flex flex-col gap-1 text-amber-600 dark:text-amber-300">
                     <div className="flex items-center gap-2 font-bold">
                       <Clock className="h-3.5 w-3.5 animate-spin" />
-                      <span>[DISPATCHED] 30-Second Access Code sent via SMTP (no username/password needed)!</span>
+                      <span>[DISPATCHED] 30-Second Gateway Code sent via SMTP to shriram2005au@gmail.com!</span>
                     </div>
-                    <div className="text-[11px] text-zinc-300">
-                      Enter the 6-digit code below to log in directly, or type &apos;web&apos; to open the login page:
+                    <div className="text-[11px] text-zinc-600 dark:text-zinc-300">
+                      Enter the 6-digit code below within 30 seconds to unlock the Admin Login Portal:
                     </div>
                   </div>
                 ),
@@ -190,14 +190,14 @@ export function TerminalSection() {
             setTerminalMode("normal");
             setHistory((prev) => [
               ...prev,
-              { type: "error", content: `[ERROR] Failed to send login OTP: ${data.error || "SMTP failure"}` },
+              { type: "error", content: `[ERROR] Failed to send gateway code: ${data.error || "SMTP failure"}` },
             ]);
           }
         } catch {
           setTerminalMode("normal");
           setHistory((prev) => [
             ...prev,
-            { type: "error", content: "[ERROR] Network error dispatching login OTP." },
+            { type: "error", content: "[ERROR] Network error dispatching gateway code." },
           ]);
         }
         return;
@@ -240,7 +240,7 @@ export function TerminalSection() {
               {
                 type: "output",
                 content: (
-                  <div className="flex items-center gap-2 text-amber-300 font-bold">
+                  <div className="flex items-center gap-2 text-amber-600 dark:text-amber-300 font-bold">
                     <Clock className="h-3.5 w-3.5 animate-spin" />
                     <span>[DISPATCHED] A 6-digit OTP has been sent. You have exactly 30 seconds to enter it.</span>
                   </div>
@@ -266,32 +266,26 @@ export function TerminalSection() {
 
       newLines.push({
         type: "error",
-        content: "Invalid option. Type 'continue' to login, 'change' to update secret word, or 'exit'.",
+        content: "Invalid option. Type 'continue' to unlock login, 'change' to update secret word, or 'exit'.",
       });
       setHistory((prev) => [...prev, ...newLines]);
       return;
     }
 
     // -------------------------------------------------------------
-    // STATE: LOGIN OTP (Passwordless 30-second login)
+    // STATE: GATE OTP (Unlock access to /admin/login)
     // -------------------------------------------------------------
-    if (terminalMode === "login_otp") {
+    if (terminalMode === "gate_otp") {
       if (lower === "cancel" || lower === "exit") {
         setOtpCountdown(0);
         setTerminalMode("normal");
-        newLines.push({ type: "output", content: "Login aborted. Returned to shell." });
+        newLines.push({ type: "output", content: "Gateway authorization aborted. Returned to guest shell." });
         setHistory((prev) => [...prev, ...newLines]);
         return;
       }
 
-      if (lower === "web" || lower === "login" || lower === "browser") {
-        setTerminalMode("normal");
-        router.push("/admin/login");
-        return;
-      }
-
       try {
-        const res = await fetch("/api/admin/auth/login", {
+        const res = await fetch("/api/admin/terminal/verify-gate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ otp: trimmed }),
@@ -304,28 +298,28 @@ export function TerminalSection() {
           newLines.push({
             type: "output",
             content: (
-              <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/40 p-3 text-emerald-300 flex flex-col gap-1">
+              <div className="rounded-lg border border-emerald-300 dark:border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 p-3 text-emerald-800 dark:text-emerald-300 flex flex-col gap-1">
                 <div className="font-bold flex items-center gap-1.5">
                   <KeyRound className="h-4 w-4" />
-                  <span>[AUTHENTICATED] 30-Second Access Code verified! Launching Portfolio CMS (/admin)...</span>
+                  <span>[GATEWAY UNLOCKED] Terminal authorization verified! Redirecting to Admin Login Portal (/admin/login)...</span>
                 </div>
-                <div className="text-[11px] text-zinc-300">
-                  Access granted without username or password.
+                <div className="text-[11px] text-zinc-600 dark:text-zinc-300">
+                  Temporary 15-minute gate pass granted. Transferring now...
                 </div>
               </div>
             ),
           });
           setHistory((prev) => [...prev, ...newLines]);
-          router.push("/admin");
+          router.push("/admin/login");
           return;
         } else {
           newLines.push({
             type: "error",
-            content: `[ERROR] ${data.error || "Invalid login code."} Please re-enter code or type 'cancel'.`,
+            content: `[ERROR] ${data.error || "Invalid gateway code."} Please re-enter code or type 'cancel'.`,
           });
         }
       } catch {
-        newLines.push({ type: "error", content: "[ERROR] Failed to verify login code." });
+        newLines.push({ type: "error", content: "[ERROR] Failed to verify gateway code." });
       }
 
       setHistory((prev) => [...prev, ...newLines]);
@@ -811,30 +805,30 @@ export function TerminalSection() {
             newLines.push({
               type: "output",
               content: (
-                <div className="rounded-xl border border-purple-500/50 bg-purple-950/40 p-4 text-xs font-mono flex flex-col gap-2.5 shadow-xl">
-                  <div className="flex items-center gap-2 text-purple-300 font-bold uppercase tracking-wider border-b border-purple-800/60 pb-2">
-                    <ShieldAlert className="h-4 w-4 text-purple-400" />
+                <div className="rounded-xl border border-purple-300 dark:border-purple-500/50 bg-purple-50 dark:bg-purple-950/40 p-4 text-xs font-mono flex flex-col gap-2.5 shadow-xl transition-colors">
+                  <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold uppercase tracking-wider border-b border-purple-200 dark:border-purple-800/60 pb-2">
+                    <ShieldAlert className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                     <span>[SECURITY PROTOCOL ACTIVATED] Administrative Access Unlocked</span>
                   </div>
-                  <p className="text-zinc-200">
+                  <p className="text-zinc-700 dark:text-zinc-200">
                     Secret keyword recognized. Access level: Portfolio Owner &amp; Administrator.
                   </p>
-                  <div className="flex flex-col gap-1.5 text-zinc-300 pt-1">
+                  <div className="flex flex-col gap-1.5 text-zinc-700 dark:text-zinc-300 pt-1">
                     <div>
-                      <strong className="text-purple-300 font-bold">[1] continue</strong>
-                      <span className="text-zinc-400"> - Passwordless 30-second OTP login (no password needed)</span>
+                      <strong className="text-purple-700 dark:text-purple-300 font-bold">[1] continue</strong>
+                      <span className="text-zinc-600 dark:text-zinc-400"> - 30s OTP authorization to unlock Admin Login Portal</span>
                     </div>
                     <div>
-                      <strong className="text-purple-300 font-bold">[2] change secret word</strong>
-                      <span className="text-zinc-400"> - Update secret keyword (2-step OTP validation)</span>
+                      <strong className="text-purple-700 dark:text-purple-300 font-bold">[2] change secret word</strong>
+                      <span className="text-zinc-600 dark:text-zinc-400"> - Update secret keyword (2-step OTP validation)</span>
                     </div>
                     <div>
-                      <strong className="text-purple-300 font-bold">[3] exit</strong>
-                      <span className="text-zinc-400"> - Return to standard terminal shell</span>
+                      <strong className="text-purple-700 dark:text-purple-300 font-bold">[3] exit</strong>
+                      <span className="text-zinc-600 dark:text-zinc-400"> - Return to standard terminal shell</span>
                     </div>
                   </div>
-                  <div className="text-[11px] text-purple-300/80 pt-1 border-t border-purple-900/50">
-                    Type <span className="font-bold text-white">&apos;continue&apos;</span>, <span className="font-bold text-white">&apos;change&apos;</span>, or <span className="font-bold text-white">&apos;exit&apos;</span>:
+                  <div className="text-[11px] text-purple-700 dark:text-purple-300/80 pt-1 border-t border-purple-200 dark:border-purple-900/50">
+                    Type <span className="font-bold text-zinc-900 dark:text-white">&apos;continue&apos;</span>, <span className="font-bold text-zinc-900 dark:text-white">&apos;change&apos;</span>, or <span className="font-bold text-zinc-900 dark:text-white">&apos;exit&apos;</span>:
                   </div>
                 </div>
               ),
@@ -909,17 +903,17 @@ export function TerminalSection() {
         {/* macOS Terminal Window */}
         <div
           onClick={() => inputRef.current?.focus({ preventScroll: true })}
-          className="mx-auto max-w-4xl cursor-text overflow-hidden rounded-2xl sm:rounded-3xl border border-zinc-700/80 bg-zinc-950 text-zinc-300 shadow-2xl font-mono text-xs sm:text-sm"
+          className="mx-auto max-w-4xl cursor-text overflow-hidden rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-300 shadow-2xl font-mono text-xs sm:text-sm transition-colors"
         >
           {/* Terminal Title Bar */}
-          <div className="flex items-center justify-between border-b border-zinc-800/80 bg-zinc-900/90 px-3 sm:px-4 py-2.5 sm:py-3 select-none">
+          <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-100/90 dark:bg-zinc-900/90 px-3 sm:px-4 py-2.5 sm:py-3 select-none transition-colors">
             <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-rose-500/80" />
               <span className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-amber-500/80" />
               <span className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-emerald-500/80" />
             </div>
 
-            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-zinc-400 font-medium">
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 font-medium">
               <TerminalIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               <span>
                 {terminalMode === "normal" ? "shriram@terminal:~" : "shriram@terminal:[SECURITY ACCESS]"}
@@ -939,31 +933,31 @@ export function TerminalSection() {
             {history.map((line, idx) => (
               <div key={idx} className="leading-relaxed whitespace-pre-wrap break-words">
                 {line.type === "input" && (
-                  <div className="flex items-center gap-1.5 sm:gap-2 text-zinc-400">
-                    <span className="text-purple-400 shrink-0">guest@shriram:~$</span>
-                    <span className="text-zinc-100">{line.content}</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-zinc-600 dark:text-zinc-400">
+                    <span className="text-purple-600 dark:text-purple-400 shrink-0 font-bold">guest@shriram:~$</span>
+                    <span className="text-zinc-900 dark:text-zinc-100 font-medium">{line.content}</span>
                   </div>
                 )}
                 {line.type === "output" && (
-                  <div className="text-zinc-300 pl-2 sm:pl-4">{line.content}</div>
+                  <div className="text-zinc-800 dark:text-zinc-300 pl-2 sm:pl-4">{line.content}</div>
                 )}
                 {line.type === "error" && (
-                  <div className="text-rose-400 pl-2 sm:pl-4">{line.content}</div>
+                  <div className="text-rose-600 dark:text-rose-400 pl-2 sm:pl-4">{line.content}</div>
                 )}
                 {line.type === "system" && (
-                  <div className="text-zinc-500 text-[11px] sm:text-xs italic">{line.content}</div>
+                  <div className="text-zinc-500 dark:text-zinc-500 text-[11px] sm:text-xs italic">{line.content}</div>
                 )}
               </div>
             ))}
 
             {/* Live 30-Second Security Timer Bar */}
             {otpCountdown > 0 && (
-              <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-amber-950/50 border border-amber-500/40 text-amber-300 text-xs animate-pulse">
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300 text-xs animate-pulse">
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
                   <span className="font-bold">EXACT 30-SECOND TIMER ACTIVE</span>
                 </div>
-                <div className="font-mono font-extrabold text-sm text-amber-200">
+                <div className="font-mono font-extrabold text-sm text-amber-900 dark:text-amber-200">
                   {otpCountdown}s remaining
                 </div>
               </div>
@@ -971,7 +965,7 @@ export function TerminalSection() {
 
             {/* Input Row */}
             <div className="flex items-center gap-1.5 sm:gap-2 pt-1">
-              <span className="text-purple-400 shrink-0 font-bold">
+              <span className="text-purple-600 dark:text-purple-400 shrink-0 font-bold">
                 {getPromptPrefix()}
               </span>
               <input
@@ -980,11 +974,13 @@ export function TerminalSection() {
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="w-full bg-transparent text-zinc-100 focus:outline-hidden font-mono caret-purple-400 text-base sm:text-xs"
+                className="w-full bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-hidden font-mono caret-purple-600 dark:caret-purple-400 text-base sm:text-xs placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                 autoComplete="off"
                 spellCheck={false}
                 placeholder={
-                  terminalMode === "change_otp1" || terminalMode === "change_otp2"
+                  terminalMode === "gate_otp" ||
+                  terminalMode === "change_otp1" ||
+                  terminalMode === "change_otp2"
                     ? "Enter 6-digit OTP from email..."
                     : isPasswordInput
                     ? "Type password and press Enter..."

@@ -113,3 +113,43 @@ export function verifySessionToken(token: string): { valid: boolean; email?: str
     return { valid: false };
   }
 }
+
+export const GATE_COOKIE_NAME = "portfolio_terminal_gate";
+
+/**
+ * Create a signed gate token valid for 15 minutes after terminal verification
+ */
+export function createGateToken(): string {
+  const payload = JSON.stringify({
+    gate: "passed",
+    created: Date.now(),
+    expires: Date.now() + 15 * 60 * 1000, // 15-minute validity to reach and complete login
+  });
+  const encoded = Buffer.from(payload).toString("base64url");
+  const signature = crypto.createHmac("sha256", SESSION_SECRET).update(encoded).digest("base64url");
+  return `${encoded}.${signature}`;
+}
+
+/**
+ * Verify gate token
+ */
+export function verifyGateToken(token: string): boolean {
+  if (!token || !token.includes(".")) return false;
+  const [encoded, signature] = token.split(".");
+  const expectedSig = crypto.createHmac("sha256", SESSION_SECRET).update(encoded).digest("base64url");
+
+  if (signature !== expectedSig) {
+    return false;
+  }
+
+  try {
+    const payload = JSON.parse(Buffer.from(encoded, "base64url").toString("utf-8"));
+    if (Date.now() > payload.expires) {
+      return false;
+    }
+    return payload.gate === "passed";
+  } catch {
+    return false;
+  }
+}
+

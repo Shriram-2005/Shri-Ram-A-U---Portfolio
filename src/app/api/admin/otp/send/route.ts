@@ -5,7 +5,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
     const purpose: OtpPurpose =
-      body.purpose === "login"
+      body.purpose === "terminal_gate"
+        ? "terminal_gate"
+        : body.purpose === "login"
         ? "login"
         : body.purpose === "confirm_change"
         ? "confirm_change"
