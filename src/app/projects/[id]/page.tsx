@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { featuredProjects, personalInfo } from "@/data/portfolio-data";
+import { fetchFullPortfolio } from "@/lib/supabase";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { GithubIcon } from "@/components/ui/icons";
 import { Footer } from "@/components/footer";
@@ -38,7 +39,9 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const project = featuredProjects.find((p) => p.id === id);
+  const portfolio = await fetchFullPortfolio();
+  const allProjects = portfolio.projects || featuredProjects;
+  const project = allProjects.find((p) => p.id === id) || featuredProjects.find((p) => p.id === id);
 
   if (!project) {
     return {
@@ -64,7 +67,9 @@ function formatDomain(url?: string): string {
 
 export default async function ProjectDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const project = featuredProjects.find((p) => p.id === id);
+  const portfolio = await fetchFullPortfolio();
+  const allProjects = portfolio.projects || featuredProjects;
+  const project = allProjects.find((p) => p.id === id) || featuredProjects.find((p) => p.id === id);
 
   if (!project) {
     notFound();
@@ -73,8 +78,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const arch = project.architecture;
 
   // Find index for previous / next project navigation
-  const currentIndex = featuredProjects.findIndex((p) => p.id === id);
-  const nextProject = featuredProjects[(currentIndex + 1) % featuredProjects.length];
+  const currentIndex = allProjects.findIndex((p) => p.id === id);
+  const nextProject = allProjects[(currentIndex + 1) % allProjects.length] || allProjects[0];
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors flex flex-col justify-between">

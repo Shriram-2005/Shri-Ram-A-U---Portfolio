@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { personalInfo, featuredProjects, skillCategories } from "@/data/portfolio-data";
 import {
@@ -9,6 +10,9 @@ import {
   Globe,
   Download,
   ExternalLink,
+  ShieldAlert,
+  Clock,
+  KeyRound,
 } from "lucide-react";
 
 interface TerminalLine {
@@ -16,9 +20,20 @@ interface TerminalLine {
   content: string | React.ReactNode;
 }
 
+type TerminalMode =
+  | "normal"
+  | "admin_menu"
+  | "login_otp"
+  | "change_otp1"
+  | "change_old_pass"
+  | "change_new_pass"
+  | "change_confirm_pass"
+  | "change_otp2";
+
 const quickCommands = ["bio", "projects", "skills", "cat resume", "contact", "clear"];
 
 export function TerminalSection() {
+  const router = useRouter();
   const [inputVal, setInputVal] = useState("");
   const [history, setHistory] = useState<TerminalLine[]>([
     {
@@ -33,8 +48,39 @@ export function TerminalSection() {
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
 
+  // Administrative & Security State
+  const [terminalMode, setTerminalMode] = useState<TerminalMode>("normal");
+  const [otpCountdown, setOtpCountdown] = useState<number>(0);
+  const [tempOldPass, setTempOldPass] = useState<string>("");
+  const [tempNewPass, setTempNewPass] = useState<string>("");
+
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalBodyRef = useRef<HTMLDivElement>(null);
+
+  // 30-Second Exact Expiry Timer
+  useEffect(() => {
+    if (otpCountdown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setTerminalMode("normal");
+          setTempOldPass("");
+          setTempNewPass("");
+          setHistory((h) => [
+            ...h,
+            {
+              type: "error",
+              content: "[TIMEOUT] 30-second verification window expired. Request cancelled. Returned to shell.",
+            },
+          ]);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpCountdown]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -58,30 +104,495 @@ export function TerminalSection() {
     if (terminalBodyRef.current) {
       terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
     }
-  }, [history]);
+  }, [history, otpCountdown]);
 
-  const handleCommand = (rawCmd: string) => {
-    const cmd = rawCmd.trim().toLowerCase();
-    if (!cmd) return;
+  const isPasswordInput =
+    terminalMode === "change_old_pass" ||
+    terminalMode === "change_new_pass" ||
+    terminalMode === "change_confirm_pass";
 
-    setCommandHistory((prev) => [...prev, rawCmd]);
-    setHistoryIndex(-1);
+  const getPromptPrefix = () => {
+    switch (terminalMode) {
+      case "admin_menu":
+        return "admin-menu> ";
+      case "login_otp":
+        return `[login-code (${otpCountdown}s)]> `;
+      case "change_otp1":
+        return `[otp-1 (${otpCountdown}s)]> `;
+      case "change_old_pass":
+        return "current-keyword: ";
+      case "change_new_pass":
+        return "new-keyword: ";
+      case "change_confirm_pass":
+        return "confirm-new-keyword: ";
+      case "change_otp2":
+        return `[confirm-otp (${otpCountdown}s)]> `;
+      default:
+        return "guest@shriram:~$ ";
+    }
+  };
 
-    const newLines: TerminalLine[] = [{ type: "input", content: rawCmd }];
+  const handleCommand = async (rawCmd: string) => {
+    const trimmed = rawCmd.trim();
+    if (!trimmed) return;
 
-    // Direct project inspection lookup (e.g. "intent", "garment", "blockchain", "project intent")
+    if (!isPasswordInput) {
+      setCommandHistory((prev) => [...prev, rawCmd]);
+      setHistoryIndex(-1);
+    }
+
+    // Record entered line in terminal history (masked if password input)
+    const maskedContent = isPasswordInput ? "•".repeat(trimmed.length) : rawCmd;
+    const newLines: TerminalLine[] = [{ type: "input", content: maskedContent }];
+
+    const lower = trimmed.toLowerCase();
+
+    // -------------------------------------------------------------
+    // STATE: ADMIN MENU (continue | change secret word | exit)
+    // -------------------------------------------------------------
+    if (terminalMode === "admin_menu") {
+      if (lower === "1" || lower === "continue") {
+        newLines.push({
+          type: "output",
+          content: "[STEP 1] Dispatching 30-second login verification code to shriram2005au@gmail.com...",
+        });
+        setHistory((prev) => [...prev, ...newLines]);
+
+        try {
+          const res = await fetch("/api/admin/otp/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ purpose: "login" }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            setOtpCountdown(30);
+            setTerminalMode("login_otp");
+            setHistory((prev) => [
+              ...prev,
+              {
+                type: "output",
+                content: (
+                  <div className="flex flex-col gap-1 text-amber-300">
+                    <div className="flex items-center gap-2 font-bold">
+                      <Clock className="h-3.5 w-3.5 animate-spin" />
+                      <span>[DISPATCHED] 30-Second Access Code sent via SMTP (no username/password needed)!</span>
+                    </div>
+                    <div className="text-[11px] text-zinc-300">
+                      Enter the 6-digit code below to log in directly, or type &apos;web&apos; to open the login page:
+                    </div>
+                  </div>
+                ),
+              },
+            ]);
+          } else {
+            setTerminalMode("normal");
+            setHistory((prev) => [
+              ...prev,
+              { type: "error", content: `[ERROR] Failed to send login OTP: ${data.error || "SMTP failure"}` },
+            ]);
+          }
+        } catch {
+          setTerminalMode("normal");
+          setHistory((prev) => [
+            ...prev,
+            { type: "error", content: "[ERROR] Network error dispatching login OTP." },
+          ]);
+        }
+        return;
+      }
+
+      if (lower === "3" || lower === "exit" || lower === "quit" || lower === "cancel") {
+        newLines.push({
+          type: "output",
+          content: "Exited administrative console. Returned to guest shell.",
+        });
+        setTerminalMode("normal");
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      if (lower === "2" || lower === "change" || lower === "change secret word") {
+        newLines.push({
+          type: "output",
+          content: "[STEP 1/2] Initiating 2-Step Verification for Secret Keyword change...",
+        });
+        newLines.push({
+          type: "system",
+          content: "Dispatching 30-second authorization OTP to shriram2005au@gmail.com via SMTP...",
+        });
+        setHistory((prev) => [...prev, ...newLines]);
+
+        try {
+          const res = await fetch("/api/admin/otp/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ purpose: "request_change" }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            setOtpCountdown(30);
+            setTerminalMode("change_otp1");
+            setHistory((prev) => [
+              ...prev,
+              {
+                type: "output",
+                content: (
+                  <div className="flex items-center gap-2 text-amber-300 font-bold">
+                    <Clock className="h-3.5 w-3.5 animate-spin" />
+                    <span>[DISPATCHED] A 6-digit OTP has been sent. You have exactly 30 seconds to enter it.</span>
+                  </div>
+                ),
+              },
+            ]);
+          } else {
+            setTerminalMode("normal");
+            setHistory((prev) => [
+              ...prev,
+              { type: "error", content: `[ERROR] Failed to send OTP: ${data.error || "SMTP failure"}` },
+            ]);
+          }
+        } catch {
+          setTerminalMode("normal");
+          setHistory((prev) => [
+            ...prev,
+            { type: "error", content: "[ERROR] Network error dispatching OTP." },
+          ]);
+        }
+        return;
+      }
+
+      newLines.push({
+        type: "error",
+        content: "Invalid option. Type 'continue' to login, 'change' to update secret word, or 'exit'.",
+      });
+      setHistory((prev) => [...prev, ...newLines]);
+      return;
+    }
+
+    // -------------------------------------------------------------
+    // STATE: LOGIN OTP (Passwordless 30-second login)
+    // -------------------------------------------------------------
+    if (terminalMode === "login_otp") {
+      if (lower === "cancel" || lower === "exit") {
+        setOtpCountdown(0);
+        setTerminalMode("normal");
+        newLines.push({ type: "output", content: "Login aborted. Returned to shell." });
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      if (lower === "web" || lower === "login" || lower === "browser") {
+        setTerminalMode("normal");
+        router.push("/admin/login");
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/admin/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ otp: trimmed }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          setOtpCountdown(0);
+          setTerminalMode("normal");
+          newLines.push({
+            type: "output",
+            content: (
+              <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/40 p-3 text-emerald-300 flex flex-col gap-1">
+                <div className="font-bold flex items-center gap-1.5">
+                  <KeyRound className="h-4 w-4" />
+                  <span>[AUTHENTICATED] 30-Second Access Code verified! Launching Portfolio CMS (/admin)...</span>
+                </div>
+                <div className="text-[11px] text-zinc-300">
+                  Access granted without username or password.
+                </div>
+              </div>
+            ),
+          });
+          setHistory((prev) => [...prev, ...newLines]);
+          router.push("/admin");
+          return;
+        } else {
+          newLines.push({
+            type: "error",
+            content: `[ERROR] ${data.error || "Invalid login code."} Please re-enter code or type 'cancel'.`,
+          });
+        }
+      } catch {
+        newLines.push({ type: "error", content: "[ERROR] Failed to verify login code." });
+      }
+
+      setHistory((prev) => [...prev, ...newLines]);
+      return;
+    }
+
+    // -------------------------------------------------------------
+    // STATE: CHANGE OTP 1 (Validate authorization to change)
+    // -------------------------------------------------------------
+    if (terminalMode === "change_otp1") {
+      if (lower === "cancel" || lower === "exit") {
+        setOtpCountdown(0);
+        setTerminalMode("normal");
+        newLines.push({ type: "output", content: "Secret keyword update aborted." });
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/admin/otp/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ purpose: "request_change", otp: trimmed }),
+        });
+        const data = await res.json();
+
+        if (data.valid) {
+          setOtpCountdown(0);
+          setTerminalMode("change_old_pass");
+          newLines.push({
+            type: "output",
+            content: "[OTP 1 VERIFIED] Authorization confirmed. Enter your CURRENT secret keyword:",
+          });
+        } else {
+          newLines.push({
+            type: "error",
+            content: `[ERROR] ${data.error || "Invalid OTP."} Try again or type 'cancel'.`,
+          });
+        }
+      } catch {
+        newLines.push({ type: "error", content: "[ERROR] Failed to verify OTP." });
+      }
+
+      setHistory((prev) => [...prev, ...newLines]);
+      return;
+    }
+
+    // -------------------------------------------------------------
+    // STATE: CHANGE OLD PASSWORD
+    // -------------------------------------------------------------
+    if (terminalMode === "change_old_pass") {
+      if (lower === "cancel" || lower === "exit") {
+        setTerminalMode("normal");
+        newLines.push({ type: "output", content: "Protocol aborted." });
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/admin/secret-word/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ keyword: trimmed }),
+        });
+        const data = await res.json();
+
+        if (data.valid) {
+          setTempOldPass(trimmed);
+          setTerminalMode("change_new_pass");
+          newLines.push({
+            type: "output",
+            content: "[CURRENT PASSWORD MATCHED] Enter your NEW secret keyword (min 4 characters):",
+          });
+        } else {
+          setTerminalMode("normal");
+          newLines.push({
+            type: "error",
+            content: "[ERROR] Current secret keyword does not match. Update protocol terminated.",
+          });
+        }
+      } catch {
+        setTerminalMode("normal");
+        newLines.push({ type: "error", content: "[ERROR] Verification error." });
+      }
+
+      setHistory((prev) => [...prev, ...newLines]);
+      return;
+    }
+
+    // -------------------------------------------------------------
+    // STATE: CHANGE NEW PASSWORD
+    // -------------------------------------------------------------
+    if (terminalMode === "change_new_pass") {
+      if (lower === "cancel" || lower === "exit") {
+        setTerminalMode("normal");
+        newLines.push({ type: "output", content: "Protocol aborted." });
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      if (trimmed.length < 4) {
+        newLines.push({
+          type: "error",
+          content: "[ERROR] Secret keyword must be at least 4 characters long. Try again:",
+        });
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      setTempNewPass(trimmed);
+      setTerminalMode("change_confirm_pass");
+      newLines.push({
+        type: "output",
+        content: "Confirm your NEW secret keyword:",
+      });
+      setHistory((prev) => [...prev, ...newLines]);
+      return;
+    }
+
+    // -------------------------------------------------------------
+    // STATE: CHANGE CONFIRM PASSWORD & DISPATCH OTP 2
+    // -------------------------------------------------------------
+    if (terminalMode === "change_confirm_pass") {
+      if (lower === "cancel" || lower === "exit") {
+        setTerminalMode("normal");
+        newLines.push({ type: "output", content: "Protocol aborted." });
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      if (trimmed !== tempNewPass) {
+        setTerminalMode("normal");
+        setTempOldPass("");
+        setTempNewPass("");
+        newLines.push({
+          type: "error",
+          content: "[ERROR] New passwords do not match. Update protocol cancelled.",
+        });
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      newLines.push({
+        type: "output",
+        content: "[PASSWORDS MATCHED] Proceeding to final security confirmation.",
+      });
+      newLines.push({
+        type: "system",
+        content: "[STEP 2/2] Dispatching confirmation OTP to shriram2005au@gmail.com (30s expiry)...",
+      });
+      setHistory((prev) => [...prev, ...newLines]);
+
+      try {
+        const res = await fetch("/api/admin/otp/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ purpose: "confirm_change" }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          setOtpCountdown(30);
+          setTerminalMode("change_otp2");
+          setHistory((prev) => [
+            ...prev,
+            {
+              type: "output",
+              content: (
+                <div className="flex items-center gap-2 text-amber-300 font-bold">
+                  <Clock className="h-3.5 w-3.5 animate-spin" />
+                  <span>[DISPATCHED] Final 30-second confirmation OTP sent to your email. Enter code to commit:</span>
+                </div>
+              ),
+            },
+          ]);
+        } else {
+          setTerminalMode("normal");
+          setHistory((prev) => [
+            ...prev,
+            { type: "error", content: `[ERROR] Failed to send confirmation OTP: ${data.error || "SMTP failure"}` },
+          ]);
+        }
+      } catch {
+        setTerminalMode("normal");
+        setHistory((prev) => [
+          ...prev,
+          { type: "error", content: "[ERROR] Network error dispatching confirmation OTP." },
+        ]);
+      }
+      return;
+    }
+
+    // -------------------------------------------------------------
+    // STATE: CHANGE OTP 2 (Final confirmation to commit new password)
+    // -------------------------------------------------------------
+    if (terminalMode === "change_otp2") {
+      if (lower === "cancel" || lower === "exit") {
+        setOtpCountdown(0);
+        setTerminalMode("normal");
+        setTempOldPass("");
+        setTempNewPass("");
+        newLines.push({ type: "output", content: "Protocol aborted." });
+        setHistory((prev) => [...prev, ...newLines]);
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/admin/secret-word/change", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            oldPassword: tempOldPass,
+            newPassword: tempNewPass,
+            confirmPassword: tempNewPass,
+            otp: trimmed,
+          }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          setOtpCountdown(0);
+          setTerminalMode("normal");
+          setTempOldPass("");
+          setTempNewPass("");
+          newLines.push({
+            type: "output",
+            content: (
+              <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/40 p-3 text-emerald-300 flex flex-col gap-1">
+                <div className="font-bold flex items-center gap-1.5">
+                  <KeyRound className="h-4 w-4" />
+                  <span>[SUCCESS] Secret keyword permanently updated in Supabase!</span>
+                </div>
+                <div className="text-[11px] text-zinc-300">
+                  Your new secret keyword is now active. Use it on your next terminal session.
+                </div>
+              </div>
+            ),
+          });
+        } else {
+          newLines.push({
+            type: "error",
+            content: `[ERROR] ${data.error || "Failed to commit changes."} Try again or type 'cancel'.`,
+          });
+        }
+      } catch {
+        newLines.push({ type: "error", content: "[ERROR] Network error saving new secret keyword." });
+      }
+
+      setHistory((prev) => [...prev, ...newLines]);
+      return;
+    }
+
+    // -------------------------------------------------------------
+    // STATE: NORMAL COMMAND SHELL
+    // -------------------------------------------------------------
     const projectMatch = featuredProjects.find((p) => {
-      if (cmd === p.id.toLowerCase() || cmd === `project ${p.id.toLowerCase()}` || cmd === `open ${p.id.toLowerCase()}`) {
+      if (lower === p.id.toLowerCase() || lower === `project ${p.id.toLowerCase()}` || lower === `open ${p.id.toLowerCase()}`) {
         return true;
       }
-      if (cmd === "intent" && p.id === "intent-firewall") return true;
-      if (cmd === "garment" && p.id === "garment-erp") return true;
-      if (cmd === "blockchain" && p.id === "blockchain-verification") return true;
-      if (cmd === "logistics" && p.id === "logistics-portal") return true;
-      if (cmd === "ielts" && p.id === "ielts-platform") return true;
-      if ((cmd === "audio" || cmd === "music") && p.id === "audio-streaming") return true;
-      if (cmd.startsWith("project ")) {
-        const sub = cmd.replace("project ", "").trim();
+      if (lower === "intent" && p.id === "intent-firewall") return true;
+      if (lower === "garment" && p.id === "garment-erp") return true;
+      if (lower === "blockchain" && p.id === "blockchain-verification") return true;
+      if (lower === "logistics" && p.id === "logistics-portal") return true;
+      if (lower === "ielts" && p.id === "ielts-platform") return true;
+      if ((lower === "audio" || lower === "music") && p.id === "audio-streaming") return true;
+      if (lower.startsWith("project ")) {
+        const sub = lower.replace("project ", "").trim();
         return p.id.includes(sub) || p.title.toLowerCase().includes(sub);
       }
       return false;
@@ -147,7 +658,7 @@ export function TerminalSection() {
                   className="inline-flex items-center gap-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-2 py-1 transition-colors"
                 >
                   <ExternalLink className="h-3 w-3" />
-                  <span>[GitHub Repo]</span>
+                  <span>[Repository]</span>
                 </a>
               )}
             </div>
@@ -158,23 +669,19 @@ export function TerminalSection() {
       return;
     }
 
-    switch (cmd) {
+    switch (lower) {
       case "help":
         newLines.push({
           type: "output",
           content: (
             <div className="flex flex-col gap-1 text-[11px] sm:text-xs">
-              <span className="font-bold text-purple-400">Available commands:</span>
-              <span>  <span className="text-zinc-200 font-semibold">bio</span>              - Learn about Shri Ram</span>
-              <span>  <span className="text-zinc-200 font-semibold">projects</span>         - List engineering projects with clickable links</span>
-              <span>  <span className="text-zinc-200 font-semibold">project &lt;name&gt;</span>    - Inspect specific project (e.g. project intent, garment)</span>
-              <span>  <span className="text-zinc-200 font-semibold">skills</span>           - Inspect tech competencies</span>
-              <span>  <span className="text-zinc-200 font-semibold">contact</span>          - Output communication channels</span>
-              <span>  <span className="text-zinc-200 font-semibold">phone</span>            - Reveal direct phone line (anti-spam)</span>
-              <span>  <span className="text-zinc-200 font-semibold">cat resume</span>       - Print resume highlights</span>
-              <span>  <span className="text-zinc-200 font-semibold">date</span>             - Display current timestamp</span>
-              <span>  <span className="text-zinc-200 font-semibold">clear</span>            - Clear terminal screen</span>
-              <span>  <span className="text-zinc-200 font-semibold">sudo</span>             - Administrative access</span>
+              <span className="text-zinc-400 font-semibold mb-1">Standard Shell Utilities:</span>
+              <div><span className="text-purple-300 font-bold">bio</span> - Executive engineering background & focus</div>
+              <div><span className="text-purple-300 font-bold">projects</span> - View all featured systems with deep links</div>
+              <div><span className="text-purple-300 font-bold">skills</span> - Full engineering toolbox & proficiency</div>
+              <div><span className="text-purple-300 font-bold">cat resume</span> - Text version of candidate evaluation packet</div>
+              <div><span className="text-purple-300 font-bold">contact</span> - Direct contact channels & email</div>
+              <div><span className="text-purple-300 font-bold">clear</span> - Reset terminal window</div>
             </div>
           ),
         });
@@ -183,7 +690,7 @@ export function TerminalSection() {
       case "bio":
         newLines.push({
           type: "output",
-          content: `${personalInfo.name} - ${personalInfo.role}. ${personalInfo.shortBio}`,
+          content: `${personalInfo.name} | ${personalInfo.role}\n${personalInfo.shortBio}`,
         });
         break;
 
@@ -191,70 +698,15 @@ export function TerminalSection() {
         newLines.push({
           type: "output",
           content: (
-            <div className="flex flex-col gap-2.5 text-[11px] sm:text-xs py-1">
-              <div className="text-purple-300 font-semibold border-b border-zinc-800 pb-1">
-                Engineering Projects ({featuredProjects.length}) | Click any link below or type &apos;project &lt;name&gt;&apos;:
-              </div>
-              {featuredProjects.map((p) => (
-                <div key={p.id} className="flex flex-col gap-1 rounded-lg bg-zinc-900/60 p-2.5 border border-zinc-800/80">
-                  <div className="flex flex-wrap items-center justify-between gap-1">
-                    <span className="font-bold text-zinc-100">
-                      • {p.title}
-                    </span>
-                    <span className="rounded bg-purple-950/70 border border-purple-800/50 px-1.5 py-0.2 text-[10px] font-mono text-purple-300">
-                      {p.category}
-                    </span>
+            <div className="flex flex-col gap-2.5 text-[11px] sm:text-xs">
+              <span className="text-purple-300 font-semibold">Featured Production Systems:</span>
+              {featuredProjects.map((p, idx) => (
+                <div key={p.id} className="border-l-2 border-purple-500/50 pl-2.5 py-0.5">
+                  <div className="font-bold text-zinc-100 flex items-center gap-2">
+                    <span>{idx + 1}. {p.title}</span>
+                    <span className="text-[10px] text-zinc-500 font-mono">[{p.category}]</span>
                   </div>
-                  <span className="text-zinc-400 text-[10px] sm:text-[11px]">
-                    {p.tagline}
-                  </span>
-
-                  {/* Interactive clickable links */}
-                  <div className="flex flex-wrap items-center gap-1.5 pt-1.5 mt-0.5 border-t border-zinc-800/50 font-mono text-[10px] sm:text-[11px]">
-                    <a
-                      href={`/projects/${p.id}`}
-                      className="inline-flex items-center gap-1 rounded bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2 py-0.5 transition-colors hover:text-purple-200"
-                    >
-                      <span>[Architecture & Case Study]</span>
-                      <ArrowUpRight className="h-3 w-3" />
-                    </a>
-
-                    {p.liveUrl && (
-                      <a
-                        href={p.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 transition-colors hover:text-emerald-200"
-                      >
-                        <Globe className="h-3 w-3" />
-                        <span>[Live Web App ↗]</span>
-                      </a>
-                    )}
-
-                    {p.apkUrl && (
-                      <a
-                        href={p.apkUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 transition-colors hover:text-cyan-200"
-                      >
-                        <Download className="h-3 w-3" />
-                        <span>[Download APK ⤓]</span>
-                      </a>
-                    )}
-
-                    {p.githubUrl && (
-                      <a
-                        href={p.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 px-2 py-0.5 transition-colors hover:text-white"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        <span>[GitHub]</span>
-                      </a>
-                    )}
-                  </div>
+                  <div className="text-zinc-400 text-[10px] sm:text-[11px] mt-0.5">{p.tagline}</div>
                 </div>
               ))}
             </div>
@@ -266,7 +718,7 @@ export function TerminalSection() {
         newLines.push({
           type: "output",
           content: (
-            <div className="flex flex-col gap-1 text-[11px] sm:text-xs">
+            <div className="flex flex-col gap-1.5 text-[11px] sm:text-xs">
               {skillCategories.map((c) => (
                 <div key={c.title}>
                   <span className="text-purple-300 font-semibold">{c.title}:</span>{" "}
@@ -288,8 +740,7 @@ export function TerminalSection() {
               <div><span className="text-purple-300 font-semibold">Email:</span> {personalInfo.email}</div>
               <div>
                 <span className="text-purple-300 font-semibold">Phone:</span>{" "}
-                <span className="font-mono text-zinc-400">+91 70196 •••••</span>{" "}
-                <span className="text-[10px] text-zinc-500">(Type &apos;phone&apos; to unmask, or click Reveal in Contact)</span>
+                <span className="font-mono text-zinc-400">+91 70196 •••••</span>
               </div>
               <div><span className="text-purple-300 font-semibold">LinkedIn:</span> {personalInfo.linkedin}</div>
               <div><span className="text-purple-300 font-semibold">GitHub:</span> {personalInfo.github}</div>
@@ -322,7 +773,7 @@ export function TerminalSection() {
       case "resume":
         newLines.push({
           type: "output",
-          content: `Shri Ram A U | B.Tech CSE (Presidency University Bangalore, CGPA: 8.20)\nRole: AI Solutions Developer Intern @ Saina Human AI\nKey Projects: Intent (Edge-AI Notification Firewall - 3.68ms warm inference), Garment ERP (Multi-Tenant PostgreSQL RLS), Blockchain Certs (Sepolia)\nAward: 2nd Place / 50+ Teams (Project Exhibition, Nov 2025)\nTarget: 6-Month Engineering Internship (Jan-Jun 2027) with PPO pathways\nDirect: ${personalInfo.email} | Phone: Available upon request in Contact section\nResume: Downloadable at /resume.pdf`,
+          content: `Shri Ram A U | B.Tech CSE (Presidency University Bangalore, CGPA: 8.20)\nRole: AI Solutions Developer Intern @ Saina Human AI\nKey Projects: Intent (Edge-AI Notification Firewall - 3.68ms warm inference), Garment ERP (Multi-Tenant PostgreSQL RLS), Blockchain Certs (Sepolia)\nAward: 2nd Place / 50+ Teams (Project Exhibition, Nov 2025)\nTarget: 6-Month Engineering Internship (Jan-Jun 2027) with PPO pathways\nDirect: ${personalInfo.email}\nResume: Downloadable at /resume.pdf`,
         });
         break;
 
@@ -346,9 +797,56 @@ export function TerminalSection() {
         break;
 
       default:
+        // Check if entered command matches the secret keyword!
+        try {
+          const res = await fetch("/api/admin/secret-word/validate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ keyword: trimmed }),
+          });
+          const data = await res.json();
+
+          if (data.valid) {
+            setTerminalMode("admin_menu");
+            newLines.push({
+              type: "output",
+              content: (
+                <div className="rounded-xl border border-purple-500/50 bg-purple-950/40 p-4 text-xs font-mono flex flex-col gap-2.5 shadow-xl">
+                  <div className="flex items-center gap-2 text-purple-300 font-bold uppercase tracking-wider border-b border-purple-800/60 pb-2">
+                    <ShieldAlert className="h-4 w-4 text-purple-400" />
+                    <span>[SECURITY PROTOCOL ACTIVATED] Administrative Access Unlocked</span>
+                  </div>
+                  <p className="text-zinc-200">
+                    Secret keyword recognized. Access level: Portfolio Owner &amp; Administrator.
+                  </p>
+                  <div className="flex flex-col gap-1.5 text-zinc-300 pt-1">
+                    <div>
+                      <strong className="text-purple-300 font-bold">[1] continue</strong>
+                      <span className="text-zinc-400"> - Passwordless 30-second OTP login (no password needed)</span>
+                    </div>
+                    <div>
+                      <strong className="text-purple-300 font-bold">[2] change secret word</strong>
+                      <span className="text-zinc-400"> - Update secret keyword (2-step OTP validation)</span>
+                    </div>
+                    <div>
+                      <strong className="text-purple-300 font-bold">[3] exit</strong>
+                      <span className="text-zinc-400"> - Return to standard terminal shell</span>
+                    </div>
+                  </div>
+                  <div className="text-[11px] text-purple-300/80 pt-1 border-t border-purple-900/50">
+                    Type <span className="font-bold text-white">&apos;continue&apos;</span>, <span className="font-bold text-white">&apos;change&apos;</span>, or <span className="font-bold text-white">&apos;exit&apos;</span>:
+                  </div>
+                </div>
+              ),
+            });
+            setHistory((prev) => [...prev, ...newLines]);
+            return;
+          }
+        } catch {}
+
         newLines.push({
           type: "error",
-          content: `command not found: "${cmd}". Type 'help' for available commands or 'projects' to view projects.`,
+          content: `command not found: "${lower}". Type 'help' for available commands or 'projects' to view projects.`,
         });
         break;
     }
@@ -400,7 +898,8 @@ export function TerminalSection() {
             <button
               key={q}
               onClick={() => handleCommand(q)}
-              className="shrink-0 rounded-lg border border-zinc-200 bg-white px-2.5 py-1 font-mono text-[11px] text-zinc-700 transition-colors hover:border-purple-500 hover:text-purple-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-purple-400 dark:hover:text-purple-300"
+              disabled={terminalMode !== "normal"}
+              className="shrink-0 rounded-lg border border-zinc-200 bg-white px-2.5 py-1 font-mono text-[11px] text-zinc-700 transition-colors hover:border-purple-500 hover:text-purple-600 disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-purple-400 dark:hover:text-purple-300"
             >
               ${q}
             </button>
@@ -422,10 +921,14 @@ export function TerminalSection() {
 
             <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-zinc-400 font-medium">
               <TerminalIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              <span>shriram@terminal:~</span>
+              <span>
+                {terminalMode === "normal" ? "shriram@terminal:~" : "shriram@terminal:[SECURITY ACCESS]"}
+              </span>
             </div>
 
-            <div className="text-[10px] sm:text-[11px] text-zinc-500">zsh</div>
+            <div className="text-[10px] sm:text-[11px] text-zinc-500">
+              {terminalMode === "normal" ? "zsh" : "admin-shell"}
+            </div>
           </div>
 
           {/* Terminal Output Body */}
@@ -453,18 +956,40 @@ export function TerminalSection() {
               </div>
             ))}
 
+            {/* Live 30-Second Security Timer Bar */}
+            {otpCountdown > 0 && (
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-amber-950/50 border border-amber-500/40 text-amber-300 text-xs animate-pulse">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span className="font-bold">EXACT 30-SECOND TIMER ACTIVE</span>
+                </div>
+                <div className="font-mono font-extrabold text-sm text-amber-200">
+                  {otpCountdown}s remaining
+                </div>
+              </div>
+            )}
+
             {/* Input Row */}
             <div className="flex items-center gap-1.5 sm:gap-2 pt-1">
-              <span className="text-purple-400 shrink-0">guest@shriram:~$</span>
+              <span className="text-purple-400 shrink-0 font-bold">
+                {getPromptPrefix()}
+              </span>
               <input
                 ref={inputRef}
-                type="text"
+                type={isPasswordInput ? "password" : "text"}
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 onKeyDown={handleKeyDown}
                 className="w-full bg-transparent text-zinc-100 focus:outline-hidden font-mono caret-purple-400 text-base sm:text-xs"
                 autoComplete="off"
                 spellCheck={false}
+                placeholder={
+                  terminalMode === "change_otp1" || terminalMode === "change_otp2"
+                    ? "Enter 6-digit OTP from email..."
+                    : isPasswordInput
+                    ? "Type password and press Enter..."
+                    : ""
+                }
               />
             </div>
           </div>
