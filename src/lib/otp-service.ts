@@ -99,11 +99,15 @@ export async function deleteGmailOtpEmail(codePattern?: string): Promise<{ delet
     return { deleted: 0 };
   }
 
-  const searchSubject = codePattern ? `[30s Code: ${codePattern}]` : `[30s Code:`;
+  // Exact search phrase: if 6-digit code is provided search it, otherwise search "Portfolio Terminal"
+  const searchPhrase = codePattern && /^\d{6}$/.test(codePattern.trim())
+    ? codePattern.trim()
+    : "Portfolio Terminal";
 
   return new Promise((resolve) => {
     let deletedCount = 0;
     let step = 0;
+    let buffer = "";
 
     const socket = tls.connect(port, host, { rejectUnauthorized: false });
     socket.setEncoding("utf-8");
@@ -115,107 +119,118 @@ export async function deleteGmailOtpEmail(codePattern?: string): Promise<{ delet
       resolve({ deleted: deletedCount });
     }, 15000); // 15s max connection window
 
+    const send = (cmd: string) => {
+      socket.write(cmd);
+    };
+
     socket.on("data", (data: string) => {
       try {
-        // Step 0: Initial connection banner
-        if (step === 0 && data.includes("* OK")) {
+        buffer += data;
+
+        // Step 0: Initial connection banner -> Login
+        if (step === 0 && buffer.includes("* OK")) {
           step = 1;
-          socket.write(`A1 LOGIN "${user}" "${pass}"\r\n`);
+          buffer = "";
+          send(`A01 LOGIN "${user}" "${pass}"\r\n`);
         }
         // Step 1: Login result
-        else if (step === 1 && data.includes("A1 OK")) {
+        else if (step === 1 && buffer.includes("A01 OK")) {
           step = 2;
-          socket.write(`A2 SELECT "INBOX"\r\n`);
-        } else if (step === 1 && (data.includes("A1 NO") || data.includes("A1 BAD"))) {
+          buffer = "";
+          send(`A02 SELECT "INBOX"\r\n`);
+        } else if (step === 1 && (buffer.includes("A01 NO") || buffer.includes("A01 BAD"))) {
           clearTimeout(timeoutTimer);
           socket.end();
           resolve({ deleted: 0 });
         }
         // Step 2: INBOX selected -> Search OTP in INBOX
-        else if (step === 2 && data.includes("A2 OK")) {
+        else if (step === 2 && buffer.includes("A02 OK")) {
           step = 3;
-          socket.write(`A3 UID SEARCH SUBJECT "${searchSubject}"\r\n`);
+          buffer = "";
+          send(`A03 UID SEARCH SUBJECT "${searchPhrase}"\r\n`);
         }
-        // Step 3: Search INBOX result -> Apply \Trash label or proceed to Sent Mail
-        else if (step === 3 && data.includes("A3 OK")) {
-          const match = data.match(/\* SEARCH ([\d\s]+)/);
+        // Step 3: Search INBOX result -> Move to Trash or check Sent Mail
+        else if (step === 3 && buffer.includes("A03 OK")) {
+          const match = buffer.match(/\* SEARCH ([\d\s]+)/);
           if (match && match[1].trim()) {
             const uids = match[1].trim().split(/\s+/).join(",");
             deletedCount += match[1].trim().split(/\s+/).length;
             step = 4;
-            // Move from INBOX directly to Gmail Trash
-            socket.write(`A4 UID STORE ${uids} +X-GM-LABELS (\\Trash)\r\n`);
+            buffer = "";
+            send(`A04 UID MOVE ${uids} "[Gmail]/Trash"\r\n`);
           } else {
-            step = 6;
-            socket.write(`A6 SELECT "[Gmail]/Sent Mail"\r\n`);
+            step = 5;
+            buffer = "";
+            send(`A05 SELECT "[Gmail]/Sent Mail"\r\n`);
           }
         }
-        // Step 4: Stored in Trash from INBOX -> Expunge INBOX
-        else if (step === 4 && data.includes("A4 OK")) {
+        // Step 4: Moved to Trash from INBOX -> Select Sent Mail
+        else if (step === 4 && (buffer.includes("A04 OK") || buffer.includes("A04 NO"))) {
           step = 5;
-          socket.write(`A5 EXPUNGE\r\n`);
+          buffer = "";
+          send(`A05 SELECT "[Gmail]/Sent Mail"\r\n`);
         }
-        // Step 5: INBOX expunged -> Select Sent Mail
-        else if (step === 5 && data.includes("A5 OK")) {
+        // Step 5: Sent Mail selected -> Search OTP in Sent Mail
+        else if (step === 5 && buffer.includes("A05 OK")) {
           step = 6;
-          socket.write(`A6 SELECT "[Gmail]/Sent Mail"\r\n`);
+          buffer = "";
+          send(`A06 UID SEARCH SUBJECT "${searchPhrase}"\r\n`);
         }
-        // Step 6: Sent Mail selected -> Search OTP in Sent Mail
-        else if (step === 6 && data.includes("A6 OK")) {
-          step = 7;
-          socket.write(`A7 UID SEARCH SUBJECT "${searchSubject}"\r\n`);
-        }
-        // Step 7: Search Sent Mail result -> Apply \Trash label or proceed to Trash
-        else if (step === 7 && data.includes("A7 OK")) {
-          const match = data.match(/\* SEARCH ([\d\s]+)/);
+        // Step 6: Search Sent Mail result -> Move to Trash or select Trash
+        else if (step === 6 && buffer.includes("A06 OK")) {
+          const match = buffer.match(/\* SEARCH ([\d\s]+)/);
           if (match && match[1].trim()) {
             const uids = match[1].trim().split(/\s+/).join(",");
+            deletedCount += match[1].trim().split(/\s+/).length;
+            step = 7;
+            buffer = "";
+            send(`A07 UID MOVE ${uids} "[Gmail]/Trash"\r\n`);
+          } else {
             step = 8;
-            socket.write(`A8 UID STORE ${uids} +X-GM-LABELS (\\Trash)\r\n`);
-          } else {
-            step = 10;
-            socket.write(`A10 SELECT "[Gmail]/Trash"\r\n`);
+            buffer = "";
+            send(`A08 SELECT "[Gmail]/Trash"\r\n`);
           }
         }
-        // Step 8: Stored in Trash from Sent Mail -> Expunge Sent Mail
-        else if (step === 8 && data.includes("A8 OK")) {
+        // Step 7: Moved to Trash from Sent Mail -> Select Trash
+        else if (step === 7 && (buffer.includes("A07 OK") || buffer.includes("A07 NO"))) {
+          step = 8;
+          buffer = "";
+          send(`A08 SELECT "[Gmail]/Trash"\r\n`);
+        }
+        // Step 8: Trash selected -> Search OTP in Trash
+        else if (step === 8 && buffer.includes("A08 OK")) {
           step = 9;
-          socket.write(`A9 EXPUNGE\r\n`);
+          buffer = "";
+          send(`A09 UID SEARCH SUBJECT "${searchPhrase}"\r\n`);
         }
-        // Step 9: Sent Mail expunged -> Select Trash
-        else if (step === 9 && data.includes("A9 OK")) {
-          step = 10;
-          socket.write(`A10 SELECT "[Gmail]/Trash"\r\n`);
-        }
-        // Step 10: Trash selected -> Search OTP in Trash
-        else if (step === 10 && data.includes("A10 OK")) {
-          step = 11;
-          socket.write(`A11 UID SEARCH SUBJECT "${searchSubject}"\r\n`);
-        }
-        // Step 11: Search Trash result -> Permanently erase forever with \Deleted + EXPUNGE
-        else if (step === 11 && data.includes("A11 OK")) {
-          const match = data.match(/\* SEARCH ([\d\s]+)/);
+        // Step 9: Search Trash result -> Permanently erase with \Deleted + EXPUNGE
+        else if (step === 9 && buffer.includes("A09 OK")) {
+          const match = buffer.match(/\* SEARCH ([\d\s]+)/);
           if (match && match[1].trim()) {
             const uids = match[1].trim().split(/\s+/).join(",");
-            step = 12;
-            socket.write(`A12 UID STORE ${uids} +FLAGS (\\Deleted)\r\n`);
+            step = 10;
+            buffer = "";
+            send(`A10 UID STORE ${uids} +FLAGS (\\Deleted)\r\n`);
           } else {
-            step = 14;
-            socket.write(`A14 LOGOUT\r\n`);
+            step = 12;
+            buffer = "";
+            send(`A12 LOGOUT\r\n`);
           }
         }
-        // Step 12: Flags Deleted applied in Trash -> Permanently expunge
-        else if (step === 12 && data.includes("A12 OK")) {
-          step = 13;
-          socket.write(`A13 EXPUNGE\r\n`);
+        // Step 10: Flags Deleted applied in Trash -> Permanently expunge
+        else if (step === 10 && buffer.includes("A10 OK")) {
+          step = 11;
+          buffer = "";
+          send(`A11 EXPUNGE\r\n`);
         }
-        // Step 13: Permanent expunge complete -> Logout
-        else if (step === 13 && data.includes("A13 OK")) {
-          step = 14;
-          socket.write(`A14 LOGOUT\r\n`);
+        // Step 11: Permanent expunge complete -> Logout
+        else if (step === 11 && buffer.includes("A11 OK")) {
+          step = 12;
+          buffer = "";
+          send(`A12 LOGOUT\r\n`);
         }
-        // Step 14: Logout acknowledged
-        else if (step === 14) {
+        // Step 12: Logout acknowledged
+        else if (step === 12 && buffer.includes("A12 OK")) {
           clearTimeout(timeoutTimer);
           socket.end();
           resolve({ deleted: deletedCount });

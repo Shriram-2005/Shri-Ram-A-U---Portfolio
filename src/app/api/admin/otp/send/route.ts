@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { registerOtp, sendOtpEmail, OTP_EXPIRY_SECONDS, OtpPurpose } from "@/lib/otp-service";
+import { registerOtp, sendOtpEmail, deleteGmailOtpEmail, OTP_EXPIRY_SECONDS, OtpPurpose } from "@/lib/otp-service";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,6 +12,9 @@ export async function POST(req: NextRequest) {
         : body.purpose === "confirm_change"
         ? "confirm_change"
         : "request_change";
+
+    // Sweep and expunge any previous expired OTP emails before sending new one
+    deleteGmailOtpEmail().catch(() => {});
 
     const { code, expiresAt } = registerOtp(purpose);
     const sent = await sendOtpEmail(code, purpose);

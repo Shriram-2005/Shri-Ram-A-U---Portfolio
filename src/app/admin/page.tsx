@@ -26,6 +26,8 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Menu,
+  X,
 } from "lucide-react";
 
 function moveItem<T>(list: T[], index: number, direction: "up" | "down"): T[] {
@@ -95,9 +97,63 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<
     "personal" | "projects" | "experience" | "skills" | "education" | "social"
   >("personal");
+  const [mobileCategoryMenuOpen, setMobileCategoryMenuOpen] = useState(false);
 
   const [data, setData] = useState<PortfolioBundle>(defaultPortfolioBundle);
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
+
+  const categories = [
+    {
+      id: "personal" as const,
+      label: "Personal Bio & Stats",
+      shortLabel: "Personal",
+      description: "Hero tagline, bio description, contact details & quick stats",
+      icon: User,
+    },
+    {
+      id: "projects" as const,
+      label: "Projects & Case Studies",
+      shortLabel: "Projects",
+      description: "Featured projects, case studies, highlights, metrics & tags",
+      icon: FolderGit2,
+      count: data.projects?.length,
+    },
+    {
+      id: "experience" as const,
+      label: "Work Experience",
+      shortLabel: "Experience",
+      description: "Professional work history, roles, companies & achievements",
+      icon: Briefcase,
+      count: data.experiences?.length,
+    },
+    {
+      id: "skills" as const,
+      label: "Skills & Toolbox",
+      shortLabel: "Skills",
+      description: "Technical stack, categories, frameworks, databases & tools",
+      icon: Wrench,
+      count: data.skillCategories?.length,
+    },
+    {
+      id: "education" as const,
+      label: "Education & Honors",
+      shortLabel: "Education",
+      description: "Degrees, institutions, academic honors, awards & hackathons",
+      icon: GraduationCap,
+      count: (data.education?.length || 0) + (data.honors?.length || 0),
+    },
+    {
+      id: "social" as const,
+      label: "Social Links",
+      shortLabel: "Social",
+      description: "GitHub, LinkedIn, LeetCode, email, and social networks",
+      icon: Share2,
+      count: data.socialLinks?.length,
+    },
+  ];
+
+  const currentCategory = categories.find((c) => c.id === activeTab) || categories[0];
+  const CurrentCategoryIcon = currentCategory.icon;
 
   // Check authentication & load data
   useEffect(() => {
@@ -240,85 +296,133 @@ export default function AdminDashboardPage() {
 
       {/* Main CMS Layout */}
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-6 gap-4 sm:gap-6">
-        {/* Sidebar Navigation */}
-        <aside className="w-full md:w-60 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto pb-1.5 md:pb-0 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <button
-            type="button"
-            onClick={() => setActiveTab("personal")}
-            className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-colors cursor-pointer shrink-0 ${
-              activeTab === "personal"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-semibold"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-200"
-            }`}
-          >
-            <User className="h-4 w-4" />
-            <span>Personal Bio &amp; Stats</span>
-          </button>
+        {/* Mobile Collapsible Category Hamburger Menu */}
+        <div className="md:hidden w-full flex flex-col gap-2">
+          <div className="flex items-center justify-between rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/95 p-2.5 shadow-xs transition-colors">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-950/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 shrink-0">
+                <CurrentCategoryIcon className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  Editing Section
+                </div>
+                <div className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                  {currentCategory.label}
+                </div>
+              </div>
+            </div>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("projects")}
-            className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-colors cursor-pointer shrink-0 ${
-              activeTab === "projects"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-semibold"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-200"
-            }`}
-          >
-            <FolderGit2 className="h-4 w-4" />
-            <span>Projects &amp; Case Studies</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setMobileCategoryMenuOpen((prev) => !prev)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800/80 px-3 py-2 text-xs font-medium text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer shrink-0"
+              aria-expanded={mobileCategoryMenuOpen}
+              aria-label="Toggle section selector menu"
+            >
+              {mobileCategoryMenuOpen ? (
+                <>
+                  <X className="h-4 w-4 text-rose-500" />
+                  <span>Close</span>
+                </>
+              ) : (
+                <>
+                  <Menu className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  <span>Sections</span>
+                </>
+              )}
+            </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("experience")}
-            className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-colors cursor-pointer shrink-0 ${
-              activeTab === "experience"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-semibold"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-200"
-            }`}
-          >
-            <Briefcase className="h-4 w-4" />
-            <span>Work Experience</span>
-          </button>
+          {/* Expandable Category Drawer for Mobile */}
+          {mobileCategoryMenuOpen && (
+            <div className="rounded-2xl border border-purple-200/80 dark:border-purple-800/60 bg-white dark:bg-zinc-900 p-2 shadow-xl backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200 flex flex-col gap-1.5">
+              <div className="px-3 py-1.5 text-[11px] font-mono font-medium text-zinc-500 dark:text-zinc-400 flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80">
+                <span>Select Category to Edit</span>
+                <span className="text-[10px] bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded-md font-mono">
+                  {categories.length} Sections
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                {categories.map((cat) => {
+                  const Icon = cat.icon;
+                  const isActive = activeTab === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveTab(cat.id);
+                        setMobileCategoryMenuOpen(false);
+                      }}
+                      className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-xs transition-all cursor-pointer text-left ${
+                        isActive
+                          ? "bg-purple-100 dark:bg-purple-950/70 text-purple-900 dark:text-purple-200 border border-purple-200 dark:border-purple-800/80 font-bold shadow-xs"
+                          : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 font-medium"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className={`flex h-8 w-8 items-center justify-center rounded-lg shrink-0 ${
+                            isActive
+                              ? "bg-purple-600 text-white"
+                              : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-semibold truncate">{cat.label}</div>
+                          <div className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
+                            {cat.description}
+                          </div>
+                        </div>
+                      </div>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("skills")}
-            className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-colors cursor-pointer shrink-0 ${
-              activeTab === "skills"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-semibold"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-200"
-            }`}
-          >
-            <Wrench className="h-4 w-4" />
-            <span>Skills &amp; Toolbox</span>
-          </button>
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        {cat.count !== undefined && (
+                          <span className="rounded-full bg-zinc-200/80 dark:bg-zinc-800 px-2 py-0.5 text-[10px] font-mono text-zinc-600 dark:text-zinc-400">
+                            {cat.count}
+                          </span>
+                        )}
+                        {isActive && <CheckCircle2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab("education")}
-            className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-colors cursor-pointer shrink-0 ${
-              activeTab === "education"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-semibold"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-200"
-            }`}
-          >
-            <GraduationCap className="h-4 w-4" />
-            <span>Education &amp; Honors</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTab("social")}
-            className={`flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-colors cursor-pointer shrink-0 ${
-              activeTab === "social"
-                ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-semibold"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-200"
-            }`}
-          >
-            <Share2 className="h-4 w-4" />
-            <span>Social Links</span>
-          </button>
+        {/* Desktop Sidebar Navigation */}
+        <aside className="hidden md:flex md:w-60 shrink-0 flex-col gap-1.5">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            const isActive = activeTab === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setActiveTab(cat.id)}
+                className={`flex items-center justify-between rounded-xl px-3.5 py-2.5 text-xs font-medium transition-colors cursor-pointer ${
+                  isActive
+                    ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 font-semibold"
+                    : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-zinc-900 dark:hover:text-zinc-200"
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{cat.label}</span>
+                </div>
+                {cat.count !== undefined && (
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-zinc-200/60 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 shrink-0 ml-1">
+                    {cat.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </aside>
 
         {/* Editor Body */}
