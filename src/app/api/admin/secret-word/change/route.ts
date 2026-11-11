@@ -1,9 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateSecretKeyword, updateSecretKeyword } from "@/lib/admin-auth";
 import { verifyOtp } from "@/lib/otp-service";
+import { checkRateLimit, resetRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const rateLimitKey = `change_keyword:${ip}`;
+
+    // Rate-limit change attempts
+    const rateCheck = checkRateLimit(rateLimitKey, 5, 10 * 60 * 1000);
+    if (!rateCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Change protocol locked: Too many attempts. Try again in ${rateCheck.retryAfterSeconds}s.`,
+        },
+        { status: 429, headers: { "Retry-After": rateCheck.retryAfterSeconds.toString() } }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const { oldPassword, newPassword, confirmPassword, otp } = body;
 
@@ -14,21 +30,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (newPassword !== confirmPassword) {
+    if (
+      typeof oldPassword !== "string" ||
+      typeof newPassword !== "string" ||
+      typeof confirmPassword !== "string"
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Invalid field format." },
+        { status: 400 }
+      );
+    }
+
+    const cleanNew = newPassword.trim();
+    const cleanConfirm = confirmPassword.trim();
+
+    if (cleanNew !== cleanConfirm) {
       return NextResponse.json(
         { success: false, error: "New password and confirmation do not match." },
         { status: 400 }
       );
     }
 
-    if (newPassword.trim().length < 4) {
+    if (cleanNew.length < 4 || cleanNew.length > 64) {
       return NextResponse.json(
-        { success: false, error: "New secret keyword must be at least 4 characters long." },
+        { success: false, error: "New secret keyword must be between 4 and 64 characters long." },
         { status: 400 }
       );
     }
 
-    // 1. Verify old password against current secret keyword
+    // 1. Verify old password against current secret keyword (constant time)
     const isOldValid = await validateSecretKeyword(oldPassword);
     if (!isOldValid) {
       return NextResponse.json(
@@ -38,7 +68,8 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Verify confirmation OTP (exact 30-second window)
-    const otpResult = verifyOtp("confirm_change", otp.toString());
+    const cleanOtp = otp.toString().trim().replace(/\D/g, "");
+    const otpResult = verifyOtp("confirm_change", cleanOtp);
     if (!otpResult.valid) {
       return NextResponse.json(
         { success: false, error: otpResult.error || "Confirmation OTP is invalid or expired." },
@@ -47,21 +78,29 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Commit new secret keyword to Supabase
-    const saved = await updateSecretKeyword(newPassword.trim());
+    const saved = await updateSecretKeyword(cleanNew);
     if (!saved) {
       return NextResponse.json(
-        { success: false, error: "Failed to persist new secret keyword to Supabase. Check database connection." },
+        { success: false, error: "Database error updating secret keyword in Supabase." },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({
+    // Reset rate limiter on success
+    resetRateLimit(rateLimitKey);
+
+    const response = NextResponse.json({
       success: true,
-      message: "Secret keyword successfully updated and committed to Supabase.",
+      message: "Secret keyword successfully updated in Supabase.",
     });
+    response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    response.headers.set("X-Content-Type-Options", "nosniff");
+    return response;
   } catch (err) {
     console.error("Error changing secret keyword:", err);
-    return NextResponse.json({ success: false, error: "Failed to update secret keyword" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Internal server error while changing secret keyword." },
+      { status: 500 }
+    );
   }
 }
-

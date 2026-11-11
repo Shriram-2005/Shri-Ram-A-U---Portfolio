@@ -14,7 +14,6 @@ import {
   ExternalLink,
   Plus,
   Trash2,
-  Database,
   User,
   FolderGit2,
   Briefcase,
@@ -22,7 +21,6 @@ import {
   Wrench,
   Share2,
   RefreshCw,
-  Info,
   CheckCircle2,
 } from "lucide-react";
 
@@ -32,7 +30,6 @@ export default function AdminDashboardPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showSeedInfo, setShowSeedInfo] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "personal" | "projects" | "experience" | "skills" | "education" | "social"
   >("personal");
@@ -110,30 +107,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleSeedDefaults = async () => {
-    if (
-      !confirm(
-        "Seed default portfolio content from codebase into Supabase? This will pre-fill or reset your Supabase database with the initial portfolio data."
-      )
-    )
-      return;
-    setSaving(true);
-    try {
-      const res = await fetch("/api/admin/content/seed", { method: "POST" });
-      const json = await res.json();
-      if (json.success) {
-        setData(defaultPortfolioBundle);
-        toast("Codebase defaults seeded into Supabase successfully!", "success");
-      } else {
-        toast(json.error || "Failed to seed content.", "error");
-      }
-    } catch {
-      toast("Error seeding defaults.", "error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex items-center justify-center font-mono text-sm">
@@ -167,54 +140,6 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Seed DB with Helper Info Popover Trigger */}
-          <div className="relative">
-            <div className="flex items-center">
-              <button
-                type="button"
-                onClick={handleSeedDefaults}
-                disabled={saving}
-                className="hidden lg:inline-flex items-center gap-1.5 rounded-l-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 text-xs font-mono text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
-                title="Seed codebase defaults into Supabase"
-              >
-                <Database className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
-                <span>Seed DB</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowSeedInfo(!showSeedInfo)}
-                className="hidden lg:inline-flex items-center justify-center rounded-r-xl border-y border-r border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 px-1.5 py-1.5 text-xs text-zinc-500 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer"
-                title="What is Seed DB?"
-              >
-                <Info className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
-            {/* Seed DB Explainer Dropdown */}
-            {showSeedInfo && (
-              <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 shadow-xl z-50 text-xs font-sans">
-                <div className="flex items-center justify-between pb-2 mb-2 border-b border-zinc-100 dark:border-zinc-800 font-bold text-zinc-900 dark:text-zinc-100">
-                  <div className="flex items-center gap-1.5">
-                    <Database className="h-4 w-4 text-purple-600" />
-                    <span>What is &quot;Seed DB&quot;?</span>
-                  </div>
-                  <button
-                    onClick={() => setShowSeedInfo(false)}
-                    className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-                  >
-                    ×
-                  </button>
-                </div>
-                <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                  <strong>Seed DB (Seed Database)</strong> pre-populates your Supabase tables with the complete default portfolio data from the codebase.
-                </p>
-                <p className="text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed text-[11px]">
-                  Use this when you have freshly created your Supabase tables so that your projects, bio, skills, and experience are already filled in and ready to edit.
-                </p>
-              </div>
-            )}
-          </div>
-
           <Link
             href="/"
             target="_blank"

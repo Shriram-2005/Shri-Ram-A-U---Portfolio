@@ -791,52 +791,72 @@ export function TerminalSection() {
         break;
 
       default:
-        // Check if entered command matches the secret keyword!
-        try {
-          const res = await fetch("/api/admin/secret-word/validate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ keyword: trimmed }),
-          });
-          const data = await res.json();
-
-          if (data.valid) {
-            setTerminalMode("admin_menu");
-            newLines.push({
-              type: "output",
-              content: (
-                <div className="rounded-xl border border-purple-300 dark:border-purple-500/50 bg-purple-50 dark:bg-purple-950/40 p-4 text-xs font-mono flex flex-col gap-2.5 shadow-xl transition-colors">
-                  <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold uppercase tracking-wider border-b border-purple-200 dark:border-purple-800/60 pb-2">
-                    <ShieldAlert className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    <span>[SECURITY PROTOCOL ACTIVATED] Administrative Access Unlocked</span>
-                  </div>
-                  <p className="text-zinc-700 dark:text-zinc-200">
-                    Secret keyword recognized. Access level: Portfolio Owner &amp; Administrator.
-                  </p>
-                  <div className="flex flex-col gap-1.5 text-zinc-700 dark:text-zinc-300 pt-1">
-                    <div>
-                      <strong className="text-purple-700 dark:text-purple-300 font-bold">[1] continue</strong>
-                      <span className="text-zinc-600 dark:text-zinc-400"> - 30s OTP authorization to unlock Admin Login Portal</span>
-                    </div>
-                    <div>
-                      <strong className="text-purple-700 dark:text-purple-300 font-bold">[2] change secret word</strong>
-                      <span className="text-zinc-600 dark:text-zinc-400"> - Update secret keyword (2-step OTP validation)</span>
-                    </div>
-                    <div>
-                      <strong className="text-purple-700 dark:text-purple-300 font-bold">[3] exit</strong>
-                      <span className="text-zinc-600 dark:text-zinc-400"> - Return to standard terminal shell</span>
-                    </div>
-                  </div>
-                  <div className="text-[11px] text-purple-700 dark:text-purple-300/80 pt-1 border-t border-purple-200 dark:border-purple-900/50">
-                    Type <span className="font-bold text-zinc-900 dark:text-white">&apos;continue&apos;</span>, <span className="font-bold text-zinc-900 dark:text-white">&apos;change&apos;</span>, or <span className="font-bold text-zinc-900 dark:text-white">&apos;exit&apos;</span>:
-                  </div>
-                </div>
-              ),
+        // Input sanity check before querying security endpoint (anti-injection & anti-DoS)
+        if (
+          trimmed.length >= 3 &&
+          trimmed.length <= 64 &&
+          !trimmed.includes(" ") &&
+          !/[<>{}\\\/;&|]/.test(trimmed)
+        ) {
+          try {
+            const res = await fetch("/api/admin/secret-word/validate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ keyword: trimmed }),
             });
-            setHistory((prev) => [...prev, ...newLines]);
-            return;
-          }
-        } catch {}
+            const data = await res.json();
+
+            if (res.status === 429) {
+              newLines.push({
+                type: "error",
+                content: (
+                  <div className="rounded-lg border border-rose-300 dark:border-rose-500/40 bg-rose-50 dark:bg-rose-950/40 p-2.5 text-rose-700 dark:text-rose-300 text-xs font-mono">
+                    [SECURITY LOCKOUT] {data.error || "Too many failed attempts. Terminal temporarily locked."}
+                  </div>
+                ),
+              });
+              setHistory((prev) => [...prev, ...newLines]);
+              return;
+            }
+
+            if (data.valid) {
+              setTerminalMode("admin_menu");
+              newLines.push({
+                type: "output",
+                content: (
+                  <div className="rounded-xl border border-purple-300 dark:border-purple-500/50 bg-purple-50 dark:bg-purple-950/40 p-4 text-xs font-mono flex flex-col gap-2.5 shadow-xl transition-colors">
+                    <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold uppercase tracking-wider border-b border-purple-200 dark:border-purple-800/60 pb-2">
+                      <ShieldAlert className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      <span>[SECURITY PROTOCOL ACTIVATED] Administrative Access Unlocked</span>
+                    </div>
+                    <p className="text-zinc-700 dark:text-zinc-200">
+                      Secret keyword recognized. Access level: Portfolio Owner &amp; Administrator.
+                    </p>
+                    <div className="flex flex-col gap-1.5 text-zinc-700 dark:text-zinc-300 pt-1">
+                      <div>
+                        <strong className="text-purple-700 dark:text-purple-300 font-bold">[1] continue</strong>
+                        <span className="text-zinc-600 dark:text-zinc-400"> - 30s OTP authorization to unlock Admin Login Portal</span>
+                      </div>
+                      <div>
+                        <strong className="text-purple-700 dark:text-purple-300 font-bold">[2] change secret word</strong>
+                        <span className="text-zinc-600 dark:text-zinc-400"> - Update secret keyword (2-step OTP validation)</span>
+                      </div>
+                      <div>
+                        <strong className="text-purple-700 dark:text-purple-300 font-bold">[3] exit</strong>
+                        <span className="text-zinc-600 dark:text-zinc-400"> - Return to standard terminal shell</span>
+                      </div>
+                    </div>
+                    <div className="text-[11px] text-purple-700 dark:text-purple-300/80 pt-1 border-t border-purple-200 dark:border-purple-900/50">
+                      Type <span className="font-bold text-zinc-900 dark:text-white">&apos;continue&apos;</span>, <span className="font-bold text-zinc-900 dark:text-white">&apos;change&apos;</span>, or <span className="font-bold text-zinc-900 dark:text-white">&apos;exit&apos;</span>:
+                    </div>
+                  </div>
+                ),
+              });
+              setHistory((prev) => [...prev, ...newLines]);
+              return;
+            }
+          } catch {}
+        }
 
         newLines.push({
           type: "error",

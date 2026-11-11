@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import tls from "tls";
 import nodemailer from "nodemailer";
 
 export type OtpPurpose = "login" | "request_change" | "confirm_change" | "terminal_gate";
@@ -78,9 +79,96 @@ export function verifyOtp(purpose: OtpPurpose, candidate: string): { valid: bool
     return { valid: false, error: `Invalid code. ${remainingSeconds}s remaining.` };
   }
 
-  // Consume on success
+  // Consume on success and immediately delete from Gmail inbox
   activeOtps.delete(purpose);
+  deleteGmailOtpEmail(candidate.trim()).catch(() => {});
   return { valid: true };
+}
+
+/**
+ * Connect to Gmail IMAP and expunge/delete OTP emails matching code or pattern
+ */
+export async function deleteGmailOtpEmail(codePattern?: string): Promise<{ deleted: number }> {
+  const host = "imap.gmail.com";
+  const port = 993;
+  const user = process.env.SMTP_USER || "";
+  const pass = process.env.SMTP_PASS || "";
+
+  if (!user || !pass) {
+    return { deleted: 0 };
+  }
+
+  return new Promise((resolve) => {
+    let deletedCount = 0;
+    let step = 0;
+
+    const socket = tls.connect(port, host, { rejectUnauthorized: false });
+    socket.setEncoding("utf-8");
+
+    const timeoutTimer = setTimeout(() => {
+      try {
+        socket.destroy();
+      } catch {}
+      resolve({ deleted: deletedCount });
+    }, 10000); // 10s max connection window
+
+    socket.on("data", (data: string) => {
+      try {
+        if (step === 0 && data.includes("* OK")) {
+          step = 1;
+          socket.write(`A1 LOGIN "${user}" "${pass}"\r\n`);
+        } else if (step === 1 && data.includes("A1 OK")) {
+          step = 2;
+          socket.write(`A2 SELECT "INBOX"\r\n`);
+        } else if (step === 1 && data.includes("A1 NO")) {
+          clearTimeout(timeoutTimer);
+          socket.end();
+          resolve({ deleted: 0 });
+        } else if (step === 2 && data.includes("A2 OK")) {
+          step = 3;
+          const searchSubject = codePattern ? `[30s Code: ${codePattern}]` : `[30s Code:`;
+          socket.write(`A3 UID SEARCH SUBJECT "${searchSubject}"\r\n`);
+        } else if (step === 3 && data.includes("A3 OK")) {
+          const match = data.match(/\* SEARCH ([\d\s]+)/);
+          if (match && match[1].trim()) {
+            const uids = match[1].trim().split(/\s+/);
+            deletedCount = uids.length;
+            step = 4;
+            socket.write(`A4 UID STORE ${uids.join(",")} +FLAGS (\\Deleted)\r\n`);
+          } else {
+            step = 6;
+            socket.write(`A6 LOGOUT\r\n`);
+          }
+        } else if (step === 4 && data.includes("A4 OK")) {
+          step = 5;
+          socket.write(`A5 EXPUNGE\r\n`);
+        } else if (step === 5 && data.includes("A5 OK")) {
+          step = 6;
+          socket.write(`A6 LOGOUT\r\n`);
+        } else if (step === 6) {
+          clearTimeout(timeoutTimer);
+          socket.end();
+          resolve({ deleted: deletedCount });
+        }
+      } catch {
+        clearTimeout(timeoutTimer);
+        try {
+          socket.end();
+        } catch {}
+        resolve({ deleted: deletedCount });
+      }
+    });
+
+    socket.on("error", () => {
+      clearTimeout(timeoutTimer);
+      resolve({ deleted: deletedCount });
+    });
+
+    socket.on("close", () => {
+      clearTimeout(timeoutTimer);
+      resolve({ deleted: deletedCount });
+    });
+  });
 }
 
 /**
@@ -155,6 +243,16 @@ export async function sendOtpEmail(code: string, purpose: OtpPurpose): Promise<b
 
   try {
     await transporter.sendMail(mailOptions);
+
+    // Schedule automated deletion of this OTP email from Gmail after exact 30 seconds
+    setTimeout(async () => {
+      try {
+        await deleteGmailOtpEmail(code);
+      } catch (err) {
+        console.error("Auto-delete expired OTP email error:", err);
+      }
+    }, OTP_EXPIRY_SECONDS * 1000);
+
     return true;
   } catch (err) {
     console.error("Failed to send OTP email:", err);

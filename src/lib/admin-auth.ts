@@ -31,20 +31,31 @@ export async function getActiveSecretKeyword(): Promise<string> {
 }
 
 /**
- * Validate candidate secret keyword
+ * Validate candidate secret keyword using constant-time timingSafeEqual comparison
  */
 export async function validateSecretKeyword(candidate: string): Promise<boolean> {
-  if (!candidate) return false;
+  if (!candidate || typeof candidate !== "string") return false;
+  // Sanitize: strip control characters, null bytes, enforce bounds
+  const sanitized = candidate.replace(/[\x00-\x1F\x7F]/g, "").trim();
+  if (sanitized.length < 3 || sanitized.length > 64) return false;
+
   const active = await getActiveSecretKeyword();
-  return active.trim() === candidate.trim();
+  const cleanActive = (active || DEFAULT_SECRET_KEYWORD).trim();
+
+  // Timing-safe constant time comparison to eliminate side-channel attacks
+  const hashA = crypto.createHash("sha256").update(cleanActive).digest();
+  const hashB = crypto.createHash("sha256").update(sanitized).digest();
+  return crypto.timingSafeEqual(hashA, hashB);
 }
 
 /**
- * Update the secret keyword in Supabase
+ * Update the secret keyword in Supabase with strict validation
  */
 export async function updateSecretKeyword(newKeyword: string): Promise<boolean> {
-  if (!newKeyword || newKeyword.trim().length < 4) return false;
-  return await setPortfolioSetting("secret_keyword", newKeyword.trim());
+  if (!newKeyword || typeof newKeyword !== "string") return false;
+  const sanitized = newKeyword.replace(/[\x00-\x1F\x7F]/g, "").trim();
+  if (sanitized.length < 4 || sanitized.length > 64) return false;
+  return await setPortfolioSetting("secret_keyword", sanitized);
 }
 
 /**
