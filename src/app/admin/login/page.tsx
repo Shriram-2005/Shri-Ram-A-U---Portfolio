@@ -140,16 +140,16 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden transition-colors">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col justify-center items-center px-3 sm:px-4 py-8 sm:py-12 relative overflow-hidden transition-colors">
       {/* Background ambient glow */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-500/10 dark:bg-purple-900/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-500/10 dark:bg-indigo-900/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Header Bar with Back Button & Theme Toggle */}
-      <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-10 max-w-6xl mx-auto">
+      <div className="absolute top-4 sm:top-6 left-4 sm:left-6 right-4 sm:right-6 flex items-center justify-between z-10 max-w-6xl mx-auto">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-mono text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+          className="inline-flex items-center gap-1.5 sm:gap-2 text-xs font-mono text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Portfolio</span>
@@ -157,29 +157,29 @@ export default function AdminLoginPage() {
         <ThemeToggle />
       </div>
 
-      <div className="w-full max-w-md z-10 mt-6 sm:mt-0">
+      <div className="w-full max-w-md z-10 mt-12 sm:mt-0">
         {/* Branding header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-4">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center mb-3 sm:mb-4">
             <Image
               src="/aus-logo.png"
               alt="AUS Logo"
               width={120}
               height={45}
-              className="h-10 w-auto object-contain"
+              className="h-9 sm:h-10 w-auto object-contain"
               priority
             />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
             Passwordless Admin Portal
           </h1>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 font-mono">
+          <p className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 mt-1 font-mono">
             Terminal Gateway Verified | 30s One-Time Code
           </p>
         </div>
 
         {/* Login Card */}
-        <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/90 p-6 sm:p-8 backdrop-blur-xl shadow-xl transition-colors">
+        <div className="rounded-2xl sm:rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-900/90 p-5 sm:p-8 backdrop-blur-xl shadow-xl transition-colors">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-100 dark:bg-purple-950/60 border border-purple-200 dark:border-purple-800/60 text-purple-700 dark:text-purple-300 text-xs font-mono font-medium">
               <ShieldCheck className="h-3.5 w-3.5" />

@@ -596,7 +596,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-10 px-3 sm:pt-24 sm:px-4">
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 px-3 sm:pt-24 sm:px-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -636,7 +636,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
             </div>
 
             {/* Command List */}
-            <div ref={listRef} className="max-h-96 overflow-y-auto p-2 scroll-py-2">
+            <div ref={listRef} className="max-h-[50vh] sm:max-h-96 overflow-y-auto p-2 scroll-py-2">
               {flatItems.length === 0 ? (
                 <div className="py-12 text-center text-sm text-zinc-500 dark:text-zinc-400">
                   No matching projects or commands found for &ldquo;{query}&rdquo;.

@@ -119,33 +119,34 @@ export default function AdminDashboardPage() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans flex flex-col transition-colors">
       {/* Top Admin Navigation Header */}
-      <header className="sticky top-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between gap-4 transition-colors">
-        <div className="flex items-center gap-3">
-          <Link href="/" target="_blank" className="flex items-center gap-2">
+      <header className="sticky top-0 z-40 border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between gap-2 sm:gap-4 transition-colors">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+          <Link href="/" target="_blank" className="flex items-center gap-1.5 sm:gap-2">
             <Image
               src="/aus-logo.png"
               alt="AUS Logo"
               width={75}
               height={28}
-              className="h-6 w-auto object-contain"
+              className="h-5 sm:h-6 w-auto object-contain shrink-0"
             />
-            <span className="font-bold text-sm text-zinc-900 dark:text-white hidden sm:inline">
+            <span className="font-bold text-xs sm:text-sm text-zinc-900 dark:text-white hidden sm:inline">
               Portfolio Manager
             </span>
           </Link>
-          <span className="hidden md:inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-mono text-emerald-800 dark:text-emerald-300">
+          <span className="hidden md:inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-500/30 px-2 py-0.5 text-[10px] font-mono text-emerald-800 dark:text-emerald-300 shrink-0">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <span>Supabase Connected</span>
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Link
             href="/"
             target="_blank"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
+            className="inline-flex items-center gap-1 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 px-2.5 sm:px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white transition-colors"
+            title="View Live Website"
           >
-            <span>Live Site</span>
+            <span className="hidden sm:inline">Live Site</span>
             <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
           </Link>
 
@@ -153,10 +154,11 @@ export default function AdminDashboardPage() {
             type="button"
             onClick={handleSaveAll}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-4 py-1.5 text-xs font-bold text-white shadow-md transition-all cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 px-2.5 sm:px-4 py-1.5 text-xs font-bold text-white shadow-md transition-all cursor-pointer disabled:opacity-50"
           >
             {saving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-            <span>{saving ? "Saving..." : "Save All"}</span>
+            <span className="hidden sm:inline">{saving ? "Saving..." : "Save All"}</span>
+            <span className="sm:hidden">{saving ? "Saving..." : "Save"}</span>
           </button>
 
           {/* Theme Toggle Component in Header */}
@@ -166,7 +168,7 @@ export default function AdminDashboardPage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900/80 p-2 text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
+            className="inline-flex items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900/80 p-2 text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer"
             title="Log Out (Returns to Portfolio)"
           >
             <LogOut className="h-3.5 w-3.5" />
@@ -175,9 +177,9 @@ export default function AdminDashboardPage() {
       </header>
 
       {/* Main CMS Layout */}
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 gap-6">
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 sm:py-6 gap-4 sm:gap-6">
         {/* Sidebar Navigation */}
-        <aside className="w-full md:w-60 shrink-0 flex flex-row md:flex-col gap-1 overflow-x-auto pb-2 md:pb-0">
+        <aside className="w-full md:w-60 shrink-0 flex flex-row md:flex-col gap-1.5 overflow-x-auto pb-1.5 md:pb-0 scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <button
             type="button"
             onClick={() => setActiveTab("personal")}
@@ -258,7 +260,7 @@ export default function AdminDashboardPage() {
         </aside>
 
         {/* Editor Body */}
-        <main className="flex-1 bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/80 rounded-3xl p-5 sm:p-7 shadow-xs transition-colors">
+        <main className="flex-1 bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/80 rounded-2xl sm:rounded-3xl p-4 sm:p-7 shadow-xs transition-colors">
           {/* TAB 1: PERSONAL INFO */}
           {activeTab === "personal" && (
             <div className="flex flex-col gap-6">
@@ -280,7 +282,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setData({ ...data, personalInfo: { ...data.personalInfo, name: e.target.value } })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -297,7 +299,7 @@ export default function AdminDashboardPage() {
                         personalInfo: { ...data.personalInfo, preferredName: e.target.value },
                       })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -311,7 +313,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setData({ ...data, personalInfo: { ...data.personalInfo, role: e.target.value } })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -325,7 +327,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setData({ ...data, personalInfo: { ...data.personalInfo, tagline: e.target.value } })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -339,7 +341,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setData({ ...data, personalInfo: { ...data.personalInfo, shortBio: e.target.value } })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 leading-relaxed focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 leading-relaxed focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -353,7 +355,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setData({ ...data, personalInfo: { ...data.personalInfo, email: e.target.value } })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -367,7 +369,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setData({ ...data, personalInfo: { ...data.personalInfo, location: e.target.value } })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -381,7 +383,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setData({ ...data, personalInfo: { ...data.personalInfo, github: e.target.value } })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
 
@@ -395,7 +397,7 @@ export default function AdminDashboardPage() {
                     onChange={(e) =>
                       setData({ ...data, personalInfo: { ...data.personalInfo, linkedin: e.target.value } })
                     }
-                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                   />
                 </div>
               </div>
@@ -434,7 +436,7 @@ export default function AdminDashboardPage() {
                           setData({ ...data, personalInfo: { ...data.personalInfo, stats: updated } });
                         }}
                         placeholder="Value (e.g. 3.68ms)"
-                        className="w-24 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-1 text-xs font-mono font-bold text-purple-600 dark:text-purple-300 focus:border-purple-500 focus:outline-hidden"
+                        className="w-24 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-1 text-base sm:text-xs font-mono font-bold text-purple-600 dark:text-purple-300 focus:border-purple-500 focus:outline-hidden"
                       />
                       <input
                         type="text"
@@ -445,7 +447,7 @@ export default function AdminDashboardPage() {
                           setData({ ...data, personalInfo: { ...data.personalInfo, stats: updated } });
                         }}
                         placeholder="Label"
-                        className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-1 text-xs text-zinc-800 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
+                        className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-1 text-base sm:text-xs text-zinc-800 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
                       />
                       <button
                         type="button"
@@ -574,7 +576,7 @@ export default function AdminDashboardPage() {
                                   updated[pIdx].id = e.target.value;
                                   setData({ ...data, projects: updated });
                                 }}
-                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                               />
                             </div>
 
@@ -589,7 +591,7 @@ export default function AdminDashboardPage() {
                                   updated[pIdx].category = e.target.value as Project["category"];
                                   setData({ ...data, projects: updated });
                                 }}
-                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                               >
                                 <option value="Full-Stack">Full-Stack</option>
                                 <option value="Mobile & Edge AI">Mobile & Edge AI</option>
@@ -610,7 +612,7 @@ export default function AdminDashboardPage() {
                                   updated[pIdx].title = e.target.value;
                                   setData({ ...data, projects: updated });
                                 }}
-                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs font-semibold text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs font-semibold text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                               />
                             </div>
 
@@ -626,7 +628,7 @@ export default function AdminDashboardPage() {
                                   updated[pIdx].tagline = e.target.value;
                                   setData({ ...data, projects: updated });
                                 }}
-                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                               />
                             </div>
 
@@ -642,7 +644,7 @@ export default function AdminDashboardPage() {
                                   updated[pIdx].description = e.target.value;
                                   setData({ ...data, projects: updated });
                                 }}
-                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                               />
                             </div>
 
@@ -658,7 +660,7 @@ export default function AdminDashboardPage() {
                                   updated[pIdx].liveUrl = e.target.value;
                                   setData({ ...data, projects: updated });
                                 }}
-                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                               />
                             </div>
 
@@ -674,7 +676,7 @@ export default function AdminDashboardPage() {
                                   updated[pIdx].githubUrl = e.target.value;
                                   setData({ ...data, projects: updated });
                                 }}
-                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                                className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                               />
                             </div>
                           </div>
@@ -700,7 +702,7 @@ export default function AdminDashboardPage() {
                                       setData({ ...data, projects: updated });
                                     }
                                   }}
-                                  className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
+                                  className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
                                 />
                               </div>
 
@@ -719,7 +721,7 @@ export default function AdminDashboardPage() {
                                         setData({ ...data, projects: updated });
                                       }
                                     }}
-                                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
+                                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
                                   />
                                 </div>
 
@@ -737,7 +739,7 @@ export default function AdminDashboardPage() {
                                         setData({ ...data, projects: updated });
                                       }
                                     }}
-                                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
+                                    className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-base sm:text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
                                   />
                                 </div>
                               </div>
@@ -819,7 +821,7 @@ export default function AdminDashboardPage() {
                             updated[eIdx].role = e.target.value;
                             setData({ ...data, experiences: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
 
@@ -835,7 +837,7 @@ export default function AdminDashboardPage() {
                             updated[eIdx].company = e.target.value;
                             setData({ ...data, experiences: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
 
@@ -851,7 +853,7 @@ export default function AdminDashboardPage() {
                             updated[eIdx].period = e.target.value;
                             setData({ ...data, experiences: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
                     </div>
@@ -868,7 +870,7 @@ export default function AdminDashboardPage() {
                           updated[eIdx].description = e.target.value;
                           setData({ ...data, experiences: updated });
                         }}
-                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
+                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
                       />
                     </div>
                   </div>
@@ -913,7 +915,7 @@ export default function AdminDashboardPage() {
                               updated[cIdx].skills[sIdx].name = e.target.value;
                               setData({ ...data, skillCategories: updated });
                             }}
-                            className="bg-transparent focus:outline-hidden text-xs w-28 text-zinc-900 dark:text-zinc-100"
+                            className="bg-transparent focus:outline-hidden text-base sm:text-xs w-28 text-zinc-900 dark:text-zinc-100"
                           />
                           <button
                             type="button"
@@ -1017,7 +1019,7 @@ export default function AdminDashboardPage() {
                             updated[idx].degree = e.target.value;
                             setData({ ...data, education: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
 
@@ -1033,7 +1035,7 @@ export default function AdminDashboardPage() {
                             updated[idx].institution = e.target.value;
                             setData({ ...data, education: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
 
@@ -1049,7 +1051,7 @@ export default function AdminDashboardPage() {
                             updated[idx].grade = e.target.value;
                             setData({ ...data, education: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-purple-700 dark:text-purple-300 font-bold focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-purple-700 dark:text-purple-300 font-bold focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
 
@@ -1065,7 +1067,7 @@ export default function AdminDashboardPage() {
                             updated[idx].period = e.target.value;
                             setData({ ...data, education: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
 
@@ -1081,7 +1083,7 @@ export default function AdminDashboardPage() {
                             updated[idx].location = e.target.value;
                             setData({ ...data, education: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
                     </div>
@@ -1147,7 +1149,7 @@ export default function AdminDashboardPage() {
                             updated[idx].title = e.target.value;
                             setData({ ...data, honors: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs font-bold text-zinc-900 dark:text-white focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs font-bold text-zinc-900 dark:text-white focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
 
@@ -1163,7 +1165,7 @@ export default function AdminDashboardPage() {
                             updated[idx].event = e.target.value;
                             setData({ ...data, honors: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
 
@@ -1179,7 +1181,7 @@ export default function AdminDashboardPage() {
                             updated[idx].date = e.target.value;
                             setData({ ...data, honors: updated });
                           }}
-                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                          className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                         />
                       </div>
                     </div>
@@ -1196,7 +1198,7 @@ export default function AdminDashboardPage() {
                           updated[idx].description = e.target.value;
                           setData({ ...data, honors: updated });
                         }}
-                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-800 dark:text-zinc-300 focus:border-purple-500 focus:outline-hidden"
+                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-800 dark:text-zinc-300 focus:border-purple-500 focus:outline-hidden"
                       />
                     </div>
                   </div>
@@ -1252,7 +1254,7 @@ export default function AdminDashboardPage() {
                           updated[idx].name = e.target.value;
                           setData({ ...data, socialLinks: updated });
                         }}
-                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs font-bold text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs font-bold text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                       />
                     </div>
 
@@ -1269,7 +1271,7 @@ export default function AdminDashboardPage() {
                           updated[idx].handle = e.target.value;
                           setData({ ...data, socialLinks: updated });
                         }}
-                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
                       />
                     </div>
 
@@ -1286,7 +1288,7 @@ export default function AdminDashboardPage() {
                           updated[idx].url = e.target.value;
                           setData({ ...data, socialLinks: updated });
                         }}
-                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 focus:border-purple-500 focus:outline-hidden"
+                        className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-700 dark:text-zinc-300 focus:border-purple-500 focus:outline-hidden"
                       />
                     </div>
 

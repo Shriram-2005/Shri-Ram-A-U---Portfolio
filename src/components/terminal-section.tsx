@@ -904,7 +904,7 @@ export function TerminalSection() {
         />
 
         {/* Quick Command Pills for Mobile / Fast access */}
-        <div className="mx-auto max-w-4xl mb-3 flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
+        <div className="mx-auto max-w-4xl mb-3 flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <span className="text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-wider shrink-0 mr-1">
             Quick run:
           </span>
@@ -927,20 +927,20 @@ export function TerminalSection() {
         >
           {/* Terminal Title Bar */}
           <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800/80 bg-zinc-100/90 dark:bg-zinc-900/90 px-3 sm:px-4 py-2.5 sm:py-3 select-none transition-colors">
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               <span className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-rose-500/80" />
               <span className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-amber-500/80" />
               <span className="h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full bg-emerald-500/80" />
             </div>
 
-            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 font-medium">
-              <TerminalIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              <span>
+            <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 font-medium min-w-0 px-1">
+              <TerminalIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+              <span className="truncate max-w-[150px] xs:max-w-[220px] sm:max-w-none">
                 {terminalMode === "normal" ? "shriram@terminal:~" : "shriram@terminal:[SECURITY ACCESS]"}
               </span>
             </div>
 
-            <div className="text-[10px] sm:text-[11px] text-zinc-500">
+            <div className="text-[10px] sm:text-[11px] text-zinc-500 shrink-0">
               {terminalMode === "normal" ? "zsh" : "admin-shell"}
             </div>
           </div>
