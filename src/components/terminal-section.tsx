@@ -13,6 +13,7 @@ import {
   ShieldAlert,
   Clock,
   KeyRound,
+  RefreshCw,
 } from "lucide-react";
 
 interface TerminalLine {
@@ -35,6 +36,8 @@ const quickCommands = ["bio", "projects", "skills", "cat resume", "contact", "cl
 export function TerminalSection() {
   const router = useRouter();
   const [inputVal, setInputVal] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingText, setProcessingText] = useState("");
   const [history, setHistory] = useState<TerminalLine[]>([
     {
       type: "system",
@@ -102,11 +105,19 @@ export function TerminalSection() {
     }
   }, []);
 
+  // Smooth scroll without lagging on timer ticks
   useEffect(() => {
     if (terminalBodyRef.current) {
       terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
     }
-  }, [history, otpCountdown]);
+  }, [history, isProcessing]);
+
+  // Refocus input whenever processing finishes
+  useEffect(() => {
+    if (!isProcessing) {
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }, [isProcessing]);
 
   const isPasswordInput =
     terminalMode === "change_old_pass" ||
@@ -159,6 +170,8 @@ export function TerminalSection() {
           content: "[STEP 1/2] Dispatching 30-second gateway access code to shriram2005au@gmail.com...",
         });
         setHistory((prev) => [...prev, ...newLines]);
+        setIsProcessing(true);
+        setProcessingText("Dispatching 30-second gateway access code via SMTP...");
 
         try {
           const res = await fetch("/api/admin/otp/send", {
@@ -201,6 +214,9 @@ export function TerminalSection() {
             ...prev,
             { type: "error", content: "[ERROR] Network error dispatching gateway code." },
           ]);
+        } finally {
+          setIsProcessing(false);
+          setProcessingText("");
         }
         return;
       }
@@ -225,6 +241,8 @@ export function TerminalSection() {
           content: "Dispatching 30-second authorization OTP to shriram2005au@gmail.com via SMTP...",
         });
         setHistory((prev) => [...prev, ...newLines]);
+        setIsProcessing(true);
+        setProcessingText("Dispatching 30-second authorization OTP via SMTP...");
 
         try {
           const res = await fetch("/api/admin/otp/send", {
@@ -262,6 +280,9 @@ export function TerminalSection() {
             ...prev,
             { type: "error", content: "[ERROR] Network error dispatching OTP." },
           ]);
+        } finally {
+          setIsProcessing(false);
+          setProcessingText("");
         }
         return;
       }
@@ -285,6 +306,9 @@ export function TerminalSection() {
         setHistory((prev) => [...prev, ...newLines]);
         return;
       }
+
+      setIsProcessing(true);
+      setProcessingText("Verifying 6-digit gateway code and unlocking portal...");
 
       try {
         const res = await fetch("/api/admin/terminal/verify-gate", {
@@ -322,6 +346,9 @@ export function TerminalSection() {
         }
       } catch {
         newLines.push({ type: "error", content: "[ERROR] Failed to verify gateway code." });
+      } finally {
+        setIsProcessing(false);
+        setProcessingText("");
       }
 
       setHistory((prev) => [...prev, ...newLines]);
@@ -339,6 +366,9 @@ export function TerminalSection() {
         setHistory((prev) => [...prev, ...newLines]);
         return;
       }
+
+      setIsProcessing(true);
+      setProcessingText("Verifying authorization OTP...");
 
       try {
         const res = await fetch("/api/admin/otp/verify", {
@@ -363,6 +393,9 @@ export function TerminalSection() {
         }
       } catch {
         newLines.push({ type: "error", content: "[ERROR] Failed to verify OTP." });
+      } finally {
+        setIsProcessing(false);
+        setProcessingText("");
       }
 
       setHistory((prev) => [...prev, ...newLines]);
@@ -379,6 +412,9 @@ export function TerminalSection() {
         setHistory((prev) => [...prev, ...newLines]);
         return;
       }
+
+      setIsProcessing(true);
+      setProcessingText("Verifying current secret keyword...");
 
       try {
         const res = await fetch("/api/admin/secret-word/validate", {
@@ -405,6 +441,9 @@ export function TerminalSection() {
       } catch {
         setTerminalMode("normal");
         newLines.push({ type: "error", content: "[ERROR] Verification error." });
+      } finally {
+        setIsProcessing(false);
+        setProcessingText("");
       }
 
       setHistory((prev) => [...prev, ...newLines]);
@@ -474,6 +513,9 @@ export function TerminalSection() {
       });
       setHistory((prev) => [...prev, ...newLines]);
 
+      setIsProcessing(true);
+      setProcessingText("Dispatching final 30-second confirmation OTP via SMTP...");
+
       try {
         const res = await fetch("/api/admin/otp/send", {
           method: "POST",
@@ -510,6 +552,9 @@ export function TerminalSection() {
           ...prev,
           { type: "error", content: "[ERROR] Network error dispatching confirmation OTP." },
         ]);
+      } finally {
+        setIsProcessing(false);
+        setProcessingText("");
       }
       return;
     }
@@ -527,6 +572,9 @@ export function TerminalSection() {
         setHistory((prev) => [...prev, ...newLines]);
         return;
       }
+
+      setIsProcessing(true);
+      setProcessingText("Validating confirmation OTP and committing new secret keyword...");
 
       try {
         const res = await fetch("/api/admin/secret-word/change", {
@@ -552,7 +600,7 @@ export function TerminalSection() {
               <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/40 p-3 text-emerald-300 flex flex-col gap-1">
                 <div className="font-bold flex items-center gap-1.5">
                   <KeyRound className="h-4 w-4" />
-                  <span>[SUCCESS] Secret keyword permanently updated in Supabase!</span>
+                  <span>[SUCCESS] Secret keyword permanently updated!</span>
                 </div>
                 <div className="text-[11px] text-zinc-300">
                   Your new secret keyword is now active. Use it on your next terminal session.
@@ -568,6 +616,9 @@ export function TerminalSection() {
         }
       } catch {
         newLines.push({ type: "error", content: "[ERROR] Network error saving new secret keyword." });
+      } finally {
+        setIsProcessing(false);
+        setProcessingText("");
       }
 
       setHistory((prev) => [...prev, ...newLines]);
@@ -800,6 +851,9 @@ export function TerminalSection() {
           !trimmed.includes(" ") &&
           !/[<>{}\\\/;&|]/.test(trimmed)
         ) {
+          setIsProcessing(true);
+          setProcessingText("Verifying administrative credentials...");
+
           try {
             const res = await fetch("/api/admin/secret-word/validate", {
               method: "POST",
@@ -857,7 +911,11 @@ export function TerminalSection() {
               setHistory((prev) => [...prev, ...newLines]);
               return;
             }
-          } catch {}
+          } catch {
+          } finally {
+            setIsProcessing(false);
+            setProcessingText("");
+          }
         }
 
         newLines.push({
@@ -871,9 +929,15 @@ export function TerminalSection() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (isProcessing) {
+      e.preventDefault();
+      return;
+    }
+
     if (e.key === "Enter") {
-      handleCommand(inputVal);
+      const val = inputVal;
       setInputVal("");
+      handleCommand(val);
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       if (commandHistory.length === 0) return;
@@ -985,31 +1049,38 @@ export function TerminalSection() {
               </div>
             )}
 
-            {/* Input Row */}
-            <div className="flex items-center gap-1.5 sm:gap-2 pt-1">
-              <span className="text-purple-600 dark:text-purple-400 shrink-0 font-bold">
-                {getPromptPrefix()}
-              </span>
-              <input
-                ref={inputRef}
-                type={isPasswordInput ? "password" : "text"}
-                value={inputVal}
-                onChange={(e) => setInputVal(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="w-full bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-hidden font-mono caret-purple-600 dark:caret-purple-400 text-base sm:text-xs placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
-                autoComplete="off"
-                spellCheck={false}
-                placeholder={
-                  terminalMode === "gate_otp" ||
-                  terminalMode === "change_otp1" ||
-                  terminalMode === "change_otp2"
-                    ? "Enter 6-digit OTP from email..."
-                    : isPasswordInput
-                    ? "Type password and press Enter..."
-                    : ""
-                }
-              />
-            </div>
+            {/* Input Row or Processing Loading Indicator */}
+            {isProcessing ? (
+              <div className="flex items-center gap-2 pt-2 pb-1 text-purple-600 dark:text-purple-400 font-mono text-xs animate-pulse select-none">
+                <RefreshCw className="h-3.5 w-3.5 animate-spin shrink-0" />
+                <span className="font-semibold">{processingText || "Processing request, please wait..."}</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 sm:gap-2 pt-1">
+                <span className="text-purple-600 dark:text-purple-400 shrink-0 font-bold">
+                  {getPromptPrefix()}
+                </span>
+                <input
+                  ref={inputRef}
+                  type={isPasswordInput ? "password" : "text"}
+                  value={inputVal}
+                  onChange={(e) => setInputVal(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="w-full bg-transparent text-zinc-900 dark:text-zinc-100 focus:outline-hidden font-mono caret-purple-600 dark:caret-purple-400 text-base sm:text-xs placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder={
+                    terminalMode === "gate_otp" ||
+                    terminalMode === "change_otp1" ||
+                    terminalMode === "change_otp2"
+                      ? "Enter 6-digit OTP from email..."
+                      : isPasswordInput
+                      ? "Type password and press Enter..."
+                      : ""
+                  }
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

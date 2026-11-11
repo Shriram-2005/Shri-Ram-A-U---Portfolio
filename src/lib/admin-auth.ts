@@ -1,4 +1,6 @@
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
 import { getPortfolioSetting, setPortfolioSetting } from "@/lib/supabase";
 
 const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || "shriram_secure_admin_session_secret_2026_key";
@@ -7,6 +9,30 @@ const DEFAULT_PASSWORD = process.env.ADMIN_DEFAULT_PASSWORD || "Admin@Shriram202
 const DEFAULT_SECRET_KEYWORD = process.env.ADMIN_SECRET_KEYWORD || "aus-master";
 
 export const COOKIE_NAME = "portfolio_admin_session";
+
+const LOCAL_STORE_FILE = path.join(process.cwd(), ".admin-settings.json");
+
+function readLocalSettings(): Record<string, string> {
+  try {
+    if (fs.existsSync(LOCAL_STORE_FILE)) {
+      const raw = fs.readFileSync(LOCAL_STORE_FILE, "utf-8");
+      return JSON.parse(raw);
+    }
+  } catch {}
+  return {};
+}
+
+function writeLocalSetting(key: string, value: string): boolean {
+  try {
+    const data = readLocalSettings();
+    data[key] = value;
+    fs.writeFileSync(LOCAL_STORE_FILE, JSON.stringify(data, null, 2), "utf-8");
+    return true;
+  } catch (err) {
+    console.warn("Could not write local admin setting:", err);
+    return false;
+  }
+}
 
 /**
  * Hash a password using PBKDF2 with salt
@@ -19,14 +45,25 @@ export function hashPassword(password: string, salt = "shriram_salt_v1"): string
  * Get the current secret keyword for the developer terminal
  */
 export async function getActiveSecretKeyword(): Promise<string> {
+  // 1. Check Supabase
   try {
     const fromDb = await getPortfolioSetting("secret_keyword");
     if (fromDb && fromDb.trim()) {
       return fromDb.trim();
     }
   } catch (err) {
-    console.warn("Could not read secret_keyword from DB, using fallback:", err);
+    console.warn("Could not read secret_keyword from DB, checking local store:", err);
   }
+
+  // 2. Check local store
+  try {
+    const local = readLocalSettings();
+    if (local.secret_keyword && local.secret_keyword.trim()) {
+      return local.secret_keyword.trim();
+    }
+  } catch {}
+
+  // 3. Fallback to default
   return DEFAULT_SECRET_KEYWORD;
 }
 
@@ -49,13 +86,27 @@ export async function validateSecretKeyword(candidate: string): Promise<boolean>
 }
 
 /**
- * Update the secret keyword in Supabase with strict validation
+ * Update the secret keyword with strict validation.
+ * Persists locally and synchronizes to Supabase.
  */
 export async function updateSecretKeyword(newKeyword: string): Promise<boolean> {
   if (!newKeyword || typeof newKeyword !== "string") return false;
   const sanitized = newKeyword.replace(/[\x00-\x1F\x7F]/g, "").trim();
   if (sanitized.length < 4 || sanitized.length > 64) return false;
-  return await setPortfolioSetting("secret_keyword", sanitized);
+
+  // 1. Immediately persist to local secure store so changes are active right away
+  const localSaved = writeLocalSetting("secret_keyword", sanitized);
+
+  // 2. Attempt to synchronize to Supabase
+  let dbSaved = false;
+  try {
+    dbSaved = await setPortfolioSetting("secret_keyword", sanitized);
+  } catch (err) {
+    console.warn("Could not sync secret_keyword to Supabase:", err);
+  }
+
+  // Returns true as long as local or DB saved
+  return localSaved || dbSaved;
 }
 
 /**
