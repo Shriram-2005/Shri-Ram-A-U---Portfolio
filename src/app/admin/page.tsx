@@ -22,7 +22,69 @@ import {
   Share2,
   RefreshCw,
   CheckCircle2,
+  ChevronUp,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
+function moveItem<T>(list: T[], index: number, direction: "up" | "down"): T[] {
+  const targetIndex = direction === "up" ? index - 1 : index + 1;
+  if (targetIndex < 0 || targetIndex >= list.length) return list;
+  const copy = [...list];
+  const [removed] = copy.splice(index, 1);
+  copy.splice(targetIndex, 0, removed);
+  return copy;
+}
+
+function MoveButtons({
+  onUp,
+  onDown,
+  isFirst,
+  isLast,
+  horizontal = false,
+  className = "",
+}: {
+  onUp: () => void;
+  onDown: () => void;
+  isFirst: boolean;
+  isLast: boolean;
+  horizontal?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`inline-flex items-center gap-0.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-0.5 shrink-0 shadow-2xs ${className}`}
+    >
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isFirst) onUp();
+        }}
+        disabled={isFirst}
+        className="p-1 rounded text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer"
+        title={horizontal ? "Move Left" : "Move Up"}
+        aria-label={horizontal ? "Move Left" : "Move Up"}
+      >
+        {horizontal ? <ChevronLeft className="h-3 w-3" /> : <ChevronUp className="h-3 w-3" />}
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isLast) onDown();
+        }}
+        disabled={isLast}
+        className="p-1 rounded text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-25 disabled:pointer-events-none transition-colors cursor-pointer"
+        title={horizontal ? "Move Right" : "Move Down"}
+        aria-label={horizontal ? "Move Right" : "Move Down"}
+      >
+        {horizontal ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+      </button>
+    </div>
+  );
+}
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -427,6 +489,18 @@ export default function AdminDashboardPage() {
                       key={idx}
                       className="flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 p-2.5"
                     >
+                      <MoveButtons
+                        onUp={() => {
+                          const updated = moveItem(data.personalInfo.stats, idx, "up");
+                          setData({ ...data, personalInfo: { ...data.personalInfo, stats: updated } });
+                        }}
+                        onDown={() => {
+                          const updated = moveItem(data.personalInfo.stats, idx, "down");
+                          setData({ ...data, personalInfo: { ...data.personalInfo, stats: updated } });
+                        }}
+                        isFirst={idx === 0}
+                        isLast={idx === data.personalInfo.stats.length - 1}
+                      />
                       <input
                         type="text"
                         value={s.value}
@@ -544,6 +618,18 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div className="flex items-center gap-2">
+                          <MoveButtons
+                            onUp={() => {
+                              const updated = moveItem(data.projects, pIdx, "up");
+                              setData({ ...data, projects: updated });
+                            }}
+                            onDown={() => {
+                              const updated = moveItem(data.projects, pIdx, "down");
+                              setData({ ...data, projects: updated });
+                            }}
+                            isFirst={pIdx === 0}
+                            isLast={pIdx === data.projects.length - 1}
+                          />
                           <button
                             type="button"
                             onClick={(e) => {
@@ -745,6 +831,223 @@ export default function AdminDashboardPage() {
                               </div>
                             </div>
                           )}
+
+                          {/* Project Highlights (Reorderable) */}
+                          <div className="mt-3 border-t border-zinc-200 dark:border-zinc-800 pt-3 flex flex-col gap-2.5">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-xs font-mono font-bold uppercase text-purple-600 dark:text-purple-400">
+                                Engineering Highlights ({proj.highlights?.length || 0})
+                              </h4>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...data.projects];
+                                  updated[pIdx].highlights = [...(updated[pIdx].highlights || []), "New engineering highlight"];
+                                  setData({ ...data, projects: updated });
+                                }}
+                                className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 px-2 py-0.5 text-xs text-zinc-700 dark:text-zinc-200 cursor-pointer"
+                              >
+                                <Plus className="h-3 w-3" />
+                                <span>Add Highlight</span>
+                              </button>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              {(proj.highlights || []).map((hl, hIdx) => (
+                                <div key={hIdx} className="flex items-center gap-2">
+                                  <MoveButtons
+                                    onUp={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].highlights || [];
+                                      updated[pIdx].highlights = moveItem(current, hIdx, "up");
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    onDown={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].highlights || [];
+                                      updated[pIdx].highlights = moveItem(current, hIdx, "down");
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    isFirst={hIdx === 0}
+                                    isLast={hIdx === (proj.highlights?.length || 0) - 1}
+                                  />
+                                  <input
+                                    type="text"
+                                    value={hl}
+                                    onChange={(e) => {
+                                      const updated = [...data.projects];
+                                      const current = [...(updated[pIdx].highlights || [])];
+                                      current[hIdx] = e.target.value;
+                                      updated[pIdx].highlights = current;
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    className="flex-1 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].highlights || [];
+                                      updated[pIdx].highlights = current.filter((_, i) => i !== hIdx);
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    className="text-zinc-400 hover:text-rose-500 p-1 cursor-pointer"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Project Metrics (Reorderable) */}
+                          <div className="mt-3 border-t border-zinc-200 dark:border-zinc-800 pt-3 flex flex-col gap-2.5">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-xs font-mono font-bold uppercase text-purple-600 dark:text-purple-400">
+                                Key Metrics ({proj.metrics?.length || 0})
+                              </h4>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...data.projects];
+                                  updated[pIdx].metrics = [...(updated[pIdx].metrics || []), { label: "Throughput", value: "10k req/s" }];
+                                  setData({ ...data, projects: updated });
+                                }}
+                                className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 px-2 py-0.5 text-xs text-zinc-700 dark:text-zinc-200 cursor-pointer"
+                              >
+                                <Plus className="h-3 w-3" />
+                                <span>Add Metric</span>
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {(proj.metrics || []).map((m, mIdx) => (
+                                <div key={mIdx} className="flex items-center gap-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 p-2">
+                                  <MoveButtons
+                                    onUp={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].metrics || [];
+                                      updated[pIdx].metrics = moveItem(current, mIdx, "up");
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    onDown={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].metrics || [];
+                                      updated[pIdx].metrics = moveItem(current, mIdx, "down");
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    isFirst={mIdx === 0}
+                                    isLast={mIdx === (proj.metrics?.length || 0) - 1}
+                                  />
+                                  <input
+                                    type="text"
+                                    value={m.value}
+                                    onChange={(e) => {
+                                      const updated = [...data.projects];
+                                      const current = [...(updated[pIdx].metrics || [])];
+                                      if (current[mIdx]) {
+                                        current[mIdx].value = e.target.value;
+                                        updated[pIdx].metrics = current;
+                                        setData({ ...data, projects: updated });
+                                      }
+                                    }}
+                                    placeholder="Value"
+                                    className="w-24 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-1 text-base sm:text-xs font-mono font-bold text-purple-600 dark:text-purple-300 focus:border-purple-500 focus:outline-hidden"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={m.label}
+                                    onChange={(e) => {
+                                      const updated = [...data.projects];
+                                      const current = [...(updated[pIdx].metrics || [])];
+                                      if (current[mIdx]) {
+                                        current[mIdx].label = e.target.value;
+                                        updated[pIdx].metrics = current;
+                                        setData({ ...data, projects: updated });
+                                      }
+                                    }}
+                                    placeholder="Label"
+                                    className="flex-1 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-1 text-base sm:text-xs text-zinc-800 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].metrics || [];
+                                      updated[pIdx].metrics = current.filter((_, i) => i !== mIdx);
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    className="text-zinc-400 hover:text-rose-500 p-1 cursor-pointer"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Project Tags (Reorderable) */}
+                          <div className="mt-3 border-t border-zinc-200 dark:border-zinc-800 pt-3 flex flex-col gap-2">
+                            <h4 className="text-xs font-mono font-bold uppercase text-purple-600 dark:text-purple-400">
+                              Tags &amp; Tech Stack ({proj.tags?.length || 0})
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {(proj.tags || []).map((t, tIdx) => (
+                                <div key={tIdx} className="flex items-center gap-1 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-1 text-xs">
+                                  <MoveButtons
+                                    horizontal
+                                    onUp={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].tags || [];
+                                      updated[pIdx].tags = moveItem(current, tIdx, "up");
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    onDown={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].tags || [];
+                                      updated[pIdx].tags = moveItem(current, tIdx, "down");
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    isFirst={tIdx === 0}
+                                    isLast={tIdx === (proj.tags?.length || 0) - 1}
+                                  />
+                                  <input
+                                    type="text"
+                                    value={t}
+                                    onChange={(e) => {
+                                      const updated = [...data.projects];
+                                      const current = [...(updated[pIdx].tags || [])];
+                                      current[tIdx] = e.target.value;
+                                      updated[pIdx].tags = current;
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    className="bg-transparent focus:outline-hidden text-base sm:text-xs w-20 text-zinc-900 dark:text-zinc-100"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const updated = [...data.projects];
+                                      const current = updated[pIdx].tags || [];
+                                      updated[pIdx].tags = current.filter((_, i) => i !== tIdx);
+                                      setData({ ...data, projects: updated });
+                                    }}
+                                    className="text-zinc-400 hover:text-rose-500 font-bold ml-0.5 cursor-pointer"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = [...data.projects];
+                                  updated[pIdx].tags = [...(updated[pIdx].tags || []), "New Tech"];
+                                  setData({ ...data, projects: updated });
+                                }}
+                                className="rounded-lg border border-dashed border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900/50 px-2.5 py-1 text-xs text-zinc-600 dark:text-zinc-400 hover:text-purple-600 dark:hover:text-white cursor-pointer"
+                              >
+                                + Add Tag
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -797,15 +1100,30 @@ export default function AdminDashboardPage() {
                       <div className="font-bold text-zinc-900 dark:text-white text-sm">
                         {exp.role} @ {exp.company}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setData({ ...data, experiences: data.experiences.filter((_, i) => i !== eIdx) });
-                        }}
-                        className="text-zinc-400 hover:text-rose-500 cursor-pointer"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <MoveButtons
+                          onUp={() => {
+                            const updated = moveItem(data.experiences, eIdx, "up");
+                            setData({ ...data, experiences: updated });
+                          }}
+                          onDown={() => {
+                            const updated = moveItem(data.experiences, eIdx, "down");
+                            setData({ ...data, experiences: updated });
+                          }}
+                          isFirst={eIdx === 0}
+                          isLast={eIdx === data.experiences.length - 1}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setData({ ...data, experiences: data.experiences.filter((_, i) => i !== eIdx) });
+                          }}
+                          className="text-zinc-400 hover:text-rose-500 cursor-pointer p-1"
+                          title="Remove Role"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -873,6 +1191,73 @@ export default function AdminDashboardPage() {
                         className="w-full rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-200 focus:border-purple-500 focus:outline-hidden"
                       />
                     </div>
+
+                    {/* Experience Achievements / Bullets (Reorderable) */}
+                    <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800/80 flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-mono font-bold uppercase text-purple-600 dark:text-purple-400">
+                          Achievements &amp; Impact ({exp.achievements?.length || 0})
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = [...data.experiences];
+                            updated[eIdx].achievements = [...(updated[eIdx].achievements || []), "New achievement bullet"];
+                            setData({ ...data, experiences: updated });
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 px-2 py-0.5 text-xs text-zinc-700 dark:text-zinc-200 cursor-pointer"
+                        >
+                          <Plus className="h-3 w-3" />
+                          <span>Add Bullet</span>
+                        </button>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {(exp.achievements || []).map((ach, aIdx) => (
+                          <div key={aIdx} className="flex items-center gap-2">
+                            <MoveButtons
+                              onUp={() => {
+                                const updated = [...data.experiences];
+                                const current = updated[eIdx].achievements || [];
+                                updated[eIdx].achievements = moveItem(current, aIdx, "up");
+                                setData({ ...data, experiences: updated });
+                              }}
+                              onDown={() => {
+                                const updated = [...data.experiences];
+                                const current = updated[eIdx].achievements || [];
+                                updated[eIdx].achievements = moveItem(current, aIdx, "down");
+                                setData({ ...data, experiences: updated });
+                              }}
+                              isFirst={aIdx === 0}
+                              isLast={aIdx === (exp.achievements?.length || 0) - 1}
+                            />
+                            <input
+                              type="text"
+                              value={ach}
+                              onChange={(e) => {
+                                const updated = [...data.experiences];
+                                const current = [...(updated[eIdx].achievements || [])];
+                                current[aIdx] = e.target.value;
+                                updated[eIdx].achievements = current;
+                                setData({ ...data, experiences: updated });
+                              }}
+                              className="flex-1 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-3 py-1.5 text-base sm:text-xs text-zinc-900 dark:text-zinc-100 focus:border-purple-500 focus:outline-hidden"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const updated = [...data.experiences];
+                                const current = updated[eIdx].achievements || [];
+                                updated[eIdx].achievements = current.filter((_, i) => i !== aIdx);
+                                setData({ ...data, experiences: updated });
+                              }}
+                              className="text-zinc-400 hover:text-rose-500 p-1 cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -897,16 +1282,45 @@ export default function AdminDashboardPage() {
                     key={cat.title}
                     className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-950 p-4 transition-colors"
                   >
-                    <div className="font-bold text-purple-700 dark:text-purple-300 text-xs font-mono mb-3">
-                      {cat.title} ({cat.skills.length} skills)
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="font-bold text-purple-700 dark:text-purple-300 text-xs font-mono">
+                        {cat.title} ({cat.skills.length} skills)
+                      </div>
+                      <MoveButtons
+                        onUp={() => {
+                          const updated = moveItem(data.skillCategories, cIdx, "up");
+                          setData({ ...data, skillCategories: updated });
+                        }}
+                        onDown={() => {
+                          const updated = moveItem(data.skillCategories, cIdx, "down");
+                          setData({ ...data, skillCategories: updated });
+                        }}
+                        isFirst={cIdx === 0}
+                        isLast={cIdx === data.skillCategories.length - 1}
+                      />
                     </div>
 
                     <div className="flex flex-wrap gap-2">
                       {cat.skills.map((skill, sIdx) => (
                         <div
                           key={sIdx}
-                          className="flex items-center gap-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2.5 py-1 text-xs text-zinc-800 dark:text-zinc-200"
+                          className="flex items-center gap-1.5 rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-2 py-1 text-xs text-zinc-800 dark:text-zinc-200"
                         >
+                          <MoveButtons
+                            horizontal
+                            onUp={() => {
+                              const updated = [...data.skillCategories];
+                              updated[cIdx].skills = moveItem(updated[cIdx].skills, sIdx, "up");
+                              setData({ ...data, skillCategories: updated });
+                            }}
+                            onDown={() => {
+                              const updated = [...data.skillCategories];
+                              updated[cIdx].skills = moveItem(updated[cIdx].skills, sIdx, "down");
+                              setData({ ...data, skillCategories: updated });
+                            }}
+                            isFirst={sIdx === 0}
+                            isLast={sIdx === cat.skills.length - 1}
+                          />
                           <input
                             type="text"
                             value={skill.name}
@@ -915,7 +1329,7 @@ export default function AdminDashboardPage() {
                               updated[cIdx].skills[sIdx].name = e.target.value;
                               setData({ ...data, skillCategories: updated });
                             }}
-                            className="bg-transparent focus:outline-hidden text-base sm:text-xs w-28 text-zinc-900 dark:text-zinc-100"
+                            className="bg-transparent focus:outline-hidden text-base sm:text-xs w-24 text-zinc-900 dark:text-zinc-100"
                           />
                           <button
                             type="button"
@@ -924,7 +1338,7 @@ export default function AdminDashboardPage() {
                               updated[cIdx].skills = updated[cIdx].skills.filter((_, i) => i !== sIdx);
                               setData({ ...data, skillCategories: updated });
                             }}
-                            className="text-zinc-400 hover:text-rose-500 font-bold ml-1"
+                            className="text-zinc-400 hover:text-rose-500 font-bold ml-0.5 cursor-pointer"
                           >
                             ×
                           </button>
@@ -994,16 +1408,30 @@ export default function AdminDashboardPage() {
                       <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
                         {edu.degree || "New Degree"}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setData({ ...data, education: data.education.filter((_, i) => i !== idx) });
-                        }}
-                        className="text-zinc-400 hover:text-rose-500 p-1 cursor-pointer transition-colors"
-                        title="Remove Education Entry"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <MoveButtons
+                          onUp={() => {
+                            const updated = moveItem(data.education, idx, "up");
+                            setData({ ...data, education: updated });
+                          }}
+                          onDown={() => {
+                            const updated = moveItem(data.education, idx, "down");
+                            setData({ ...data, education: updated });
+                          }}
+                          isFirst={idx === 0}
+                          isLast={idx === data.education.length - 1}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setData({ ...data, education: data.education.filter((_, i) => i !== idx) });
+                          }}
+                          className="text-zinc-400 hover:text-rose-500 p-1 cursor-pointer transition-colors"
+                          title="Remove Education Entry"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1124,16 +1552,30 @@ export default function AdminDashboardPage() {
                       <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100">
                         {hon.title || "New Honor"}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setData({ ...data, honors: data.honors.filter((_, i) => i !== idx) });
-                        }}
-                        className="text-zinc-400 hover:text-rose-500 p-1 cursor-pointer transition-colors"
-                        title="Remove Honor"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <MoveButtons
+                          onUp={() => {
+                            const updated = moveItem(data.honors, idx, "up");
+                            setData({ ...data, honors: updated });
+                          }}
+                          onDown={() => {
+                            const updated = moveItem(data.honors, idx, "down");
+                            setData({ ...data, honors: updated });
+                          }}
+                          isFirst={idx === 0}
+                          isLast={idx === data.honors.length - 1}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setData({ ...data, honors: data.honors.filter((_, i) => i !== idx) });
+                          }}
+                          className="text-zinc-400 hover:text-rose-500 p-1 cursor-pointer transition-colors"
+                          title="Remove Honor"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1292,13 +1734,25 @@ export default function AdminDashboardPage() {
                       />
                     </div>
 
-                    <div className="self-end sm:self-center pt-2 sm:pt-4">
+                    <div className="self-end sm:self-center pt-2 sm:pt-4 flex items-center gap-1.5">
+                      <MoveButtons
+                        onUp={() => {
+                          const updated = moveItem(data.socialLinks, idx, "up");
+                          setData({ ...data, socialLinks: updated });
+                        }}
+                        onDown={() => {
+                          const updated = moveItem(data.socialLinks, idx, "down");
+                          setData({ ...data, socialLinks: updated });
+                        }}
+                        isFirst={idx === 0}
+                        isLast={idx === data.socialLinks.length - 1}
+                      />
                       <button
                         type="button"
                         onClick={() => {
                           setData({ ...data, socialLinks: data.socialLinks.filter((_, i) => i !== idx) });
                         }}
-                        className="text-zinc-400 hover:text-rose-500 p-2 cursor-pointer transition-colors"
+                        className="text-zinc-400 hover:text-rose-500 p-1.5 cursor-pointer transition-colors"
                         title="Remove Social Link"
                       >
                         <Trash2 className="h-4 w-4" />
