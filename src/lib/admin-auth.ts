@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import os from "os";
 import { getPortfolioSetting, setPortfolioSetting } from "@/lib/supabase";
 
 const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || "shriram_secure_admin_session_secret_2026_key";
@@ -10,12 +11,21 @@ const DEFAULT_SECRET_KEYWORD = process.env.ADMIN_SECRET_KEYWORD || "aus-master";
 
 export const COOKIE_NAME = "portfolio_admin_session";
 
-const LOCAL_STORE_FILE = path.join(process.cwd(), ".admin-settings.json");
+function getLocalStoreFile(): string {
+  try {
+    const cwdPath = path.join(process.cwd(), ".admin-settings.json");
+    fs.accessSync(process.cwd(), fs.constants.W_OK);
+    return cwdPath;
+  } catch {
+    return path.join(os.tmpdir(), "shriram-admin-settings.json");
+  }
+}
 
 function readLocalSettings(): Record<string, string> {
   try {
-    if (fs.existsSync(LOCAL_STORE_FILE)) {
-      const raw = fs.readFileSync(LOCAL_STORE_FILE, "utf-8");
+    const file = getLocalStoreFile();
+    if (fs.existsSync(file)) {
+      const raw = fs.readFileSync(file, "utf-8");
       return JSON.parse(raw);
     }
   } catch {}
@@ -24,9 +34,10 @@ function readLocalSettings(): Record<string, string> {
 
 function writeLocalSetting(key: string, value: string): boolean {
   try {
+    const file = getLocalStoreFile();
     const data = readLocalSettings();
     data[key] = value;
-    fs.writeFileSync(LOCAL_STORE_FILE, JSON.stringify(data, null, 2), "utf-8");
+    fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf-8");
     return true;
   } catch (err) {
     console.warn("Could not write local admin setting:", err);

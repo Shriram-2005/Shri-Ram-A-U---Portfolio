@@ -9,20 +9,23 @@ import {
   socialLinks as defaultSocialLinks,
 } from "@/data/portfolio-data";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://qsfxoyrkevqjosjcuknn.supabase.co";
-const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY || "";
-const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "";
+const supabaseUrl =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://qsfxoyrkevqjosjcuknn.supabase.co";
+const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY;
+const supabasePublishableKey =
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_WVAJSSJY8M6waYaO2coLlQ_DLKBezPu";
 
 let cachedAdminClient: SupabaseClient | null = null;
 
 export function getSupabaseAdmin(): SupabaseClient | null {
   if (cachedAdminClient) return cachedAdminClient;
-  if (!supabaseUrl || !supabaseSecretKey) {
+  const key = supabaseSecretKey || supabasePublishableKey;
+  if (!supabaseUrl || !key) {
     return null;
   }
 
   try {
-    cachedAdminClient = createClient(supabaseUrl, supabaseSecretKey, {
+    cachedAdminClient = createClient(supabaseUrl, key, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
@@ -182,18 +185,33 @@ export async function getPortfolioSetting(key: string): Promise<string | null> {
  */
 export async function setPortfolioSetting(key: string, value: string): Promise<boolean> {
   const supabase = getSupabaseAdmin();
-  if (!supabase) return false;
+  if (!supabase) {
+    console.error("setPortfolioSetting: getSupabaseAdmin returned null");
+    return false;
+  }
 
   try {
     const { error } = await supabase
       .from("portfolio_settings")
-      .upsert({
-        key,
-        value,
-        updated_at: new Date().toISOString(),
-      });
+      .upsert(
+        {
+          key,
+          value,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "key" }
+      );
 
-    return !error;
+    if (error) {
+      console.warn(`Upsert warning for ${key}:`, error.message, "- trying direct update");
+      const updateRes = await supabase
+        .from("portfolio_settings")
+        .update({ value, updated_at: new Date().toISOString() })
+        .eq("key", key);
+      return !updateRes.error;
+    }
+
+    return true;
   } catch (err) {
     console.error(`Error setting portfolio_setting ${key}:`, err);
     return false;

@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
     // 3. Commit new secret keyword to Supabase
     const saved = await updateSecretKeyword(cleanNew);
     if (!saved) {
+      console.error("Failed to commit updated secret keyword via updateSecretKeyword");
       return NextResponse.json(
         { success: false, error: "Database error updating secret keyword in Supabase." },
         { status: 500 }
