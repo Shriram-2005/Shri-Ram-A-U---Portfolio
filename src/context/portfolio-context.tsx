@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { PortfolioBundle, defaultPortfolioBundle } from "@/lib/supabase";
 
 const PortfolioContext = createContext<PortfolioBundle>(defaultPortfolioBundle);
@@ -9,15 +9,17 @@ export function PortfolioProvider({
   children,
   initialData = defaultPortfolioBundle,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   initialData?: PortfolioBundle;
 }) {
   const [data, setData] = useState<PortfolioBundle>(initialData);
+  const [prevInitialData, setPrevInitialData] = useState<PortfolioBundle>(initialData);
 
-  // Sync state if initialData changes (e.g. server re-render)
-  useEffect(() => {
+  // Sync state during render when initialData changes without cascading effects
+  if (initialData !== prevInitialData) {
+    setPrevInitialData(initialData);
     setData(initialData);
-  }, [initialData]);
+  }
 
   // Client-side refresh on mount and window focus so CMS edits reflect immediately
   useEffect(() => {

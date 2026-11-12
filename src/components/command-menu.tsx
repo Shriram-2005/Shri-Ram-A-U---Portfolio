@@ -1,6 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  useCallback,
+  useSyncExternalStore,
+  type ComponentType,
+} from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -24,7 +32,6 @@ import {
   ExternalLink,
   Globe,
   Smartphone,
-  ShieldCheck,
   Download,
   ArrowUpRight,
 } from "lucide-react";
@@ -38,7 +45,7 @@ interface CommandItem {
   id: string;
   title: string;
   subtitle: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   badge?: string;
   keywords?: string[];
   action: () => void;
@@ -54,25 +61,30 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
   const { personalInfo, projects } = usePortfolio();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [shortcutKey, setShortcutKey] = useState("Ctrl+K");
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const shortcutKey = useSyncExternalStore(
+    () => () => {},
+    () => (/Mac|iPod|iPhone|iPad/.test(navigator.userAgent) ? "⌘K" : "Ctrl+K"),
+    () => "Ctrl+K"
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const isKeyboardNavRef = useRef(false);
   const { setTheme } = useTheme();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
-      setShortcutKey(isMac ? "⌘K" : "Ctrl+K");
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setSelectedIndex(0);
     }
-  }, []);
+  }
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setQuery("");
     setSelectedIndex(0);
     onClose();
-  };
+  }, [onClose]);
 
   const commands: CommandSection[] = useMemo(
     () => [
@@ -287,7 +299,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
         ],
       },
     ],
-    [router, setTheme, toast, projects, personalInfo]
+    [router, setTheme, toast, projects, personalInfo, handleClose]
   );
 
   const filteredCommands = useMemo(() => {
@@ -314,11 +326,15 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
     [filteredCommands]
   );
 
+  // Keep selectedIndex within valid range when search query filters results
+  if (selectedIndex >= flatItems.length && flatItems.length > 0) {
+    setSelectedIndex(0);
+  }
+
   useEffect(() => {
     if (isOpen) {
       const prevOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
-      setSelectedIndex(0);
       if (listRef.current) {
         listRef.current.scrollTop = 0;
       }
@@ -329,13 +345,6 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
       };
     }
   }, [isOpen]);
-
-  // Keep selectedIndex within valid range when search query filters results
-  useEffect(() => {
-    if (selectedIndex >= flatItems.length) {
-      setSelectedIndex(0);
-    }
-  }, [flatItems.length, selectedIndex]);
 
   // Auto-scroll the list to ensure the selected item is always visible
   useEffect(() => {
@@ -399,7 +408,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, flatItems, selectedIndex]);
+  }, [isOpen, flatItems, selectedIndex, handleClose]);
 
   return (
     <AnimatePresence>

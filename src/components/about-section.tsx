@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { usePortfolio } from "@/context/portfolio-context";
 import {
@@ -64,11 +63,11 @@ export function AboutSection() {
                 Core Engineering Strengths
               </h3>
               <div className="grid grid-cols-1 gap-2.5 sm:gap-3">
-                {engineeringPrinciples.map((item, idx) => {
+                {engineeringPrinciples.map((item) => {
                   const Icon = item.icon;
                   return (
                     <div
-                      key={idx}
+                      key={item.title}
                       className="flex items-start gap-3 sm:gap-3.5 rounded-2xl border border-zinc-200/80 bg-zinc-50/50 p-3.5 sm:p-4 transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900/40 dark:hover:border-zinc-700"
                     >
                       <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-purple-500/10 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400">
@@ -94,8 +93,8 @@ export function AboutSection() {
             {/* Honors Card */}
             {honors.map((h, idx) => (
               <div
-                key={idx}
-                className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-4 sm:p-6 shadow-xs dark:border-amber-900/50 dark:from-amber-950/30 dark:to-zinc-900/40"
+                key={`${h.title}-${h.date || idx}`}
+                className="rounded-3xl border border-amber-200/80 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent p-4 sm:p-6 shadow-sm dark:border-amber-900/50 dark:from-amber-950/30 dark:to-zinc-900/40"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">
@@ -122,8 +121,8 @@ export function AboutSection() {
             {/* Education Card */}
             {education.map((edu, idx) => (
               <div
-                key={idx}
-                className="rounded-3xl border border-zinc-200/80 bg-white p-4 sm:p-6 shadow-xs dark:border-zinc-800 dark:bg-zinc-900/60"
+                key={`${edu.degree}-${edu.institution || idx}`}
+                className="rounded-3xl border border-zinc-200/80 bg-white p-4 sm:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 sm:gap-2 text-xs font-mono font-semibold uppercase tracking-wider text-purple-600 dark:text-purple-400">
@@ -148,7 +147,7 @@ export function AboutSection() {
 
                 <div className="mt-3.5 sm:mt-4 flex flex-col gap-2 border-t border-zinc-100 pt-3.5 sm:pt-4 dark:border-zinc-800/80">
                   {edu.highlights.map((h, hIdx) => (
-                    <div key={hIdx} className="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400 leading-normal">
+                    <div key={`${edu.degree}-hl-${hIdx}`} className="flex items-start gap-2 text-xs text-zinc-600 dark:text-zinc-400 leading-normal">
                       <CheckCircle className="h-3.5 w-3.5 text-purple-500 shrink-0 mt-0.5" />
                       <span>{h}</span>
                     </div>

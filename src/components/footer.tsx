@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import { usePortfolio } from "@/context/portfolio-context";
 import { ArrowUp } from "lucide-react";

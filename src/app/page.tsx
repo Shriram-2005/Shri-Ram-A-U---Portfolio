@@ -1,4 +1,3 @@
-import React from "react";
 import { fetchFullPortfolio } from "@/lib/supabase";
 import { PortfolioProvider } from "@/context/portfolio-context";
 import { HomeClient } from "@/components/home-client";

@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { usePortfolio } from "@/context/portfolio-context";
 import { Calendar, MapPin, CheckCircle2 } from "lucide-react";

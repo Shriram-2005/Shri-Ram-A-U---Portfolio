@@ -25,7 +25,6 @@ import {
   TestTube2,
   UserCheck,
   MessageSquareCode,
-  Sparkles,
 } from "lucide-react";
 
 interface PageProps {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type FormEvent } from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { usePortfolio } from "@/context/portfolio-context";
 import { useToast } from "@/components/ui/toast";
@@ -29,7 +29,11 @@ export function ContactSection() {
   const [phoneRevealed, setPhoneRevealed] = useState(false);
   const [phoneCountdown, setPhoneCountdown] = useState(5);
   const phoneTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const formMountedTime = useRef<number>(Date.now());
+  const formMountedTime = useRef<number>(0);
+
+  useEffect(() => {
+    formMountedTime.current = Date.now();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -83,7 +87,7 @@ export function ContactSection() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) {
       toast("Please complete all required fields.", "error");

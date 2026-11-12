@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -27,7 +27,11 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
   const [activeSection, setActiveSection] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [shortcutKey, setShortcutKey] = useState("Ctrl+K");
+  const shortcutKey = useSyncExternalStore(
+    () => () => {},
+    () => (/Mac|iPod|iPhone|iPad/.test(navigator.userAgent) ? "⌘K" : "Ctrl+K"),
+    () => "Ctrl+K"
+  );
 
   const handleShare = async () => {
     const shareData = {
@@ -50,12 +54,7 @@ export function Navbar({ onOpenCommand }: NavbarProps) {
     }
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
-      setShortcutKey(isMac ? "⌘K" : "Ctrl+K");
-    }
-  }, []);
+
 
   useEffect(() => {
     const handleScroll = () => {

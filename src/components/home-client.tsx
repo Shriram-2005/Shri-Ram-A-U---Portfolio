@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/navbar";
 import { CommandMenu } from "@/components/command-menu";
 import { HeroSection } from "@/components/hero-section";

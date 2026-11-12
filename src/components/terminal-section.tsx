@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { usePortfolio } from "@/context/portfolio-context";
@@ -18,7 +18,7 @@ import {
 
 interface TerminalLine {
   type: "input" | "output" | "error" | "system";
-  content: string | React.ReactNode;
+  content: string | ReactNode;
 }
 
 type TerminalMode =
@@ -87,24 +87,6 @@ export function TerminalSection() {
     }, 1000);
     return () => clearInterval(timer);
   }, [otpCountdown]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.userAgent);
-      const isWin = /Win/.test(navigator.userAgent);
-      const pStr = isMac ? "x86_64-apple-darwin" : isWin ? "x86_64-pc-windows" : "x86_64-linux-gnu";
-      setHistory((prev) => [
-        {
-          type: "system",
-          content: `Welcome to Shriram's Interactive Shell v2.4 (${pStr})`,
-        },
-        prev[1] || {
-          type: "system",
-          content: "Type 'help' to inspect commands, 'projects' for interactive links, or tap any quick pill below.",
-        },
-      ]);
-    }
-  }, []);
 
   // Smooth scroll internal terminal output without lagging on timer ticks
   useEffect(() => {
@@ -328,37 +310,46 @@ export function TerminalSection() {
         if (data.success) {
           setOtpCountdown(0);
           setTerminalMode("normal");
-          newLines.push({
-            type: "output",
-            content: (
-              <div className="rounded-lg border border-emerald-300 dark:border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 p-3 text-emerald-800 dark:text-emerald-300 flex flex-col gap-1">
-                <div className="font-bold flex items-center gap-1.5">
-                  <KeyRound className="h-4 w-4" />
-                  <span>[GATEWAY UNLOCKED] Terminal authorization verified! Redirecting to Admin Login Portal (/admin/login)...</span>
+          const unlockedLines: TerminalLine[] = [
+            ...newLines,
+            {
+              type: "output",
+              content: (
+                <div className="rounded-lg border border-emerald-300 dark:border-emerald-500/40 bg-emerald-50 dark:bg-emerald-950/40 p-3 text-emerald-800 dark:text-emerald-300 flex flex-col gap-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <KeyRound className="h-4 w-4" />
+                    <span>[GATEWAY UNLOCKED] Terminal authorization verified! Redirecting to Admin Login Portal (/admin/login)...</span>
+                  </div>
+                  <div className="text-[11px] text-zinc-600 dark:text-zinc-300">
+                    Temporary 15-minute gate pass granted. Transferring now...
+                  </div>
                 </div>
-                <div className="text-[11px] text-zinc-600 dark:text-zinc-300">
-                  Temporary 15-minute gate pass granted. Transferring now...
-                </div>
-              </div>
-            ),
-          });
-          setHistory((prev) => [...prev, ...newLines]);
+              ),
+            },
+          ];
+          setHistory((prev) => [...prev, ...unlockedLines]);
           router.push("/admin/login");
           return;
-        } else {
-          newLines.push({
+        }
+
+        const failLines: TerminalLine[] = [
+          ...newLines,
+          {
             type: "error",
             content: `[ERROR] ${data.error || "Invalid gateway code."} Please re-enter code or type 'cancel'.`,
-          });
-        }
+          },
+        ];
+        setHistory((prev) => [...prev, ...failLines]);
       } catch {
-        newLines.push({ type: "error", content: "[ERROR] Failed to verify gateway code." });
+        const errorLines: TerminalLine[] = [
+          ...newLines,
+          { type: "error", content: "[ERROR] Failed to verify gateway code." },
+        ];
+        setHistory((prev) => [...prev, ...errorLines]);
       } finally {
         setIsProcessing(false);
         setProcessingText("");
       }
-
-      setHistory((prev) => [...prev, ...newLines]);
       return;
     }
 
@@ -884,38 +875,41 @@ export function TerminalSection() {
 
             if (data.valid) {
               setTerminalMode("admin_menu");
-              newLines.push({
-                type: "output",
-                content: (
-                  <div className="rounded-xl border border-purple-300 dark:border-purple-500/50 bg-purple-50 dark:bg-purple-950/40 p-4 text-xs font-mono flex flex-col gap-2.5 shadow-xl transition-colors">
-                    <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold uppercase tracking-wider border-b border-purple-200 dark:border-purple-800/60 pb-2">
-                      <ShieldAlert className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                      <span>[SECURITY PROTOCOL ACTIVATED] Administrative Access Unlocked</span>
-                    </div>
-                    <p className="text-zinc-700 dark:text-zinc-200">
-                      Secret keyword recognized. Access level: Portfolio Owner &amp; Administrator.
-                    </p>
-                    <div className="flex flex-col gap-1.5 text-zinc-700 dark:text-zinc-300 pt-1">
-                      <div>
-                        <strong className="text-purple-700 dark:text-purple-300 font-bold">[1] continue</strong>
-                        <span className="text-zinc-600 dark:text-zinc-400"> - 30s OTP authorization to unlock Admin Login Portal</span>
+              const unlockedLines: TerminalLine[] = [
+                ...newLines,
+                {
+                  type: "output",
+                  content: (
+                    <div className="rounded-xl border border-purple-300 dark:border-purple-500/50 bg-purple-50 dark:bg-purple-950/40 p-4 text-xs font-mono flex flex-col gap-2.5 shadow-xl transition-colors">
+                      <div className="flex items-center gap-2 text-purple-700 dark:text-purple-300 font-bold uppercase tracking-wider border-b border-purple-200 dark:border-purple-800/60 pb-2">
+                        <ShieldAlert className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        <span>[SECURITY PROTOCOL ACTIVATED] Administrative Access Unlocked</span>
                       </div>
-                      <div>
-                        <strong className="text-purple-700 dark:text-purple-300 font-bold">[2] change secret word</strong>
-                        <span className="text-zinc-600 dark:text-zinc-400"> - Update secret keyword (2-step OTP validation)</span>
+                      <p className="text-zinc-700 dark:text-zinc-200">
+                        Secret keyword recognized. Access level: Portfolio Owner &amp; Administrator.
+                      </p>
+                      <div className="flex flex-col gap-1.5 text-zinc-700 dark:text-zinc-300 pt-1">
+                        <div>
+                          <strong className="text-purple-700 dark:text-purple-300 font-bold">[1] continue</strong>
+                          <span className="text-zinc-600 dark:text-zinc-400"> - 30s OTP authorization to unlock Admin Login Portal</span>
+                        </div>
+                        <div>
+                          <strong className="text-purple-700 dark:text-purple-300 font-bold">[2] change secret word</strong>
+                          <span className="text-zinc-600 dark:text-zinc-400"> - Update secret keyword (2-step OTP validation)</span>
+                        </div>
+                        <div>
+                          <strong className="text-purple-700 dark:text-purple-300 font-bold">[3] exit</strong>
+                          <span className="text-zinc-600 dark:text-zinc-400"> - Return to standard terminal shell</span>
+                        </div>
                       </div>
-                      <div>
-                        <strong className="text-purple-700 dark:text-purple-300 font-bold">[3] exit</strong>
-                        <span className="text-zinc-600 dark:text-zinc-400"> - Return to standard terminal shell</span>
+                      <div className="text-[11px] text-purple-700 dark:text-purple-300/80 pt-1 border-t border-purple-200 dark:border-purple-900/50">
+                        Type <span className="font-bold text-zinc-900 dark:text-white">&apos;continue&apos;</span>, <span className="font-bold text-zinc-900 dark:text-white">&apos;change&apos;</span>, or <span className="font-bold text-zinc-900 dark:text-white">&apos;exit&apos;</span>:
                       </div>
                     </div>
-                    <div className="text-[11px] text-purple-700 dark:text-purple-300/80 pt-1 border-t border-purple-200 dark:border-purple-900/50">
-                      Type <span className="font-bold text-zinc-900 dark:text-white">&apos;continue&apos;</span>, <span className="font-bold text-zinc-900 dark:text-white">&apos;change&apos;</span>, or <span className="font-bold text-zinc-900 dark:text-white">&apos;exit&apos;</span>:
-                    </div>
-                  </div>
-                ),
-              });
-              setHistory((prev) => [...prev, ...newLines]);
+                  ),
+                },
+              ];
+              setHistory((prev) => [...prev, ...unlockedLines]);
               return;
             }
           } catch {
@@ -925,17 +919,21 @@ export function TerminalSection() {
           }
         }
 
-        newLines.push({
-          type: "error",
-          content: `command not found: "${lower}". Type 'help' for available commands or 'projects' to view projects.`,
-        });
-        break;
+        const notFoundLines: TerminalLine[] = [
+          ...newLines,
+          {
+            type: "error",
+            content: `command not found: "${lower}". Type 'help' for available commands or 'projects' to view projects.`,
+          },
+        ];
+        setHistory((prev) => [...prev, ...notFoundLines]);
+        return;
     }
 
     setHistory((prev) => [...prev, ...newLines]);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (isProcessing) {
       e.preventDefault();
       return;
