@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { personalInfo, featuredProjects, skillCategories } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import {
   Terminal as TerminalIcon,
   ArrowUpRight,
@@ -35,6 +35,7 @@ const quickCommands = ["bio", "projects", "skills", "cat resume", "contact", "cl
 
 export function TerminalSection() {
   const router = useRouter();
+  const { personalInfo, projects: featuredProjects, skillCategories } = usePortfolio();
   const [inputVal, setInputVal] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingText, setProcessingText] = useState("");
@@ -105,17 +106,23 @@ export function TerminalSection() {
     }
   }, []);
 
-  // Smooth scroll without lagging on timer ticks
+  // Smooth scroll internal terminal output without lagging on timer ticks
   useEffect(() => {
     if (terminalBodyRef.current) {
       terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
     }
   }, [history, isProcessing]);
 
-  // Refocus input whenever processing finishes
+  const isInitialMount = useRef(true);
+
+  // Refocus input strictly after processing actions, never on initial page load to avoid scrolling user down
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     if (!isProcessing) {
-      setTimeout(() => inputRef.current?.focus(), 50);
+      setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 50);
     }
   }, [isProcessing]);
 

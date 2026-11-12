@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { personalInfo, socialLinks } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import { useToast } from "@/components/ui/toast";
 import {
   Mail,
@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 export function ContactSection() {
+  const { personalInfo, socialLinks } = usePortfolio();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [submitting, setSubmitting] = useState(false);

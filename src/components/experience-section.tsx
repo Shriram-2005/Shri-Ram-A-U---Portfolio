@@ -2,10 +2,11 @@
 
 import React from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { experiences } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import { Calendar, MapPin, CheckCircle2 } from "lucide-react";
 
 export function ExperienceSection() {
+  const { experiences } = usePortfolio();
   return (
     <section id="experience" className="py-10 sm:py-14 md:py-16 border-t border-zinc-200/60 dark:border-zinc-800/80">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">

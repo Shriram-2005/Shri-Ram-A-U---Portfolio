@@ -116,15 +116,22 @@ export async function savePortfolioSection(key: keyof PortfolioBundle, data: unk
   try {
     const { error } = await supabase
       .from("portfolio_content")
-      .upsert({
-        key,
-        data,
-        updated_at: new Date().toISOString(),
-      });
+      .upsert(
+        {
+          key,
+          data,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "key" }
+      );
 
     if (error) {
-      console.error(`Error saving portfolio section ${key}:`, error);
-      return false;
+      console.warn(`Upsert warning for section ${key}:`, error.message, "- trying direct update");
+      const updateRes = await supabase
+        .from("portfolio_content")
+        .update({ data, updated_at: new Date().toISOString() })
+        .eq("key", key);
+      return !updateRes.error;
     }
     return true;
   } catch (err) {
@@ -147,7 +154,9 @@ export async function seedDefaultsToSupabase(): Promise<boolean> {
   }));
 
   try {
-    const { error } = await supabase.from("portfolio_content").upsert(entries);
+    const { error } = await supabase
+      .from("portfolio_content")
+      .upsert(entries, { onConflict: "key" });
     if (error) {
       console.error("Failed to seed Supabase portfolio_content:", error);
       return false;

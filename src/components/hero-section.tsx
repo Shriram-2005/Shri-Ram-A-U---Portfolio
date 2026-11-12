@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { personalInfo } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import { useToast } from "@/components/ui/toast";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/icons";
 import {
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 export function HeroSection() {
+  const { personalInfo } = usePortfolio();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [currentTime, setCurrentTime] = useState("");

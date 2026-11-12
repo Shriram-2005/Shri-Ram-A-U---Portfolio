@@ -2,7 +2,7 @@
 
 import React from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { skillCategories } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import type { SkillLevel } from "@/types/portfolio";
 import { Code, Server, Database, BrainCircuit } from "lucide-react";
 
@@ -39,6 +39,7 @@ function getLevelDotStyle(level?: SkillLevel) {
 }
 
 export function SkillsSection() {
+  const { skillCategories } = usePortfolio();
   return (
     <section id="skills" className="py-10 sm:py-14 md:py-16 border-t border-zinc-200/60 dark:border-zinc-800/80">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">

@@ -1,5 +1,7 @@
+"use client";
+
 import React from "react";
-import { personalInfo } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 
 interface PrintHeaderProps {
   pageTitle?: string;
@@ -7,6 +9,7 @@ interface PrintHeaderProps {
 }
 
 export function PrintHeader({ pageTitle, category }: PrintHeaderProps) {
+  const { personalInfo } = usePortfolio();
   return (
     <div className="hidden print:block mb-8 pb-4 border-b-2 border-zinc-900 text-black">
       <div className="flex justify-between items-start">

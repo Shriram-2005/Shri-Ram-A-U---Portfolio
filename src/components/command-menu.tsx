@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useToast } from "@/components/ui/toast";
-import { personalInfo, featuredProjects } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/icons";
 import {
   Search,
@@ -51,6 +51,7 @@ interface CommandSection {
 
 export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
   const router = useRouter();
+  const { personalInfo, projects } = usePortfolio();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [shortcutKey, setShortcutKey] = useState("Ctrl+K");
@@ -77,244 +78,51 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
     () => [
       {
         section: "Projects & Deep-Dive Case Studies",
-        items: [
-          {
-            id: "project-garment",
-            title: "Garment ERP: Multi-Tenant Manufacturing SaaS",
-            subtitle: "Full-Stack | 19 PostgreSQL RLS tables, security-definer functions & Gemini QA",
-            icon: Globe,
-            badge: "Case Study",
-            keywords: [
-              "garment",
-              "erp",
-              "saas",
-              "multi-tenant",
-              "postgres",
-              "postgresql",
-              "rls",
-              "row level security",
-              "gemini",
-              "apparel",
-              "manufacturing",
-              "inventory",
-              "19 tables",
-              "case study",
-              "architecture",
-            ],
-            action: () => {
-              router.push("/projects/garment-erp");
-              handleClose();
-            },
+        items: projects.map((p) => ({
+          id: `project-${p.id}`,
+          title: p.title,
+          subtitle: `${p.category} | ${p.tagline}`,
+          icon: p.category.toLowerCase().includes("mobile") ? Smartphone : Globe,
+          badge: "Case Study",
+          keywords: [
+            p.title.toLowerCase(),
+            p.id.toLowerCase(),
+            p.category.toLowerCase(),
+            ...(p.tags || []).map((t) => t.toLowerCase()),
+            "case study",
+            "architecture",
+          ],
+          action: () => {
+            router.push(`/projects/${p.id}`);
+            handleClose();
           },
-          {
-            id: "project-intent",
-            title: "Intent: Edge-AI Notification Firewall",
-            subtitle: "Mobile & Edge AI | 3.68ms warm inference, offline INT8 LSTM & Kotlin service",
-            icon: Smartphone,
-            badge: "Case Study",
-            keywords: [
-              "intent",
-              "edge-ai",
-              "edge ai",
-              "notification",
-              "firewall",
-              "3.68ms",
-              "inference",
-              "latency",
-              "tflite",
-              "tensorflow",
-              "lstm",
-              "kotlin",
-              "android",
-              "offline",
-              "case study",
-              "architecture",
-            ],
-            action: () => {
-              router.push("/projects/intent-firewall");
-              handleClose();
-            },
-          },
-          {
-            id: "project-blockchain",
-            title: "Online Blockchain Certificate Generation & Validation",
-            subtitle: "Blockchain & Web3 | Ethereum Sepolia contract, Keccak-256 & ELA tamper checks",
-            icon: ShieldCheck,
-            badge: "Case Study",
-            keywords: [
-              "blockchain",
-              "certchain",
-              "certificate",
-              "verification",
-              "ethereum",
-              "sepolia",
-              "solidity",
-              "smart contract",
-              "keccak",
-              "ela",
-              "tamper",
-              "fraud",
-              "case study",
-              "architecture",
-            ],
-            action: () => {
-              router.push("/projects/blockchain-verification");
-              handleClose();
-            },
-          },
-          {
-            id: "project-logistics",
-            title: "AUS Transport: Logistics Billing & Fleet Portal",
-            subtitle: "Web & Cloud | Offline Firestore caching, split-screen billing & instant PDF export",
-            icon: Globe,
-            badge: "Case Study",
-            keywords: [
-              "logistics",
-              "aus",
-              "transport",
-              "billing",
-              "fleet",
-              "invoicing",
-              "firestore",
-              "firebase",
-              "pdf",
-              "offline",
-              "case study",
-              "architecture",
-            ],
-            action: () => {
-              router.push("/projects/logistics-portal");
-              handleClose();
-            },
-          },
-          {
-            id: "project-ielts",
-            title: "Intellify IELTS: Ed-Tech Web Platform & CMS",
-            subtitle: "Web & Cloud | Deepgram STT speech scoring, Mux video streaming & instructor CMS",
-            icon: Globe,
-            badge: "Case Study",
-            keywords: [
-              "ielts",
-              "intellify",
-              "speech",
-              "assessment",
-              "deepgram",
-              "mux",
-              "video",
-              "cms",
-              "edtech",
-              "razorpay",
-              "case study",
-              "architecture",
-            ],
-            action: () => {
-              router.push("/projects/ielts-platform");
-              handleClose();
-            },
-          },
-          {
-            id: "project-audio",
-            title: "High-Bitrate Audio Streaming Client",
-            subtitle: "Mobile & Edge AI | 320 kbps high-res playback, on-device AES decryption & local cache",
-            icon: Smartphone,
-            badge: "Case Study",
-            keywords: [
-              "audio",
-              "music",
-              "streaming",
-              "exoplayer",
-              "320 kbps",
-              "decryption",
-              "aes",
-              "cache",
-              "android",
-              "kotlin",
-              "case study",
-              "architecture",
-            ],
-            action: () => {
-              router.push("/projects/audio-streaming");
-              handleClose();
-            },
-          },
-        ],
+        })),
       },
       {
         section: "Live Demos & App Deployments",
-        items: [
-          {
-            id: "live-garment",
-            title: "Launch Garment ERP (Live Demo)",
-            subtitle: "garment-erp-one.vercel.app | Multi-tenant SaaS on Vercel",
-            icon: ExternalLink,
-            badge: "Live App",
-            keywords: ["garment", "erp", "live", "demo", "deploy", "launch", "vercel"],
+        items: projects
+          .filter((p) => p.liveUrl || p.apkUrl)
+          .map((p) => ({
+            id: `live-${p.id}`,
+            title: p.liveUrl
+              ? `Launch ${p.title} (Live Demo)`
+              : `Download ${p.title} (${p.badge || "APK"})`,
+            subtitle: p.liveUrl || p.apkUrl || "",
+            icon: p.apkUrl && !p.liveUrl ? Download : ExternalLink,
+            badge: p.liveUrl ? "Live App" : "APK Release",
+            keywords: [
+              p.title.toLowerCase(),
+              "live",
+              "demo",
+              "deploy",
+              "launch",
+              ...(p.tags || []).map((t) => t.toLowerCase()),
+            ],
             action: () => {
-              window.open("https://garment-erp-one.vercel.app/", "_blank", "noopener,noreferrer");
+              window.open(p.liveUrl || p.apkUrl, "_blank", "noopener,noreferrer");
               handleClose();
             },
-          },
-          {
-            id: "live-blockchain",
-            title: "Launch Blockchain CertChain (Live Demo)",
-            subtitle: "certchain-blockchain-verification.vercel.app | Ethereum Sepolia dApp",
-            icon: ExternalLink,
-            badge: "Live App",
-            keywords: ["blockchain", "certchain", "live", "demo", "sepolia", "launch", "vercel"],
-            action: () => {
-              window.open("https://certchain-blockchain-verification.vercel.app/", "_blank", "noopener,noreferrer");
-              handleClose();
-            },
-          },
-          {
-            id: "live-logistics",
-            title: "Launch AUS Transport (Live Demo)",
-            subtitle: "aus-transport-website.vercel.app | Fleet & Invoicing portal",
-            icon: ExternalLink,
-            badge: "Live App",
-            keywords: ["logistics", "aus", "transport", "live", "demo", "launch", "vercel"],
-            action: () => {
-              window.open("https://aus-transport-website.vercel.app/", "_blank", "noopener,noreferrer");
-              handleClose();
-            },
-          },
-          {
-            id: "live-ielts",
-            title: "Launch Intellify IELTS (Live Demo)",
-            subtitle: "intellify-prototype.vercel.app | Speech testing web app",
-            icon: ExternalLink,
-            badge: "Live App",
-            keywords: ["ielts", "intellify", "live", "demo", "launch", "vercel"],
-            action: () => {
-              window.open("https://intellify-prototype.vercel.app/", "_blank", "noopener,noreferrer");
-              handleClose();
-            },
-          },
-          {
-            id: "apk-intent",
-            title: "Download Intent Edge-AI APK (Release v1.0.0)",
-            subtitle: "github.com/Shriram-2005/intent-attention-firewall | Android Release",
-            icon: Download,
-            badge: "APK Release",
-            keywords: ["intent", "apk", "download", "android", "release", "install", "edge ai"],
-            action: () => {
-              window.open("https://github.com/Shriram-2005/intent-attention-firewall/releases/download/v1.0.0/intent-firewall.apk", "_blank", "noopener,noreferrer");
-              handleClose();
-            },
-          },
-          {
-            id: "apk-audio",
-            title: "Download Audio Streaming APK (Release v1.0.0)",
-            subtitle: "github.com/Shriram-2005/Music-App | Android Release",
-            icon: Download,
-            badge: "APK Release",
-            keywords: ["audio", "music", "apk", "download", "android", "release", "install"],
-            action: () => {
-              window.open("https://github.com/Shriram-2005/Music-App/releases/download/v1.0.0/audio-streaming.apk", "_blank", "noopener,noreferrer");
-              handleClose();
-            },
-          },
-        ],
+          })),
       },
       {
         section: "Navigation",
@@ -479,7 +287,7 @@ export function CommandMenu({ isOpen, onClose }: CommandMenuProps) {
         ],
       },
     ],
-    [router, setTheme, toast]
+    [router, setTheme, toast, projects, personalInfo]
   );
 
   const filteredCommands = useMemo(() => {

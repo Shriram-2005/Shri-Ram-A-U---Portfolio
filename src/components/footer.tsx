@@ -2,10 +2,11 @@
 
 import React from "react";
 import Image from "next/image";
-import { personalInfo, socialLinks } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import { ArrowUp } from "lucide-react";
 
 export function Footer() {
+  const { personalInfo, socialLinks } = usePortfolio();
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

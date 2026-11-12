@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { featuredProjects, personalInfo } from "@/data/portfolio-data";
 import { fetchFullPortfolio } from "@/lib/supabase";
+import { PortfolioProvider } from "@/context/portfolio-context";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { GithubIcon } from "@/components/ui/icons";
 import { Footer } from "@/components/footer";
@@ -82,7 +83,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const nextProject = allProjects[(currentIndex + 1) % allProjects.length] || allProjects[0];
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors flex flex-col justify-between">
+    <PortfolioProvider initialData={portfolio}>
+      <div className="min-h-screen bg-background text-foreground transition-colors flex flex-col justify-between">
       {/* Scroll Reading Progress Bar */}
       <ReadingProgress />
 
@@ -412,5 +414,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       {/* Footer */}
       <Footer />
     </div>
+    </PortfolioProvider>
   );
 }

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { education, honors } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import {
   Cpu,
   Gauge,
@@ -34,6 +34,7 @@ const engineeringPrinciples = [
 ];
 
 export function AboutSection() {
+  const { education, honors } = usePortfolio();
   return (
     <section id="about" className="py-10 sm:py-14 md:py-16 border-t border-zinc-200/60 dark:border-zinc-800/80">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">

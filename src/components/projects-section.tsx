@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { featuredProjects } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import { GithubIcon } from "@/components/ui/icons";
 import {
   ArrowUpRight,
@@ -14,14 +14,6 @@ import {
   Cpu,
   Sparkles,
 } from "lucide-react";
-
-const categories = [
-  "All",
-  "Mobile & Edge AI",
-  "Full-Stack",
-  "Blockchain & Web3",
-  "Web & Cloud",
-] as const;
 
 function formatDomain(url?: string): string {
   if (!url) return "";
@@ -34,12 +26,18 @@ function formatDomain(url?: string): string {
 }
 
 export function ProjectsSection() {
+  const { projects } = usePortfolio();
   const [activeCategory, setActiveCategory] = useState<string>("All");
 
+  const categories = useMemo(() => {
+    const list = Array.from(new Set(projects.map((p) => p.category).filter(Boolean)));
+    return ["All", ...list];
+  }, [projects]);
+
   const filteredProjects = useMemo(() => {
-    if (activeCategory === "All") return featuredProjects;
-    return featuredProjects.filter((p) => p.category === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === "All") return projects;
+    return projects.filter((p) => p.category === activeCategory);
+  }, [activeCategory, projects]);
 
   return (
     <section id="projects" className="py-10 sm:py-14 md:py-16 border-t border-zinc-200/60 dark:border-zinc-800/80">

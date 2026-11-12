@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useToast } from "@/components/ui/toast";
-import { personalInfo } from "@/data/portfolio-data";
+import { usePortfolio } from "@/context/portfolio-context";
 import { Search, Menu, X, FileText, ArrowRight, Share2 } from "lucide-react";
 
 interface NavbarProps {
@@ -22,6 +22,7 @@ const navLinks = [
 ];
 
 export function Navbar({ onOpenCommand }: NavbarProps) {
+  const { personalInfo } = usePortfolio();
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
